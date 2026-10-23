@@ -1,0 +1,59 @@
+{
+  "name": "treecord-web",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:fidelity": "playwright test",
+    "check:parity": "node scripts/check-parity.ts",
+    "format": "prettier --write . && eslint --fix --fix-type layout .",
+    "format:check": "prettier --check . && eslint --max-warnings=0 .",
+    "lint": "eslint --max-warnings=0 .",
+    "lint:files": "eslint --max-warnings=0 --no-warn-ignored",
+    "typecheck": "tsc --noEmit",
+    "knip": "knip",
+    "check": "prettier --check . && eslint --max-warnings=0 . && tsc --noEmit && knip",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.2.3",
+    "@commitlint/config-conventional": "21.2.3",
+    "@eslint-community/eslint-plugin-eslint-comments": "4.8.1",
+    "@eslint/js": "9.39.5",
+    "@playwright/test": "1.64.1",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.3",
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "@vitest/coverage-v8": "5.0.5",
+    "eslint": "9.39.5",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-import": "2.32.0",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "eslint-plugin-react": "7.37.5",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-sonarjs": "4.2.2",
+    "eslint-plugin-unused-imports": "4.4.1",
+    "husky": "9.1.7",
+    "jsdom": "30.1.3",
+    "knip": "6.39.0",
+    "prettier": "3.9.9",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  }
+}
