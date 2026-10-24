@@ -26,7 +26,7 @@ type ReviewProps = {
   ready?: boolean;
   /** Facts rows naming what a destructive action destroys (pattern 11). */
   target?: readonly (readonly [label: string, value: ReactNode])[];
-  error?: string;
+  error?: ReactNode;
   busyLabel?: string;
   children?: ReactNode;
 };

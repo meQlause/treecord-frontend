@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { Icon } from '../../shared/art/Icon';
 import { shortAddress } from '../../shared/format/address';
+import { initialOf } from '../session/profile-rules';
 import type { Role } from '../route-handle';
 import { ROLE_LABEL, SHELL_COPY, accountLabel } from './shell.copy';
 
@@ -80,7 +81,7 @@ export function AccountMenu({
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary aria-label={accountLabel(name, role)}>
-        <span className="donor-avatar">{name.slice(0, 1).toUpperCase()}</span>
+        <span className="donor-avatar">{initialOf(name)}</span>
         <span className="account-name">
           <span data-testid="account-name">{name}</span>
           <small>{role}</small>

@@ -9,7 +9,7 @@ const ERROR_ICON = 16;
 type FieldProps = {
   label: ReactNode;
   hint?: ReactNode;
-  error?: string;
+  error?: ReactNode;
   children: ReactNode;
 };
 

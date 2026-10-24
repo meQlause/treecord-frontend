@@ -10,7 +10,8 @@ import type { Page } from '@playwright/test';
 export const PRIVY_HOSTS = ['.privy.io', '.walletconnect.com'];
 
 const API = '**/api/v1/me';
-const CORS = {
+
+export const API_CORS = {
   'Access-Control-Allow-Origin': 'http://127.0.0.1:5173',
   'Access-Control-Allow-Headers': 'authorization,content-type,idempotency-key',
   'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
@@ -36,14 +37,14 @@ export const testLogin = (): { email: string; code: string } => {
 export const answerMe = async (page: Page, body: unknown, status = 200): Promise<void> => {
   await page.route(API, async (route) => {
     if (route.request().method() === 'OPTIONS') {
-      await route.fulfill({ status: 204, headers: CORS });
+      await route.fulfill({ status: 204, headers: API_CORS });
 
       return;
     }
 
     await route.fulfill({
       status,
-      headers: { ...CORS, 'Content-Type': 'application/json' },
+      headers: { ...API_CORS, 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
   });

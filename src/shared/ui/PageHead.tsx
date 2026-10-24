@@ -13,6 +13,8 @@ type PageHeadProps = {
   coord?: ReactNode;
   /** The mockup's own page modifiers (`cb-batch-heading`, `pl-heading`, `tr-coord-long`). */
   className?: string;
+  /** A hook for the browser specs that read the heading (`pf-heading`). */
+  testId?: string;
   children?: ReactNode;
 };
 
@@ -25,6 +27,7 @@ export function PageHead({
   art,
   coord,
   className = '',
+  testId,
   children,
 }: PageHeadProps) {
   return (
@@ -34,7 +37,7 @@ export function PageHead({
           <span className="tiny-line" />
           {eyebrow}
         </div>
-        <h1>
+        <h1 data-testid={testId}>
           {title}
           {inline ? ' ' : <br />}
           <em>{em}</em>

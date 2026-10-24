@@ -84,3 +84,112 @@ export const JOB_LINK_SLOTS = 'View slots';
 export const JOB_LINK_TREE = 'View tree';
 
 export const JOB_LINK_OPERATIONS = 'Back to operations';
+
+// ---- S11 profile and D01 (s11-profile.md §3) ----
+export const ACCOUNT_EYEBROW = (role: string): string => `${role.toUpperCase()} ACCOUNT`;
+
+export const HELLO = 'Hello,';
+
+export const PROFILE_COORD = '05 / YOUR ACCOUNT';
+
+export const PANEL_PERSONAL = 'Personal details';
+
+export const PANEL_WALLET = 'Wallet';
+
+export const NAME_LABEL = 'Display name';
+
+/** COPY-411: the rule stated up front as the label suffix; lorem until the owner approves it. */
+export const NAME_RULE = { copyId: 'COPY-411' } as const;
+
+export const FACT_ROLE = 'Role';
+
+export const FACT_EMAIL = 'Email';
+
+export const BUYER_LABEL = 'Credit buyer preference';
+
+export const SAVE_PROFILE = 'Save profile';
+
+export const NOTE_DONOR = 'Your display name appears on the records and certificates you create.';
+
+export const NOTE_PLANTER =
+  'Planters receive incentives and assign carbon rights to the platform; they do not receive the campaign’s carbon credits.';
+
+export const PROFILE_SAVED = 'Profile saved';
+
+// ---- the role switch (D01) ----
+export const BECOME_PLANTER = 'Become a planter';
+
+export const SWITCH_TO_DONOR = 'Switch to donor';
+
+export const SWITCH_CONFIRM = 'Confirm';
+
+export const SWITCH_CANCEL = 'Cancel';
+
+export const SUMMARY_TO_PLANTER_AGAIN =
+  'You accepted the planter agreement earlier. Your workspace changes to My trees.';
+
+export const SUMMARY_TO_PLANTER_FIRST =
+  'Planters are paid to keep trees alive and assign the carbon rights of those trees to the platform; they do not receive the campaign’s carbon credits.';
+
+export const SUMMARY_TO_DONOR =
+  'Your planter agreement and on-chain history stay. Your workspace changes to Donor home.';
+
+export const AGREEMENT_LABEL =
+  'I accept the planter agreement (version 1) and assign carbon rights to the platform. This cannot be withdrawn.';
+
+export const reviewRegion = (action: string): string => `Review ${action}`;
+
+export const NOW_PLANTER = 'You are now a planter';
+
+export const NOW_DONOR = 'You are now a donor';
+
+// ---- the wallet panel ----
+export const FACT_ADDRESS = 'Address';
+
+export const WALLET_NOT_READY = 'Wallet not ready';
+
+export const FACT_NETWORK = 'Network';
+
+export const NETWORK = 'Base Sepolia';
+
+export const FACT_SETTLES = 'Settles in';
+
+export const SETTLES_IN = 'USDC · campaign escrow';
+
+export const FACT_AGREEMENT = 'Planter agreement';
+
+export const ACCEPTED = 'Accepted';
+
+export const NOT_ACCEPTED = 'Not accepted';
+
+export const COPY_WALLET = 'Copy wallet';
+
+export const WALLET_COPIED = 'Wallet address copied';
+
+export const COPY_BLOCKED = 'Copy unavailable. Select the address above.';
+
+export const SIGN_OUT = 'Sign out';
+
+export const THIS_DEVICE = 'This device';
+
+export const walletLabel = (wallet: string): string => `Wallet ${wallet} on Base Sepolia`;
+
+export const idCardLabel = (name: string, role: string, email: string): string =>
+  `${name}, ${role} account, ${email}`;
+
+// ---- what a refused save says (s11 §5) ----
+export const SAVE_ERRORS = {
+  /** COPY-103: the server refused the display name. */
+  NAME: { copyId: 'COPY-103' },
+  /** COPY-001: any other `validation_error`. */
+  VALIDATION: { copyId: 'COPY-001' },
+  /** COPY-002: `invalid_json`. */
+  INVALID_JSON: { copyId: 'COPY-002' },
+  /** COPY-004: `agreement_required`. */
+  AGREEMENT: { copyId: 'COPY-004' },
+  /** COPY-006: `role_locked`. */
+  LOCKED: { copyId: 'COPY-006' },
+  RETRY: `${ERROR_TITLE}. ${ERROR_BODY}`,
+} as const satisfies Record<string, Message>;
+
+export type SaveErrorKey = keyof typeof SAVE_ERRORS;
