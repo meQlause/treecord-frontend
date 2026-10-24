@@ -179,3 +179,63 @@ export const PRINT_TAG = 'Print tag';
 export const printLine = (slotId: string, title: string): string => `Slot #${slotId} · ${title}`;
 
 export const RECORD_PLANTING = 'Record planting';
+
+// ---- S18 challenges ----
+export const CHALLENGES_EYEBROW = 'AUDIT CHALLENGES';
+
+export const CHALLENGES_LINE = 'Show the code,';
+
+export const CHALLENGES_EM = 'prove the tree.';
+
+export const CHALLENGES_COORD = '07 / CHALLENGES';
+
+export const CHALLENGES_CATALOG = 'Open challenges';
+
+export const CHALLENGES_KICKER = 'A code in the scene, a tree beyond doubt.';
+
+export const openCount = (count: number): string => `${count} open`;
+
+export const answerableNote = (count: number): string =>
+  count > 0 ? `${count} can be answered now` : 'None can be answered right now';
+
+export const NO_CHALLENGES = 'No open challenges';
+
+export const NO_CHALLENGES_BODY = 'New challenges appear here when an auditor issues one.';
+
+export const BADGE_ANSWER = 'Answer now';
+
+export const BADGE_SENT = 'Check-in already sent';
+
+export const BADGE_WAITING = 'Waiting for a window';
+
+export const pausedBadge = (status: string): string => `Paused · ${status}`;
+
+export const issuedOn = (date: string): string => `Issued ${date}`;
+
+export const PRINT_QR = 'Print QR';
+
+export const challengePrintLine = (treeId: string, expires: string): string =>
+  `Challenge · Tree #${treeId} · expires ${expires}`;
+
+export const HOWTO = [
+  'Print the QR, or write the code',
+  'Hold it beside the tree tag',
+  'Record 5–10 seconds',
+] as const;
+
+export const NO_TAG = '—';
+
+export const daysLeftLine = (left: number, expires: string): string =>
+  `${left} day${left === 1 ? '' : 's'} left · expires ${expires}`;
+
+export const RECORD_RESPONSE = 'Record response';
+
+export const heldLink = (month: number, status: string): string =>
+  `Month ${month} check-in ${status} · the code rides on the next one`;
+
+/** error-handling §4.2 sentences for the capture reasons a challenge can wait on. */
+export const REASON_TEXT: Readonly<Record<string, string>> = {
+  milestone_not_open: 'The check-in window isn’t open',
+  wrong_tree_status: 'Tree status changed',
+  milestone_already_done: 'The check-in for this window is already done',
+};

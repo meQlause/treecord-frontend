@@ -92,3 +92,40 @@ export const usePlanterSlots = () => {
     enabled: ready,
   });
 };
+
+// ---- GET /api/v1/planter/challenges (planter.md §3): open audit challenges on my trees, soonest expiry first ----
+export type PlanterChallenge = {
+  id: string;
+  code: string;
+  qr: string;
+  issuedAt: string;
+  expiresAt: string;
+  tree: {
+    treeId: string;
+    status: TreeStatus;
+    tag: string | null;
+    month: number;
+    campaign: { title: string; regionName: string };
+  };
+  capture: { allowed: boolean; reasons: string[]; held: { id: string; status: string } | null };
+};
+
+export type ChallengesPage = {
+  items: PlanterChallenge[];
+  nextCursor: string | null;
+  total: number;
+  summary: { answerable: number };
+};
+
+export const usePlanterChallenges = () => {
+  const { ready, key } = useAccountKey();
+
+  return useInfiniteQuery({
+    queryKey: ['planter', 'challenges', ...key],
+    queryFn: ({ pageParam, signal }) =>
+      api<ChallengesPage>('/planter/challenges', { query: { cursor: pageParam }, signal }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+    enabled: ready,
+  });
+};

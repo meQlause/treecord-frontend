@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import type { PlanterSlot, PlanterTree } from '../../../../src/features/planter/planter.api';
+import type {
+  PlanterChallenge,
+  PlanterSlot,
+  PlanterTree,
+} from '../../../../src/features/planter/planter.api';
 import {
+  daysOf,
   dotsOf,
   filterOf,
   filterSlots,
@@ -14,6 +19,7 @@ import {
   reportDeadLink,
   slotFilterParam,
   statusOfFilter,
+  ticketOf,
 } from '../../../../src/features/planter/planter.rules';
 
 const WINDOWS = [
@@ -205,5 +211,64 @@ describe('plantingLink', () => {
     expect(plantingLink(slot('41', 'claimed'))).toBe(
       '/app/planter/record?campaign=0xabc&slot=41&kind=PLANTED',
     );
+  });
+});
+
+const NOW = Date.parse('2026-10-23T09:12:31.000Z');
+
+const challenge = (changes: Partial<PlanterChallenge> = {}): PlanterChallenge =>
+  ({
+    issuedAt: '2026-10-21T04:00:00.000Z',
+    expiresAt: '2026-12-20T04:00:00.000Z',
+    tree: { treeId: '3001', status: 'alive', month: 6 },
+    capture: { allowed: true, reasons: [], held: null },
+    ...changes,
+  }) as PlanterChallenge;
+
+describe('daysOf', () => {
+  it('rounds the days left up, clamps at zero, and totals the whole span for the ring', () => {
+    expect(daysOf(challenge(), NOW)).toEqual({ left: 58, total: 60 });
+    expect(daysOf(challenge(), Date.parse('2026-12-19T05:00:00.000Z')).left).toBe(1);
+    expect(daysOf(challenge(), Date.parse('2027-01-05T00:00:00.000Z')).left).toBe(0);
+  });
+
+  it('gives a span of at least one day', () => {
+    expect(daysOf(challenge({ issuedAt: '2026-12-20T03:00:00.000Z' }), NOW).total).toBe(1);
+  });
+});
+
+describe('ticketOf', () => {
+  it('can be answered now when the server allows it', () => {
+    expect(ticketOf(challenge())).toMatchObject({ can: true, badge: 'Answer now', held: null });
+  });
+
+  it('links the held check-in when the first reason is that it is already done', () => {
+    const held = { id: 'e1', status: 'needs_review' };
+    const ticket = ticketOf(
+      challenge({ capture: { allowed: false, reasons: ['milestone_already_done'], held } }),
+    );
+
+    expect(ticket.badge).toBe('Check-in already sent');
+    expect(ticket.held).toEqual({
+      to: '/app/evidence/e1',
+      text: 'Month 6 check-in needs review · the code rides on the next one',
+    });
+  });
+
+  it('says a flagged tree is paused, and any other reason is a wait for a window', () => {
+    const flagged = challenge({
+      tree: { treeId: '3092', status: 'flagged', month: 6 } as PlanterChallenge['tree'],
+      capture: { allowed: false, reasons: ['wrong_tree_status'], held: null },
+    });
+
+    expect(ticketOf(flagged)).toMatchObject({
+      badge: 'Paused · flagged',
+      waiting: 'Tree status changed',
+    });
+    expect(
+      ticketOf(
+        challenge({ capture: { allowed: false, reasons: ['milestone_not_open'], held: null } }),
+      ),
+    ).toMatchObject({ badge: 'Waiting for a window', waiting: 'The check-in window isn’t open' });
   });
 });

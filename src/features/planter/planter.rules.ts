@@ -4,9 +4,23 @@ import type { IconName } from '../../shared/art/Icon';
 import type { MilestoneStatus } from '../../shared/art/TreeCardArt';
 import { localDate } from '../../shared/format/datetime';
 import { usdc } from '../../shared/format/money';
-import type { PlanterSlot, PlanterTree, TreeMilestone, TreeStatus, TreesPage } from './planter.api';
+import type {
+  ChallengesPage,
+  PlanterChallenge,
+  PlanterSlot,
+  PlanterTree,
+  TreeMilestone,
+  TreeStatus,
+  TreesPage,
+} from './planter.api';
 import {
   ALL_PAID,
+  BADGE_ANSWER,
+  BADGE_SENT,
+  BADGE_WAITING,
+  REASON_TEXT,
+  heldLink,
+  pausedBadge,
   ALL_SETTLED,
   NO_DATE,
   NO_MORE_PAYOUTS,
@@ -211,3 +225,80 @@ export const filterSlots = (slots: readonly PlanterSlot[], filter: string): Plan
 /** Where "Record planting" goes: PLANTED needs the campaign, as slot ids are unique only within one. */
 export const plantingLink = ({ campaign, slotId }: PlanterSlot): string =>
   `/app/planter/record?campaign=${campaign.address}&slot=${slotId}&kind=PLANTED`;
+
+// ---- S18 (s18-challenges.md §2, §4) ----
+const DAY_MS = 86_400_000;
+const FALLBACK_DAYS = 3;
+
+/** FR-092: days left are `ceil((expiresAt − now) / 1 day)`, never below 0; the ring's total is the whole span, at least a day. */
+export const daysOf = (
+  { issuedAt, expiresAt }: Pick<PlanterChallenge, 'issuedAt' | 'expiresAt'>,
+  now: number,
+): { left: number; total: number } => {
+  const end = Date.parse(expiresAt);
+  const start = Number.isNaN(Date.parse(issuedAt))
+    ? end - FALLBACK_DAYS * DAY_MS
+    : Date.parse(issuedAt);
+
+  return {
+    left: Math.max(0, Math.ceil((end - now) / DAY_MS)),
+    total: Math.max(1, Math.round((end - start) / DAY_MS)),
+  };
+};
+
+export type Ticket = {
+  can: boolean;
+  badge: string;
+  /** What the foot says when the challenge cannot be answered now. */
+  waiting: string | null;
+  /** The held check-in the foot links to, with its words. */
+  held: { to: string; text: string } | null;
+};
+
+/** The badge of a challenge that cannot be answered, by the first reason the server gave. */
+const waitingBadge = (reason: string, status: string): string => {
+  if (reason === 'milestone_already_done') {
+    return BADGE_SENT;
+  }
+
+  return reason === 'wrong_tree_status' ? pausedBadge(status) : BADGE_WAITING;
+};
+
+/** The first capture reason decides the badge and the foot (planter.md §3 note); the client re-derives nothing else. */
+export const ticketOf = ({ capture, tree }: PlanterChallenge): Ticket => {
+  if (capture.allowed) {
+    return { can: true, badge: BADGE_ANSWER, waiting: null, held: null };
+  }
+
+  const [reason = ''] = capture.reasons;
+
+  if (reason === 'milestone_already_done' && capture.held !== null) {
+    return {
+      can: false,
+      badge: BADGE_SENT,
+      waiting: null,
+      held: {
+        to: `/app/evidence/${capture.held.id}`,
+        text: heldLink(tree.month, capture.held.status.replaceAll('_', ' ')),
+      },
+    };
+  }
+
+  return {
+    can: false,
+    badge: waitingBadge(reason, tree.status),
+    waiting: REASON_TEXT[reason] ?? REASON_TEXT.milestone_not_open ?? '',
+    held: null,
+  };
+};
+
+/** The challenges loaded so far as one list, with the newest page's total and how many can be answered. */
+export const flattenChallenges = (pages: readonly ChallengesPage[] | undefined) => {
+  const last = pages?.at(-1);
+
+  return {
+    items: pages?.flatMap((page) => page.items) ?? [],
+    total: last?.total ?? 0,
+    answerable: last?.summary.answerable ?? 0,
+  };
+};
