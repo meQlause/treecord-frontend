@@ -83,6 +83,21 @@ function Seal({ y }: { y: number }) {
   );
 }
 
+/** Ghost coins an empty stack shows. */
+const EMPTY_COINS = [0, 1, 2];
+
+/** An empty stack keeps its shape: a faint dashed column, so a new account sees three empty stacks to fill, not a bare
+ *  landscape (the mockup draws nothing for a zero figure). */
+function EmptySlot({ x }: { x: number }) {
+  return (
+    <g opacity=".45">
+      {EMPTY_COINS.map((index) => (
+        <Coin key={index} x={x} y={BASE_Y - index * COIN_PITCH} style="reserved" />
+      ))}
+    </g>
+  );
+}
+
 type Props = { issued: number; reserved: number; retired: number };
 
 export function LedgerArt({ issued, reserved, retired }: Props) {
@@ -112,6 +127,7 @@ export function LedgerArt({ issued, reserved, retired }: Props) {
       {STACKS.map(({ x, style, label }) => (
         <g key={label}>
           <ellipse cx={x} cy="190" rx="27" ry="5" fill="#153e2c" opacity=".1" />
+          {counts[style] === 0 && <EmptySlot x={x} />}
           {Array.from({ length: counts[style] }, (_coin, index) => (
             <g
               key={index}
