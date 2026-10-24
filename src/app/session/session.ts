@@ -22,6 +22,8 @@ type Session =
   // `expired`: the token was refused (SH-15), not "never signed in"; S02 says so (ui-gaps pattern 12)
   | { phase: 'signed-out'; expired: boolean }
   | { phase: 'error' }
+  // SI-13: signed in with Privy, but `/me` has no wallet yet; the workspace stays closed until it has one
+  | { phase: 'wallet-pending' }
   | { phase: 'ready'; profile: Profile };
 
 /** Typed form drafts live in `sessionStorage` under this prefix (shell.md §1) and go with the account. */
@@ -34,6 +36,10 @@ const REFUSED_TOKEN = new Set(['missing_token', 'invalid_token']);
 const NO_PROFILE = new Set(['wallet_already_linked', ...REFUSED_TOKEN]);
 
 type MeState = Pick<ReturnType<typeof useMe>, 'status' | 'data' | 'error'>;
+
+/** A read profile: the workspace opens only once it has a wallet (SI-13). */
+const fromProfile = (profile: Profile): Session =>
+  profile.walletAddress === null ? { phase: 'wallet-pending' } : { phase: 'ready', profile };
 
 const resolve = (ready: boolean, authenticated: boolean, query: MeState): Session => {
   if (!ready) {
@@ -48,7 +54,7 @@ const resolve = (ready: boolean, authenticated: boolean, query: MeState): Sessio
   }
 
   if (query.data !== undefined) {
-    return { phase: 'ready', profile: query.data };
+    return fromProfile(query.data);
   }
 
   return { phase: query.status === 'error' ? 'error' : 'resolving' };

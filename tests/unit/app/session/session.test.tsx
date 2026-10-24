@@ -82,16 +82,14 @@ describe('useSession', () => {
     expect(apiMock).toHaveBeenCalledWith('/me', expect.anything());
   });
 
-  it('keeps a null wallet and a null name as they are', async () => {
+  it('SI-13: a profile with no wallet yet is wallet-pending, not ready, so the workspace stays closed', async () => {
     apiMock.mockResolvedValue({ profile: FIRST_SIGN_IN });
     signedInAs();
     const { result } = setup();
 
-    await waitFor(() => expect(result.current.phase).toBe('ready'));
+    await waitFor(() => expect(result.current.phase).toBe('wallet-pending'));
 
-    expect(result.current).toMatchObject({
-      profile: { role: 'donor', displayName: null, walletAddress: null },
-    });
+    expect(result.current).not.toHaveProperty('profile');
   });
 
   it.each([
