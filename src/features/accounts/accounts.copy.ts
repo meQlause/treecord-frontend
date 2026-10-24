@@ -193,3 +193,75 @@ export const SAVE_ERRORS = {
 } as const satisfies Record<string, Message>;
 
 export type SaveErrorKey = keyof typeof SAVE_ERRORS;
+
+// ---- S12 job (s12-job.md §3) ----
+export const JOB_EYEBROW = (kind: string): string => `TRANSACTION · ${kind.toUpperCase()}`;
+
+export const JOB_TITLE = 'Sent to';
+
+export const JOB_EM_OK = 'the chain.';
+
+export const JOB_EM_FAILED = 'try again.';
+
+const JOB_COORD_LENGTH = 4;
+
+export const jobCoord = (id: string): string =>
+  `JOB / ${id.slice(0, JOB_COORD_LENGTH).toUpperCase()}…`;
+
+export const JOB_NOT_FOUND = 'Job not found';
+
+export const LIFECYCLE = 'Lifecycle';
+
+export const LIFECYCLE_LABEL = 'Job lifecycle';
+
+export const JOB_STEPS = [
+  ['pending', 'Pending', 'queued by you'],
+  ['processing', 'Processing', 'worker picked it up'],
+  ['sent', 'Sent', 'broadcast to Base Sepolia'],
+  ['confirmed', 'Confirmed', 'receipt final'],
+] as const;
+
+export const JOB_RECORD = 'Job record';
+
+export const JOB_FACTS = {
+  kind: 'Kind',
+  id: 'Job id',
+  attempts: 'Attempts',
+  when: 'Created / updated',
+  hash: 'Transaction hash',
+  lastError: 'Last error',
+} as const;
+
+export const HASH_PENDING = 'Pending';
+
+export const NONE = 'None';
+
+export const JOB_STOCK = 'Job';
+
+export const JOB_SHARE_LABEL = 'Lifecycle';
+
+export const JOB_NOTE = 'A job moves on its own; this page follows it.';
+
+export const stepNote = (step: number, total: number): string => `Step ${step} of ${total}`;
+
+export const JOB_FAILED_NOTE = 'Failed · retry below';
+
+export const MEANING = 'What it means';
+
+export const MEANING_NOTE = 'Jobs retry safely; nothing runs twice.';
+
+export const MEANINGS = {
+  waiting: 'Awaiting processing; no confirmed result yet.',
+  sent: 'Broadcast. The receipt is not final yet.',
+  confirmed: 'Confirmed. The result is in your workspace now.',
+  scored: 'Scoring finished; this does not mean evidence passed.',
+  failed: 'The job failed. Check the originating action, then retry.',
+} as const;
+
+export const KIND_LABELS: Readonly<Record<string, string>> = {
+  claim: 'Claim slots',
+  resolve_flag: 'Resolve flag',
+  set_price: 'Set price',
+  estimate: 'Set estimate',
+  score: 'Score evidence',
+};

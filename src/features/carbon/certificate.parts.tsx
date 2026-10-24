@@ -3,11 +3,12 @@
 import type { ReactNode } from 'react';
 // eslint-disable-next-line import/no-unresolved -- react-router publishes only an exports map, which the import plugin's resolver cannot read
 import { Link } from 'react-router';
-import { Icon, type IconName } from '../../shared/art/Icon';
+import { Icon } from '../../shared/art/Icon';
 import { Photo } from '../../shared/art/Photo';
 import { shortAddress } from '../../shared/format/address';
 import { tonnes } from '../../shared/format/carbon';
 import { localDate, localDateLong, utcDateTime } from '../../shared/format/datetime';
+import { Journey, type JourneyStep } from '../../shared/ui/Journey';
 import { artForSpecies } from '../campaigns/art';
 import { UNIT } from './carbon.copy';
 import type { Retirement } from './certificate.api';
@@ -41,7 +42,6 @@ import {
 import { SerialRange } from './carbon.parts';
 
 const SMALL_ICON = 12;
-const STEP_ICON = 16;
 const PIN_ICON = 14;
 const ARROW_ICON = 16;
 const ROSETTE = 16;
@@ -187,13 +187,11 @@ export function CertificateCard({ retirement }: { retirement: Retirement }) {
   );
 }
 
-type Step = { icon: IconName; label: string; note: string; state: 'done' | 'now' };
-
 /** The four steps from issuance to the registry; the last is `now` until the registry says done (FR-235). */
 export function RetirementJourney({ retirement }: { retirement: Retirement }) {
   const { batch, registryRetirement } = retirement;
   const done = registryRetirement.status === 'done';
-  const steps: Step[] = [
+  const steps: JourneyStep[] = [
     {
       icon: 'carbon',
       label: STEP_ISSUED,
@@ -201,12 +199,7 @@ export function RetirementJourney({ retirement }: { retirement: Retirement }) {
       state: 'done',
     },
     { icon: 'wallet', label: STEP_HELD, note: shortAddress(retirement.holder), state: 'done' },
-    {
-      icon: 'check',
-      label: STEP_RETIRED,
-      note: localDate(retirement.retiredAt),
-      state: 'done',
-    },
+    { icon: 'check', label: STEP_RETIRED, note: localDate(retirement.retiredAt), state: 'done' },
     {
       icon: done ? 'check' : 'clock',
       label: STEP_REGISTRY,
@@ -215,27 +208,7 @@ export function RetirementJourney({ retirement }: { retirement: Retirement }) {
     },
   ];
 
-  return (
-    <section className="rc-journey" aria-label={JOURNEY}>
-      <h3>{JOURNEY}</h3>
-      <div className="rc-steps">
-        <i className="rc-track" aria-hidden="true">
-          <b style={done ? { width: '100%' } : undefined} />
-        </i>
-        <ol>
-          {steps.map(({ icon, label, note, state }) => (
-            <li key={label} className={state}>
-              <span className="rc-node">
-                <Icon name={icon} size={STEP_ICON} />
-              </span>
-              <strong>{label}</strong>
-              <span>{note}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
-  );
+  return <Journey title={JOURNEY} label={JOURNEY} steps={steps} {...(done ? { fill: 1 } : {})} />;
 }
 
 /** "Issuance transaction": the link when the contract gives one, the short hash as text, or "Not available yet". */

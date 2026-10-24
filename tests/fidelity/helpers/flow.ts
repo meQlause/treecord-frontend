@@ -117,7 +117,8 @@ export const privyVerdict = async (page: Page, verdict: Verdict): Promise<void> 
 const QUIET_MS = 2500;
 
 /** Lets a request that must NOT happen have its chance: the one place the specs wait for nothing to arrive. */
-export const settle = (page: Page): Promise<void> => page.waitForTimeout(QUIET_MS);
+export const settle = (page: Page, duration = QUIET_MS): Promise<void> =>
+  page.waitForTimeout(duration);
 
 /** Every request whose URL matches `pattern`, from now on. */
 export const requestsTo = (page: Page, pattern: RegExp): Request[] => {

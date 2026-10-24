@@ -4,6 +4,11 @@ import type { Role } from '../../app/route-handle';
 import type { Profile } from '../../app/session/session';
 import {
   JOB_LINK_OPERATIONS,
+  JOB_STEPS,
+  KIND_LABELS,
+  MEANINGS,
+  JOB_FAILED_NOTE,
+  stepNote,
   JOB_LINK_SLOTS,
   JOB_LINK_TREE,
   WHERE,
@@ -140,3 +145,76 @@ export const jobLinks = (kind: string, context: JobContext, role: Role): JobLink
 
   return links.filter(([shown]) => shown).map(([, link]) => link);
 };
+
+// ---- S12 job (s12-job.md §3, §4, §6) ----
+export type JobStatus = 'pending' | 'processing' | 'sent' | 'confirmed' | 'failed';
+
+const UUID = /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i;
+
+/** A job id is a uuid; anything else is "Job not found" without a request (JB-11). */
+export const isJobId = (id: string): boolean => UUID.test(id);
+
+/** "Claim slots"; a kind with no label shows its identifier (`anchor_assign`, FR-025). */
+export const kindLabel = (kind: string): string => KIND_LABELS[kind] ?? kind;
+
+/** `confirmed` and `failed` are the two ends: nothing moves after them (FR-027). */
+export const isSettled = (status: JobStatus): boolean =>
+  status === 'confirmed' || status === 'failed';
+
+type StepState = 'done' | 'now' | '';
+
+/** The four steps with their state, and how far the track is filled (0 to 1); `failed` has no step current. */
+export const lifecycle = (status: JobStatus): { states: StepState[]; fill: number } => {
+  const position = JOB_STEPS.findIndex(([step]) => step === status);
+  const confirmed = status === 'confirmed';
+  const last = JOB_STEPS.length - 1;
+
+  return {
+    states: JOB_STEPS.map((_step, index): StepState => {
+      if (index < position || confirmed) {
+        return 'done';
+      }
+
+      return index === position ? 'now' : '';
+    }),
+    fill: confirmed ? 1 : Math.max(0, position) / last,
+  };
+};
+
+/** The line under the rail's balance: "Step 3 of 4", or that the job failed. */
+export const railNote = (status: JobStatus): string => {
+  if (status === 'failed') {
+    return JOB_FAILED_NOTE;
+  }
+
+  const position = Math.max(
+    0,
+    JOB_STEPS.findIndex(([step]) => step === status),
+  );
+
+  return stepNote(position + 1, JOB_STEPS.length);
+};
+
+/** "What it means" (FR-026). A confirmed `score` says scoring is not a verdict on the evidence. */
+export const statusMeaning = (kind: string, status: JobStatus): string => {
+  switch (status) {
+    case 'confirmed':
+      return kind === 'score' ? MEANINGS.scored : MEANINGS.confirmed;
+    case 'failed':
+      return MEANINGS.failed;
+    case 'sent':
+      return MEANINGS.sent;
+    default:
+      return MEANINGS.waiting;
+  }
+};
+
+const POLL_MIN_MS = 2000;
+const POLL_MAX_MS = 5000;
+const POLL_GROWTH = 1.5;
+
+/** Polling (NFR-063): 2 s, then 1.5 times longer after each poll that found the same job, up to 5 s; a change starts over. */
+export const pollDelay = (previous: number, changed: boolean): number =>
+  changed ? POLL_MIN_MS : Math.min(POLL_MAX_MS, previous * POLL_GROWTH);
+
+export const FIRST_POLL_MS = POLL_MIN_MS;
