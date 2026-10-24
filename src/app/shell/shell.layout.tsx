@@ -7,9 +7,10 @@ import { useMotion } from './motion-context';
 import { appClassName } from './shell-routes';
 import { SkipLink } from './SkipLink';
 import { ToastArea } from './toast-context';
+import { TxReceipts } from './TxReceipts';
 import { useSignOut } from './use-sign-out';
 
-/** The layout route of every page (routes.tsx): header, role sidebar, the page, footer, toasts. */
+/** The layout route of every page (routes.tsx): header, role sidebar, the page, footer, toasts, tx receipts. */
 export function Component() {
   const session = useSession();
   const { pathname } = useLocation();
@@ -23,6 +24,7 @@ export function Component() {
       <Header profile={profile} onSignOut={onSignOut} />
       <AppShell accountRole={profile?.role ?? null} pathname={pathname} />
       <ToastArea />
+      <TxReceipts />
     </div>
   );
 }

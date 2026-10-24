@@ -19,6 +19,7 @@ import {
 import { privateKeyToAccount } from 'viem/accounts';
 import { chainOf, rpcOf } from './chains';
 import { RevertedError, WrongNetworkError } from './errors';
+import { publishTx, settleTx } from './tx-feed';
 
 export type ChainSession = {
   account: Address;
@@ -111,14 +112,19 @@ export function useChainSession(): (chainId: number) => Promise<ChainSession> {
 
 type Call = { address: Address; abi: Abi; functionName: string; args?: readonly unknown[] };
 
-/** Sends one write and resolves with its hash once the wallet has signed and broadcast it. */
-export const sendWrite = (session: ChainSession, call: Call): Promise<Hash> =>
-  session.walletClient.writeContract({
+/** Sends one write and resolves with its hash once the wallet has signed and broadcast it; the receipt card shows it. */
+export const sendWrite = async (session: ChainSession, call: Call): Promise<Hash> => {
+  const hash = await session.walletClient.writeContract({
     ...call,
     // a local account signs here; the Privy wallet's own account is a JSON-RPC one the provider signs for
     account: session.walletClient.account ?? session.account,
     chain: session.walletClient.chain ?? null,
   });
+
+  publishTx(hash, call.functionName);
+
+  return hash;
+};
 
 /** Waits for the receipt by hash, as long as it takes (a slow chain is never a failure); a revert throws `RevertedError`. */
 export const settle = async (session: ChainSession, hash: Hash): Promise<TransactionReceipt> => {
@@ -127,6 +133,12 @@ export const settle = async (session: ChainSession, hash: Hash): Promise<Transac
     pollingInterval: RECEIPT_POLL_MS,
     timeout: RECEIPT_WAIT_MS,
   });
+
+  settleTx(
+    hash,
+    receipt.status === 'success' ? 'confirmed' : 'reverted',
+    receipt.blockNumber.toString(),
+  );
 
   if (receipt.status !== 'success') {
     throw new RevertedError(hash);
