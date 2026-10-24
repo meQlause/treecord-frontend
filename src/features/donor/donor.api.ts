@@ -3,8 +3,7 @@
 // one person's home never reaches another (NFR-051).
 import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { api } from '../../app/session/api';
-import { config } from '../../app/session/config';
-import { useSession } from '../../app/session/session';
+import { useAccountKey } from '../../app/session/use-account-key';
 
 export type DonorFlag = {
   id: string;
@@ -66,17 +65,6 @@ export type DonorCard = {
 };
 
 type CardsPage = { items: DonorCard[]; nextCursor: string | null; total: number };
-
-/** Keyed by account, wallet and chain; `undefined` until the profile is known (the page is mounted only then). */
-const useAccountKey = () => {
-  const session = useSession();
-  const profile = session.phase === 'ready' ? session.profile : undefined;
-
-  return {
-    ready: profile !== undefined,
-    key: [profile?.id, profile?.walletAddress ?? 'no-wallet', config().chainId],
-  };
-};
 
 export const useDonorDashboard = () => {
   const { ready, key } = useAccountKey();

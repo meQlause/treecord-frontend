@@ -5,8 +5,7 @@ import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tansta
 import { useRef } from 'react';
 import { api } from '../../app/session/api';
 import { ApiError } from '../../shared/api/errors';
-import { config } from '../../app/session/config';
-import { useSession } from '../../app/session/session';
+import { useAccountKey } from '../../app/session/use-account-key';
 import { ME_KEY } from '../../app/session/use-me';
 import type { Profile } from '../../app/session/session';
 import { FIRST_POLL_MS, isSettled, pollDelay, type JobStatus } from './accounts.rules';
@@ -103,14 +102,13 @@ type Pace = { stamp: number; seen: string; delay: number };
  * same job waits 1.5 times longer, up to 5 s. Nothing runs while the tab is hidden or the browser offline.
  */
 export function useJob(id: string, enabled: boolean) {
-  const session = useSession();
+  const { ready, key } = useAccountKey();
   const pace = useRef<Pace>({ stamp: 0, seen: '', delay: FIRST_POLL_MS });
-  const account = session.phase === 'ready' ? session.profile : undefined;
 
   return useQuery({
-    queryKey: [account?.id, account?.walletAddress ?? 'no-wallet', config().chainId, 'job', id],
+    queryKey: [...key, 'job', id],
     queryFn: ({ signal }) => api<{ job: Job }>(`/jobs/${id}`, { signal }),
-    enabled: enabled && account !== undefined,
+    enabled: enabled && ready,
     select: ({ job }) => job,
     refetchIntervalInBackground: false,
     refetchInterval: ({ state }) => {
