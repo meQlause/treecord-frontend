@@ -331,3 +331,43 @@ export const claimSummary = (usdcText: string): string =>
   `Claim your ${usdcText} USDC refundable balance.`;
 
 export const REFUND_CONFIRMED = 'Refund confirmed.';
+
+// ---- D06 Claim slots (s04-campaign.md §3.7) ----
+export const CLAIM_SLOTS = 'Claim slots';
+
+export const CLAIM_LABEL = 'Slots to claim · 1–50';
+
+export const FACT_OPEN_SLOTS = 'Available open slots';
+
+export const FACT_REMAINING = 'Remaining cap';
+
+export const FACT_CLAIM_DEADLINE = 'Claim deadline';
+
+export const OPEN = 'Open';
+
+export const TRACK_JOB = 'Track job';
+
+export const MUST_BE_ACTIVE = 'Campaign must be Active.';
+
+export const ROLE_CHANGED = 'Role unavailable · This screen is for Planter accounts.';
+
+export const UNAVAILABLE =
+  'Could not load this page · Your inputs and local records are unchanged.';
+
+export const capExceeded = (remaining: number): string =>
+  `You can claim at most ${remaining} more slots in this campaign`;
+
+export const JOB_FAILED_COPY = 'COPY-158';
+
+export const WINDOW_CLOSED_COPY = 'COPY-012';
+
+export const NOT_ENOUGH_COPY = 'COPY-013';
+
+export const CLAIM_REVIEW = {
+  region: 'Review Claim slots',
+  summary: 'The platform queues a claim job. No USDC deposit or gas approval is required.',
+  confirm: 'Confirm',
+  cancel: 'Cancel',
+  close: 'Close',
+  done: 'Done. Claim slots is on its way; its status updates here.',
+} as const;

@@ -6,6 +6,7 @@ import { render } from '@testing-library/react';
 // eslint-disable-next-line import/no-unresolved -- react-router publishes only an exports map, which the import plugin's resolver cannot read
 import { createMemoryRouter, RouterProvider, type RouteObject } from 'react-router';
 import { vi } from 'vitest';
+import { ToastProvider } from '../../src/app/shell/toast-context';
 
 /** The accounts.md §1 examples. */
 export const SARI = {
@@ -103,7 +104,10 @@ export function renderRoutes(routes: RouteObject[], path: string, state?: unknow
     queryClient,
     ...render(
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        {/* as in the app (App.tsx): a page that confirms with a toast needs the provider above it */}
+        <ToastProvider>
+          <RouterProvider router={router} />
+        </ToastProvider>
       </QueryClientProvider>,
     ),
   };

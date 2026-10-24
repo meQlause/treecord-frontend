@@ -3,12 +3,17 @@
 const DEFAULT_API_URL = '/api/v1';
 const DEFAULT_CHAIN_ID = 84532;
 const DEFAULT_NETWORK_LABEL = 'Base Sepolia';
+const DEFAULT_TIME_UNIT = 2_592_000;
 
 type Config = {
   apiUrl: string;
   privyAppId: string;
   chainId: number;
   networkLabel: string;
+  /** The CampaignFactory the wallet creates campaigns on (S14); empty until the deployment is known. */
+  campaignFactory: string;
+  /** `timeUnit` of a new campaign: a month in production, never a form field (FR-078). */
+  timeUnitSeconds: number;
 };
 
 type Env = Readonly<Record<string, unknown>>;
@@ -41,6 +46,8 @@ export const readConfig = (env: Env): Config => {
     privyAppId,
     chainId,
     networkLabel: text(env, 'VITE_NETWORK_LABEL') || DEFAULT_NETWORK_LABEL,
+    campaignFactory: text(env, 'VITE_CAMPAIGN_FACTORY_ADDRESS'),
+    timeUnitSeconds: Number(text(env, 'VITE_TIME_UNIT_SECONDS') || DEFAULT_TIME_UNIT),
   };
 };
 

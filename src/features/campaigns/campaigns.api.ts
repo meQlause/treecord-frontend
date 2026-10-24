@@ -73,6 +73,8 @@ export type Viewer = {
   walletAddress: string | null;
   contributedAmount: string;
   refundedAmount: string;
+  /** The planter's claim figures (D06); `null` while the wallet is not ready. */
+  claim?: { cap: number; remainingCap: number; queuedJobId: string | null } | null;
 };
 
 type CampaignBody = { campaign: CampaignDetail; viewer: Viewer | null };

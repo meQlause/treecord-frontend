@@ -26,7 +26,7 @@ export type ChainSession = {
   walletClient: WalletClient;
 };
 
-type Seam = { privateKey: Hex; chainId?: number };
+type Seam = { privateKey: Hex; chainId?: number; factory?: Address; timeUnit?: number };
 
 /**
  * The browser specs' wallet: a funded anvil account set by the spec as `window.treecordE2E`. It exists only in the dev
@@ -39,6 +39,15 @@ const seamOf = (chainId: number): Seam | null => {
 
   return (window as { treecordE2E?: Seam }).treecordE2E ?? null;
 };
+
+/** The factory and the time unit a creating screen uses: the build's, or the local ones a spec set through the seam. */
+export const actingFactory = (configured: string): Address =>
+  ((import.meta.env.DEV ? (window as { treecordE2E?: Seam }).treecordE2E?.factory : undefined) ??
+    configured) as Address;
+
+export const actingTimeUnit = (configured: number): number =>
+  (import.meta.env.DEV ? (window as { treecordE2E?: Seam }).treecordE2E?.timeUnit : undefined) ??
+  configured;
 
 /** The chain a screen without a campaign of its own acts on: the build's, or the local one when a spec set the seam. */
 export const actingChainId = (configured: number): number =>

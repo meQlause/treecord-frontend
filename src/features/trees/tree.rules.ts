@@ -212,3 +212,21 @@ export const planterActions = (data: TreeDetail, now: number): Action[] =>
         ...deadAction(data),
       ]
     : [];
+
+const REASON_MIN = 10;
+const REASON_MAX = 2000;
+
+/** Unicode code points of the trimmed reason (flags.md §1): 10 to 2000. */
+const reasonLength = (text: string): number => [...text.trim()].length;
+
+export const reasonOk = (text: string): boolean =>
+  reasonLength(text) >= REASON_MIN && reasonLength(text) <= REASON_MAX;
+
+export const REASON_LIMIT = REASON_MAX;
+
+export const flagDraftKey = (
+  profile: { id: string; walletAddress: string | null },
+  chainId: number,
+  treeId: string,
+): string =>
+  `treecord:draft:${profile.id}:${profile.walletAddress ?? 'no-wallet'}:${chainId}:flag:${treeId}`;

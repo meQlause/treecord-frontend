@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Icon, type IconName } from '../art/Icon';
 
 // K21. Mockup my-carbon.jsx:151 and shared-pages.jsx:229 (`rc-journey`). A row of steps on a track, taken from S09's
@@ -21,9 +22,11 @@ type JourneyProps = {
   label: string;
   steps: readonly JourneyStep[];
   fill?: number;
+  /** Below the steps, inside the region (S10's algorithm text). */
+  children?: ReactNode;
 };
 
-export function Journey({ title, label, steps, fill }: JourneyProps) {
+export function Journey({ title, label, steps, fill, children }: JourneyProps) {
   return (
     <section className="rc-journey" aria-label={label}>
       <h3>{title}</h3>
@@ -43,6 +46,7 @@ export function Journey({ title, label, steps, fill }: JourneyProps) {
           ))}
         </ol>
       </div>
+      {children}
     </section>
   );
 }

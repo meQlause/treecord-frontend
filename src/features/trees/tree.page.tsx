@@ -1,5 +1,5 @@
 // S05 (s05-tree.md): one tree, public. Signed in, the bearer token is sent and the answer adds `viewer` and, for permitted
-// readers, the exact location. This page covers the read states; the D07 flag form is F4a (see `Flags`).
+// readers, the exact location. This page covers the read states; the D07 flag form is `tree.flag.tsx`.
 // eslint-disable-next-line import/no-unresolved -- react-router publishes only an exports map, which the import plugin's resolver cannot read
 import { useParams } from 'react-router';
 import { useRef, useState } from 'react';
