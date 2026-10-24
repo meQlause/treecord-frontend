@@ -41,6 +41,8 @@ export const SIGN_IN_PROVIDER: Record<ProviderOutcome, SignInErrorKey> = {
 const UNREACHABLE =
   /network|fetch|load failed|time(?:d )?out|offline|unreachable|abort|unavailable/;
 const SERVER_ERROR = 500;
+// Privy answers a verify with 429 `too_many_requests` when one account signs in too often: the code was not wrong
+const TOO_MANY_REQUESTS = 429;
 
 // Privy errors carry `privyErrorCode` (PrivyClientError) or `code` and `status` (PrivyApiError), plus a message.
 const detail = (error: unknown): { words: string; status: number } => {
@@ -59,6 +61,8 @@ const detail = (error: unknown): { words: string; status: number } => {
 /**
  * Maps an error thrown by `sendCode` / `loginWithCode` to what S02 says (FR-003). Privy answers "Invalid or expired
  * verification code" for both a wrong and an old code, so only an error that says "expired" alone is `expired`.
+ * Pinned against the live service (24 Oct 2026): a wrong code is 422 `invalid_credentials` "Invalid email and code
+ * combination"; too many sign-ins is 429 `too_many_requests`; an unreachable host throws "Failed to fetch".
  * ponytail: matches the SDK's wording; if a Privy upgrade changes it, an unknown error falls to `invalid` / `refused`.
  */
 export const signInOutcome = (error: unknown, step: 'send' | 'verify'): ProviderOutcome => {
@@ -70,6 +74,10 @@ export const signInOutcome = (error: unknown, step: 'send' | 'verify'): Provider
 
   if (step === 'send') {
     return 'refused';
+  }
+
+  if (status === TOO_MANY_REQUESTS) {
+    return 'unavailable';
   }
 
   return /expired/.test(words) && !/invalid/.test(words) ? 'expired' : 'invalid';

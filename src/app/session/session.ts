@@ -19,7 +19,8 @@ export type Profile = {
 
 type Session =
   | { phase: 'resolving' }
-  | { phase: 'signed-out' }
+  // `expired`: the token was refused (SH-15), not "never signed in"; S02 says so (ui-gaps pattern 12)
+  | { phase: 'signed-out'; expired: boolean }
   | { phase: 'error' }
   | { phase: 'ready'; profile: Profile };
 
@@ -28,7 +29,9 @@ const DRAFT_PREFIX = 'treecord:draft:';
 
 // A /me answer that leaves the person without a profile: 409 wallet_already_linked (SH-16) or a refused token
 // (SH-15). The screens treat them as signed out; S02 explains.
-const NO_PROFILE = new Set(['wallet_already_linked', 'missing_token', 'invalid_token']);
+const REFUSED_TOKEN = new Set(['missing_token', 'invalid_token']);
+
+const NO_PROFILE = new Set(['wallet_already_linked', ...REFUSED_TOKEN]);
 
 type MeState = Pick<ReturnType<typeof useMe>, 'status' | 'data' | 'error'>;
 
@@ -38,7 +41,10 @@ const resolve = (ready: boolean, authenticated: boolean, query: MeState): Sessio
   }
 
   if (!authenticated || (query.error instanceof ApiError && NO_PROFILE.has(query.error.code))) {
-    return { phase: 'signed-out' };
+    return {
+      phase: 'signed-out',
+      expired: query.error instanceof ApiError && REFUSED_TOKEN.has(query.error.code),
+    };
   }
 
   if (query.data !== undefined) {

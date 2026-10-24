@@ -36,6 +36,24 @@ describe('expireSession (SH-15)', () => {
     );
   });
 
+  it('keeps the read that failed, so the mounted shell does not ask again (SH-AC14)', async () => {
+    const client = seeded();
+    const router = routerAt('/app/planter/trees');
+
+    await client
+      .fetchQuery({
+        queryKey: ['me', 'did:privy:alex', 84532],
+        queryFn: () => Promise.reject(new Error('401')),
+      })
+      .catch(() => undefined);
+    expireSession(client, router as never);
+
+    expect(
+      client.getQueryCache().find({ queryKey: ['me', 'did:privy:alex', 84532] }),
+    ).toBeDefined();
+    expect(client.getQueryData(['me', 'did:privy:sari', 84532])).toBeUndefined();
+  });
+
   it('does nothing on S02 itself, or while a navigation is already under way', () => {
     const client = seeded();
     const onSignIn = routerAt('/sign-in');

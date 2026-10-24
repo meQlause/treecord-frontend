@@ -23,19 +23,12 @@ const run = async (client: ReturnType<typeof createQueryClient>, error: unknown)
 };
 
 describe('createQueryClient', () => {
-  it('retries a retry-class failure once, and nothing else', async () => {
-    const client = createQueryClient(vi.fn());
-    const retry = client.getDefaultOptions().queries?.retry as (n: number, e: unknown) => boolean;
-
-    expect(retry(1, fail('service_unavailable', 503))).toBe(true);
-    expect(retry(2, fail('service_unavailable', 503))).toBe(false);
-    expect(retry(1, fail('network', 0))).toBe(true);
-    expect(retry(1, fail('not_found', 404))).toBe(false);
-    expect(retry(1, fail('forbidden_role', 403))).toBe(false);
-    expect(retry(1, fail('invalid_token', 401))).toBe(false);
-    expect(retry(1, fail('campaign_not_active', 409))).toBe(false);
-    expect(retry(1, new Error('bug'))).toBe(false);
-  });
+  it.each(['service_unavailable', 'network', 'not_found', 'invalid_token', 'campaign_not_active'])(
+    'never retries a failed %s read by itself: one request per user action',
+    async (code) => {
+      expect(await run(createQueryClient(vi.fn()), fail(code))).toBe(1);
+    },
+  );
 
   it('does not repeat a refused token, and reports it once per failure', async () => {
     const expired = vi.fn();

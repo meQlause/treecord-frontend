@@ -24,6 +24,8 @@ const queryClient = createQueryClient(() => expireSession(queryClient, router));
 const PRIVY_CONFIG: PrivyClientConfig = {
   loginMethods: ['email'],
   embeddedWallets: { ethereum: { createOnLogin: 'users-without-wallets' } },
+  // email login only: no external wallet, so no WalletConnect and no third-party wallet-list request (fidelity §2)
+  externalWallets: { walletConnect: { enabled: false } },
 };
 
 export function App() {

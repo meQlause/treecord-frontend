@@ -11,7 +11,11 @@ export const SESSION_EXPIRED = 'session-expired';
 const SIGN_IN = '/sign-in';
 const PUBLIC_KEY = 'public';
 
-/** Public reads (`['public', …]`) survive; everything keyed on an account goes. Drafts survive too (fe-architecture §4). */
+/**
+ * Public reads (`['public', …]`) survive; everything keyed on an account goes. Drafts survive too (fe-architecture §4).
+ * A read that failed holds nothing private and stays: removing it would make the mounted shell ask again at once, and
+ * the refused request must not be repeated (SH-15, SH-AC14).
+ */
 export const expireSession = (
   queryClient: QueryClient,
   router: Pick<DataRouter, 'state' | 'navigate'>,
@@ -23,7 +27,9 @@ export const expireSession = (
     return;
   }
 
-  queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== PUBLIC_KEY });
+  queryClient.removeQueries({
+    predicate: (query) => query.queryKey[0] !== PUBLIC_KEY && query.state.status !== 'error',
+  });
   void router.navigate(signInUrl(location.pathname + location.search), {
     replace: true,
     state: { reason: SESSION_EXPIRED },

@@ -39,6 +39,10 @@ export const contextOptions = (
  * May this request leave the browser? The app, the local API, local MinIO and Anvil are all on loopback; `extraHosts`
  * adds the Privy test harness for S02 only. Inline schemes (data, blob, about) never touch the network.
  */
+// ".privy.io" admits every subdomain of privy.io and privy.io itself; any other entry is one exact host
+const hostMatches = (hostname: string, host: string): boolean =>
+  host.startsWith('.') ? hostname.endsWith(host) || hostname === host.slice(1) : hostname === host;
+
 export const isAllowed = (url: string, extraHosts: readonly string[] = []): boolean => {
   const { protocol, hostname } = new URL(url);
 
@@ -46,7 +50,7 @@ export const isAllowed = (url: string, extraHosts: readonly string[] = []): bool
     return true;
   }
 
-  return LOOPBACK.has(hostname) || extraHosts.includes(hostname);
+  return LOOPBACK.has(hostname) || extraHosts.some((host) => hostMatches(hostname, host));
 };
 
 export type Conditions = {

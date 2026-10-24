@@ -46,6 +46,20 @@ describe('signInOutcome (FR-003)', () => {
     ['an unreachable provider', new TypeError('Failed to fetch'), 'unavailable'],
     ['a request timeout', { privyErrorCode: 'client_request_timeout' }, 'unavailable'],
     ['a server error', { status: 503, message: 'x' }, 'unavailable'],
+    [
+      'a rate limit (Privy: 429 too_many_requests)',
+      {
+        status: 429,
+        code: 'too_many_requests',
+        message: 'Too many requests. Please wait to try again.',
+      },
+      'unavailable',
+    ],
+    [
+      'a wrong code (Privy: 422 invalid_credentials)',
+      { status: 422, code: 'invalid_credentials', message: 'Invalid email and code combination' },
+      'invalid',
+    ],
     ['an unknown error', new Error('something else'), 'invalid'],
     ['a thrown string', 'boom', 'invalid'],
   ])('verify: %s → %s', (_label, error, expected) => {

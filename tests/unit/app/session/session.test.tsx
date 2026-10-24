@@ -95,15 +95,22 @@ describe('useSession', () => {
   });
 
   it.each([
-    ['wallet_already_linked', 409],
-    ['invalid_token', 401],
-    ['missing_token', 401],
-  ])('treats a %s answer as signed out (SH-15, SH-16)', async (code, status) => {
+    ['wallet_already_linked', 409, false],
+    ['invalid_token', 401, true],
+    ['missing_token', 401, true],
+  ])('treats a %s answer as signed out (SH-15, SH-16)', async (code, status, expired) => {
     refuse(code, status);
     signedInAs();
     const { result } = setup();
 
     await waitFor(() => expect(result.current.phase).toBe('signed-out'));
+    expect(result.current).toMatchObject({ expired });
+  });
+
+  it('a visitor who never signed in is signed out, but not expired', () => {
+    const { result } = setup();
+
+    expect(result.current).toMatchObject({ phase: 'signed-out', expired: false });
   });
 
   it('is an error when /me fails with a server error', async () => {

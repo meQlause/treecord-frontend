@@ -72,6 +72,26 @@ describe('RequireSession', () => {
     expect(router.state.historyAction).toBe('REPLACE');
   });
 
+  it('SH-15: a refused token goes to S02 saying why (the session-ended banner); never signed in says nothing', async () => {
+    apiMock.mockRejectedValue(new ApiError({ code: 'invalid_token', message: 'x', status: 401 }));
+    signedInAs();
+    const { router } = renderRoutes(routes, '/app/profile');
+
+    await screen.findByText('sign in screen');
+
+    expect(router.state.location.state).toEqual({ reason: 'session-expired' });
+  });
+
+  it('SH-AC13: the copy PageMotion keeps while it leaves, already on /sign-in, does not redirect again', () => {
+    const { router } = renderRoutes(
+      [{ path: '/sign-in', Component: RequireSession }],
+      '/sign-in?returnTo=%2Fapp',
+    );
+
+    expect(here(router)).toBe('/sign-in?returnTo=%2Fapp');
+    expect(router.state.historyAction).toBe('POP');
+  });
+
   it('SH-2: Privy not ready shows the loading status and stays on the URL', () => {
     privyState.ready = false;
     const { router } = renderRoutes(routes, '/app');

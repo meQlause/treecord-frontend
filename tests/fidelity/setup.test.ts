@@ -53,6 +53,12 @@ describe('fidelity.setup', () => {
     expect(isAllowed('https://auth.privy.test/x', ['auth.privy.test'])).toBe(true);
   });
 
+  it('a leading dot admits the host and its subdomains, and nothing that merely ends alike', () => {
+    expect(isAllowed('https://auth.privy.io/x', ['.privy.io'])).toBe(true);
+    expect(isAllowed('https://privy.io/x', ['.privy.io'])).toBe(true);
+    expect(isAllowed('https://notprivy.io/x', ['.privy.io'])).toBe(false);
+  });
+
   it('fails a spec that had a request aborted', () => {
     expect(() => expectNoBlocked({ blocked: [] })).not.toThrow();
     expect(() => expectNoBlocked({ blocked: ['https://cdn.example/a.js'] })).toThrow(

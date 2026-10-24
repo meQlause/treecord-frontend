@@ -5,10 +5,13 @@ import { useQueryClient } from '@tanstack/react-query';
 // eslint-disable-next-line import/no-unresolved -- react-router publishes only an exports map, which the import plugin's resolver cannot read
 import { Navigate, Outlet, useLocation } from 'react-router';
 import { signInUrl } from '../return-to';
+import { SESSION_EXPIRED } from '../session/expire';
 import { useSession } from '../session/session';
 import { ME_KEY } from '../session/use-me';
 import { ErrorState, LoadingState } from '../states/states';
 import { WorkspaceMain } from '../states/workspace-main';
+
+const APP = '/app';
 
 export function Component() {
   const session = useSession();
@@ -16,7 +19,15 @@ export function Component() {
   const { pathname, search } = useLocation();
 
   if (session.phase === 'signed-out') {
-    return <Navigate replace to={signInUrl(pathname + search)} />;
+    // PageMotion keeps the page that is leaving for its exit, and that copy already reads /sign-in: it must not
+    // send the visitor to S02 again with S02 as the page to come back to
+    return pathname.startsWith(APP) ? (
+      <Navigate
+        replace
+        to={signInUrl(pathname + search)}
+        state={session.expired ? { reason: SESSION_EXPIRED } : null}
+      />
+    ) : null;
   }
 
   const body = {
