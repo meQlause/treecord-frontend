@@ -239,7 +239,7 @@ export function RetirementJourney({ retirement }: { retirement: Retirement }) {
 }
 
 /** "Issuance transaction": the link when the contract gives one, the short hash as text, or "Not available yet". */
-function IssuanceTx({ issuedTx }: { issuedTx: Retirement['batch']['issuedTx'] }) {
+export function IssuanceTx({ issuedTx }: { issuedTx: Retirement['batch']['issuedTx'] }) {
   if (issuedTx === null) {
     return NOT_AVAILABLE;
   }

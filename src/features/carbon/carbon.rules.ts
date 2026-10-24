@@ -67,13 +67,14 @@ export const withParam = (
 };
 
 /** Display maths: the share of the batch still on sale (carbon.md §1). A batch that issued nothing has none. */
-const ratio = ({ inventoryAmount, issuedAmount }: CarbonBatch): number =>
+export const inventoryShare = ({ inventoryAmount, issuedAmount }: CarbonBatch): number =>
   BigInt(issuedAmount) === ZERO ? 0 : Number(inventoryAmount) / Number(issuedAmount);
 
-export const sharePercent = (batch: CarbonBatch): number => Math.round(ratio(batch) * PERCENT);
+export const sharePercent = (batch: CarbonBatch): number =>
+  Math.round(inventoryShare(batch) * PERCENT);
 
 /** The ten decorative chips lit by what is still available. */
-export const litChips = (batch: CarbonBatch): number => Math.round(ratio(batch) * CHIPS);
+export const litChips = (batch: CarbonBatch): number => Math.round(inventoryShare(batch) * CHIPS);
 
 /** Price line (s07 §2): no usable price shows the availability; a price shows it, with the sold-out suffix. */
 export const priceLine = ({ usdcPerTonne, availability }: CarbonBatch): string => {

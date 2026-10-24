@@ -24,6 +24,15 @@ export type CarbonBatch = {
 /** S07 asks for the largest page and filters in the browser (FR-219); past 100 batches the oldest are not listed. */
 const PAGE_SIZE = 100;
 
+/** `GET /carbon/batches/:batchId` (carbon.md §2): the list item, alone, with the fields only the detail page reads. */
+export type BatchDetail = CarbonBatch & {
+  campaign: { address: string };
+  serialStart: string;
+  serialEnd: string;
+  issuedAt: string | null;
+  issuedTx: { hash: string; url: string | null } | null;
+};
+
 export const useBatches = () =>
   useQuery({
     queryKey: ['carbon', 'batches'],
@@ -33,4 +42,10 @@ export const useBatches = () =>
         signal,
       }),
     select: ({ items }) => items,
+  });
+
+export const useBatch = (batchId: string) =>
+  useQuery({
+    queryKey: ['carbon', 'batch', batchId],
+    queryFn: ({ signal }) => publicApi<BatchDetail>(`/carbon/batches/${batchId}`, { signal }),
   });

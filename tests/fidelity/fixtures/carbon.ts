@@ -16,7 +16,7 @@ const CILACAP = {
   species: { code: 'RHIZOPHORA_MUCRONATA', name: 'Rhizophora mangrove' },
 };
 
-const txOf = (hash: string): Json => ({ hash, url: null }); // local chain: no explorer (carbon.md shared values)
+const txOf = (hash: string): Json => ({ hash, url: `https://sepolia.basescan.org/tx/${hash}` });
 
 const BATCH_102: Json = {
   batchId: '102',
@@ -34,7 +34,7 @@ const BATCH_102: Json = {
   issuedTx: txOf('0x4e7a1c9d3b5f2e8a0c6d4b2f9e1a7c3d5b8f0e2a4c6d9b1f3e5a7c0d2b4f6e8a'),
 };
 
-const BATCH_101: Json = {
+export const BATCH_101: Json = {
   batchId: '101',
   label: 'issued',
   campaign: CILACAP,
@@ -50,7 +50,7 @@ const BATCH_101: Json = {
   issuedTx: txOf('0x1b8e3f5a7c9d0e2b4f6a8c1d3e5b7f9a0c2d4e6b8f1a3c5e7d9b0f2a4c6e8d1b'),
 };
 
-const BATCH_103: Json = {
+export const BATCH_103: Json = {
   ...BATCH_101,
   batchId: '103',
   vintage: 2024,
@@ -63,7 +63,7 @@ const BATCH_103: Json = {
   issuedAt: '2026-08-12T08:00:00.000Z',
 };
 
-const BATCH_104: Json = {
+export const BATCH_104: Json = {
   ...BATCH_102,
   batchId: '104',
   vintage: 2024,
