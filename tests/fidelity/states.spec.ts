@@ -6,6 +6,21 @@
 import type { Page } from '@playwright/test';
 import { FROZEN_CLOCK } from './fidelity.setup';
 import { SARI, meBody, type MeProfile } from './fixtures/accounts';
+import { ALEX_VIEWER, DEMAK_DETAIL, DEWI_VIEWER, detail, item } from './fixtures/campaigns';
+import { FIRST_PAGE, REPORT, SECOND_PAGE } from './fixtures/report';
+import { SARI_3001, TREE_3001, TREE_3091 } from './fixtures/tree';
+import {
+  campaignPage,
+  catalogPage,
+  evidenceRows,
+  expectNoSideScroll,
+  reportPage,
+  reportWith,
+  styleOf,
+  treePage,
+  thumbnailPage,
+  treeWith,
+} from './helpers/gap-pages';
 import {
   ME_CALL,
   OWN_API,
@@ -20,6 +35,7 @@ import {
   test,
 } from './helpers/flow';
 import { answerMe, testLogin } from './helpers/privy';
+import { VIEWPORTS } from './matrix';
 
 const TREES = '/app/planter/trees';
 const LOADING = 'Loading workspace…';
@@ -243,4 +259,306 @@ test('pattern 24 display name null: the account menu shows the part of the sign-
   await expect(page.getByTestId('account-name')).toHaveText(name);
   await expect(menu.locator('.donor-avatar')).toHaveText(name.slice(0, 1).toUpperCase());
   await expect(page.locator('.account-pop-head strong')).toHaveText(name);
+});
+
+// ---- phases.md F1a: the UI-gap states reached on S03 to S06 (campaigns, campaign, tree, report) ----
+// The pages are public and the API is stubbed, so nobody signs in: `viewer` in the answer is what makes a page "signed in".
+const WIDE = VIEWPORTS[1];
+const PHONE = VIEWPORTS[0];
+const TITLE_MAX = 120;
+const LONG_WORD = 'W'.repeat(TITLE_MAX);
+const LONG_WORDS = 'A very long campaign title that keeps going and going '
+  .repeat(3)
+  .slice(0, TITLE_MAX);
+const LONG_REASON = 'The canopy looks thin on the north side. '.repeat(15);
+const UNTITLED = 'Lorem ipsum';
+const SECOND_CAMPAIGN = '0x0000000000000000000000000000000000000004';
+const CLAMP_LINES = '2';
+const PIXEL = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+  'base64',
+);
+const OFFLINE_BODY = 'fieldset.ws-state-body';
+const LINE_CLAMP = '-webkit-line-clamp';
+const TIMELINE_AT = '2026-07-20T05:00:00.000Z';
+const TIMELINE_TX = '0xfc1aa44341c8f43ddcb5395ad09f71054cb5e8c40396b51a98ae4a454b215eed';
+const CONTRIBUTE = 'aside.funding-panel .contribute';
+const WALLET_COPY = 'Copy full campaign address';
+const MORE_ROW = 'evidence-more';
+const TREE_LOCATION_NOTE = 'The exact location isn’t public; art is not a location map.';
+
+test('pattern 10 next page S06: the evidence row says "1 of 3", shows Loading… while pending and ends with the rows appended', async ({
+  open,
+}) => {
+  const gate = Promise.withResolvers<void>();
+  const page = await reportPage(open, { ...REPORT, evidence: FIRST_PAGE }, WIDE, {
+    body: SECOND_PAGE,
+    after: gate.promise,
+  });
+  const more = page.getByTestId(MORE_ROW);
+  const rows = evidenceRows(page);
+
+  await expect(rows).toHaveCount(1);
+  await expect(page.locator('.load-more')).toContainText('1 of 3');
+  await more.click();
+  await expect(more).toBeDisabled();
+  await expect(more).toHaveAttribute('aria-busy', 'true');
+  await expect(more).toContainText('Loading…');
+
+  gate.resolve();
+  await expect(rows).toHaveCount(SECOND_PAGE.items.length + FIRST_PAGE.items.length);
+  await expect(more).toHaveCount(0);
+});
+
+test('pattern 16 long content S03: a 120-character title is clamped to 2 lines and keeps its full text in title', async ({
+  open,
+}) => {
+  const page = await catalogPage(open, [
+    item({ title: LONG_WORDS }),
+    item({ address: SECOND_CAMPAIGN }),
+  ]);
+  const heading = page.locator('.campaign-card').first().locator('h2');
+
+  await expect(heading).toHaveAttribute('title', LONG_WORDS);
+  await expect(heading).toHaveCSS(LINE_CLAMP, CLAMP_LINES);
+  expect(await heading.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(
+    true,
+  );
+});
+
+test('pattern 16 long content S04: a 120-character unbroken title wraps in the hero at 360 px, never cut', async ({
+  open,
+}) => {
+  const page = await campaignPage(
+    open,
+    detail({ title: LONG_WORD, region: { name: LONG_WORD, radiusM: 2500 } }),
+    null,
+    PHONE,
+  );
+  const title = page.locator('.detail-hero h1');
+
+  await expect(title).toHaveText(LONG_WORD);
+  await expect(title).toHaveClass(/wrap-any/);
+  await expect(page.locator('.hero-location')).toHaveText(LONG_WORD);
+  await expectNoSideScroll(page, PHONE);
+  expect(await title.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+});
+
+test('pattern 16 long content S05: a long title, region and flag reason wrap at 360 px, never cut', async ({
+  open,
+}) => {
+  const [flag] = TREE_3091.flags;
+  const page = await treePage(
+    open,
+    treeWith(
+      { title: LONG_WORD, region: { name: LONG_WORD } },
+      { flags: [{ ...flag, reasonText: LONG_REASON }] },
+    ),
+    PHONE,
+  );
+
+  await expect(page.locator('.tr-hero h2')).toHaveText(LONG_WORD);
+  await expect(page.locator('.tr-hero .location')).toHaveText(LONG_WORD);
+  await expect(page.locator('section.ws-panel').filter({ hasText: 'Flags' })).toContainText(
+    LONG_REASON.trim(),
+  );
+  await expectNoSideScroll(page, PHONE);
+});
+
+test('pattern 16 long content S06: a long title and "{region} · {species}" line wrap at 360 px, never cut', async ({
+  open,
+}) => {
+  const page = await reportPage(
+    open,
+    reportWith({ title: LONG_WORD, region: { name: LONG_WORD, radiusM: 2500 } }),
+    PHONE,
+  );
+
+  await expect(page.locator('.rp-heading h1')).toHaveText(LONG_WORD);
+  await expect(page.locator('.rp-heading p')).toContainText(`${LONG_WORD} · Mahogany`);
+  await expectNoSideScroll(page, PHONE);
+});
+
+test('pattern 17 null value S03: an untitled card shows the placeholder in the same link, styled like a title', async ({
+  open,
+}) => {
+  const page = await catalogPage(open, [
+    item({ title: null }),
+    item({ title: 'A real title', address: SECOND_CAMPAIGN }),
+  ]);
+  const links = page.getByTestId('campaign-title');
+
+  await expect(links.nth(0)).toHaveText(UNTITLED);
+  await expect(links.nth(0)).toHaveAttribute('href', /\/campaigns\/0x/);
+  expect(await styleOf(links.nth(0))).toBe(await styleOf(links.nth(1)));
+});
+
+test('pattern 17 null value S04: an untitled campaign puts the placeholder in the h1 and the document title', async ({
+  open,
+}) => {
+  const page = await campaignPage(open, detail({ title: null }));
+  const title = page.locator('.detail-hero h1');
+
+  await expect(title).toHaveText(UNTITLED);
+  await expect(title).toHaveCSS('font-style', 'normal');
+  await expect(page).toHaveTitle(/^Lorem ipsum/);
+});
+
+test('pattern 17 null value S05: an untitled campaign and the three unlabelled timeline rows show their placeholders', async ({
+  open,
+}) => {
+  const timeline = ['check_in', 'replanted', 'flag_resolved'].map((kind) => ({
+    kind,
+    at: TIMELINE_AT,
+    txHash: TIMELINE_TX,
+    evidenceHash: null,
+    evidence: null,
+  }));
+  const page = await treePage(open, treeWith({ title: null }, { timeline }));
+  const titles = page.locator('.ws-timeline h3');
+
+  await expect(page.locator('.tr-hero h2 [data-copy="COPY-157"]')).toHaveText(UNTITLED);
+  await expect(titles).toHaveCount(timeline.length);
+
+  for (const [index, id] of ['COPY-176', 'COPY-159', 'COPY-160'].entries()) {
+    await expect(titles.nth(index).locator(`[data-copy="${id}"]`)).toHaveText(UNTITLED);
+  }
+});
+
+test('pattern 17 null value S06: an untitled campaign and the died, replanted and month-less check-in rows show placeholders', async ({
+  open,
+}) => {
+  const [first] = REPORT.evidence.items;
+  const items = [
+    { ...first, kind: 'died' },
+    { ...first, kind: 'replanted', treeId: '3002' },
+    { ...first, kind: 'check_in', month: null, treeId: '3003' },
+  ];
+  const page = await reportPage(
+    open,
+    reportWith({ title: null }, { evidence: { items, nextCursor: null, total: items.length } }),
+  );
+  const labels = evidenceRows(page).locator('td:nth-child(2)');
+
+  await expect(page.locator('.rp-heading h1 [data-copy="COPY-157"]')).toHaveText(UNTITLED);
+
+  for (const [index, id] of ['COPY-169', 'COPY-170', 'COPY-171'].entries()) {
+    await expect(labels.nth(index).locator(`[data-copy="${id}"]`)).toHaveText(UNTITLED);
+  }
+});
+
+test('pattern 18 viewport S04 P-13: at 360 px the contribute button sits in normal flow under the amount chips, no sticky bar', async ({
+  open,
+}) => {
+  const page = await campaignPage(open, DEMAK_DETAIL, ALEX_VIEWER, PHONE);
+  const side = page.locator('aside.funding-panel');
+  const chips = await side.getByRole('group', { name: 'Amount' }).boundingBox();
+  const button = page.locator(CONTRIBUTE);
+  const box = await button.boundingBox();
+
+  await expectNoSideScroll(page, PHONE);
+  expect(box!.y).toBeGreaterThanOrEqual(chips!.y + chips!.height);
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(PHONE.width);
+
+  for (const target of [button, side]) {
+    await expect(target).not.toHaveCSS('position', 'fixed');
+    await expect(target).not.toHaveCSS('position', 'sticky');
+  }
+});
+
+test('pattern 28 estimate method S06: "{label} · {model}" is the first note under the estimate, the units note follows', async ({
+  open,
+}) => {
+  const estimate = { ...REPORT.carbon.estimate, method: { model: 'linear-maturity-v1' } };
+  const page = await reportPage(open, { ...REPORT, carbon: { ...REPORT.carbon, estimate } });
+  const notes = page.locator('.rp-carbon > div').first().locator('.rp-note');
+
+  await expect(notes.nth(0)).toHaveText('Lorem ipsum · linear-maturity-v1');
+  await expect(notes.nth(1)).toContainText('Estimates are not issued credits.');
+});
+
+test('pattern 30 location precision S05: exact shows 6 decimals, approximate shows the cell centre with 3, the note stays', async ({
+  open,
+}) => {
+  const exact = await treePage(open, SARI_3001);
+  const approximate = await treePage(open, TREE_3001);
+  const location = (page: Page) =>
+    page.locator('.tr-panel .ws-facts > div').filter({ hasText: 'Location' }).locator('dd');
+
+  await expect(location(exact)).toHaveText('-7.431205, 109.247813');
+  await expect(location(approximate)).toHaveText('-7.432, 109.247 · Approximate');
+
+  for (const page of [exact, approximate]) {
+    await expect(page.locator('.cb-buy-note')).toContainText(TREE_LOCATION_NOTE);
+  }
+});
+
+test('pattern 31 timeline evidence S05: a row shows its thumbnail, score, short hash and transaction link; a failed thumbnail goes, the row stays', async ({
+  open,
+}) => {
+  const loaded = await thumbnailPage(open, (route) =>
+    route.fulfill({ contentType: 'image/png', body: PIXEL }),
+  );
+  const details = loaded.locator('.ws-timeline > li').nth(1).locator('.tl-evidence');
+
+  await expect(details.locator('img.ev-thumb')).toHaveCount(1);
+  await expect(details.locator('[data-copy="COPY-161"]')).toBeVisible();
+  await expect(details).toContainText('9230');
+  await expect(details.locator('code')).toHaveText('0x2903…513e');
+  await expect(details.locator('a')).toHaveAttribute('target', '_blank');
+  await expect(details.locator('a')).toHaveAttribute('href', /\/tx\/0xfc1aa443/);
+
+  const failed = await thumbnailPage(open, (route) => route.abort());
+
+  await expect(failed.locator('.tl-ev-facts code').nth(1)).toBeVisible();
+  await expect(failed.locator('img.ev-thumb')).toHaveCount(0);
+});
+
+test('pattern 32 planter CTA S04: during Funding a planter sees "Claim open slots", and it scrolls to the actions panel', async ({
+  open,
+}) => {
+  const planter = { ...DEWI_VIEWER, role: 'planter' };
+  const page = await campaignPage(open, DEMAK_DETAIL, planter);
+  const button = page.locator(CONTRIBUTE);
+
+  await expect(button).toHaveText('Claim open slots');
+  await button.click();
+  await expect(page.locator('#campaign-actions')).toBeInViewport();
+});
+
+test.fixme('pattern 32 planter CTA S04: the D06 form below shows a disabled button with "Campaign must be Active."', () => {
+  // D06 Claim slots is not built yet (campaign.actions.tsx marks it F2b/F4a): the panel has no form and no line to assert.
+});
+
+const expectOfflineBanner = async (page: Page): Promise<void> => {
+  await page.context().setOffline(true);
+  await expect(page.locator('.app-state .state-banner')).toContainText(OFFLINE);
+  await expect(page.locator(OFFLINE_BODY)).toHaveJSProperty('disabled', true);
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+};
+
+test('pattern 14 offline S04: the saved campaign stays under the info banner, with the actions and the copy button disabled', async ({
+  open,
+}) => {
+  const page = await campaignPage(open, DEMAK_DETAIL, ALEX_VIEWER);
+
+  await expectOfflineBanner(page);
+  await expect(page.locator(CONTRIBUTE)).toBeDisabled();
+  await expect(page.getByTitle(WALLET_COPY)).toBeDisabled();
+
+  await page.context().setOffline(false);
+  await expect(page.locator('.app-state')).toHaveCount(0);
+});
+
+test('pattern 14 offline S06: the saved report stays under the info banner with the load-more button disabled', async ({
+  open,
+}) => {
+  const page = await reportPage(open, { ...REPORT, evidence: FIRST_PAGE });
+
+  await expectOfflineBanner(page);
+  await expect(page.getByTestId(MORE_ROW)).toBeDisabled();
+
+  await page.context().setOffline(false);
+  await expect(page.locator('.app-state')).toHaveCount(0);
 });
