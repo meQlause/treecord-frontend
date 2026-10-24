@@ -1,4 +1,6 @@
 // S07's pieces (s07-carbon.md §1): the batch card, the two secondary filters and the empty / error state.
+// eslint-disable-next-line import/no-unresolved -- react-router publishes only an exports map, which the import plugin's resolver cannot read
+import { Link } from 'react-router';
 import { Icon } from '../../shared/art/Icon';
 import { Button } from '../../shared/ui/Button';
 import { CatalogCard } from '../../shared/ui/CatalogCard';
@@ -21,14 +23,17 @@ import {
   QUERY_PLACEHOLDER,
   REGISTRY_FILTER_LABEL,
   TRY_AGAIN,
+  UNIT,
   VIEW_BATCH,
   batchTag,
   issuedLine,
+  serialRange,
   viewBatchLabel,
   vintageLine,
 } from './carbon.copy';
 import { priceLine, sharePercent, type CatalogView } from './carbon.rules';
 
+const BACK_ICON = 16;
 const SMALL_ICON = 14;
 const CLEAR_ICON = 13;
 const FIELD_ICON = 16;
@@ -172,4 +177,42 @@ export function CatalogMessage({ view, onClear, onRetry }: MessageProps) {
   }
 
   return <EmptyState icon="leaf" title={EMPTY_TITLE} />;
+}
+
+const TICKS = 5;
+const TICK_GAP = 25;
+const RANGE_STOPS = Array.from({ length: TICKS }, (_item, tick) => tick * TICK_GAP);
+
+type SerialRangeProps = { batchId: string; start: string; end: string; issued: string };
+
+/** The batch's serial range: five ticks on a bar, the first and last serial and the tonnes between (S08, S09). */
+export function SerialRange({ batchId, start, end, issued }: SerialRangeProps) {
+  return (
+    <div className="cb-range">
+      <span className="eyebrow">{serialRange(batchId)}</span>
+      <div className="cb-range-bar" aria-hidden="true">
+        {RANGE_STOPS.map((stop) => (
+          <i key={stop} style={{ left: `${stop}%` }} />
+        ))}
+        <b />
+      </div>
+      <div className="cb-range-ends">
+        <code>{start}</code>
+        <span>
+          {tonnes(issued)} {UNIT}
+        </span>
+        <code>{end}</code>
+      </div>
+    </div>
+  );
+}
+
+/** The "back" link above a detail page's heading (S08, S09). */
+export function BackLink({ to, children }: { to: string; children: string }) {
+  return (
+    <Link className="back-link" to={to}>
+      <Icon name="back" size={BACK_ICON} />
+      {children}
+    </Link>
+  );
 }

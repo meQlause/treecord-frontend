@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   localDate,
+  localDateLong,
   localDateTime,
   localZone,
   utcDate,
@@ -58,5 +59,12 @@ describe('utcDate and utcDateTime', () => {
 describe('localZone', () => {
   it('is an IANA name', () => {
     expect(localZone()).toMatch(/^[A-Za-z_]+(\/[A-Za-z_+\-0-9]+)*$/);
+  });
+});
+
+describe('localDateLong', () => {
+  it('spells the month and follows the viewer zone', () => {
+    expect(localDateLong('2026-09-20T23:30:00Z', 'UTC')).toBe('20 September 2026');
+    expect(localDateLong('2026-09-20T23:30:00Z', JAKARTA)).toBe('21 September 2026');
   });
 });

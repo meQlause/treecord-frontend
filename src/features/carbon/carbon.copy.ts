@@ -57,6 +57,11 @@ export const FAILED_TITLE = 'Couldn’t load carbon credits';
 
 export const TRY_AGAIN = 'Try again';
 
+export const UNIT = 'tCO₂e';
+
+// ---- batch record ----
+export const serialRange = (batchId: string): string => `SERIAL RANGE · BATCH #${batchId}`;
+
 // ---- card ----
 export const ISSUED = 'Issued';
 

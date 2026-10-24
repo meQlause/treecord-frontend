@@ -4,6 +4,7 @@ export type Instant = Date | string | number;
 
 const LOCALE = 'en-GB';
 const DATE: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+const LONG_DATE: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
 const DATE_TIME: Intl.DateTimeFormatOptions = {
   ...DATE,
   hour: '2-digit',
@@ -18,6 +19,10 @@ const render = (value: Instant, options: Intl.DateTimeFormatOptions, zone?: stri
 
 /** "23 Oct 2026" in the viewer's zone (or `zone`, an IANA name, for a test or a fixed view). */
 export const localDate = (value: Instant, zone?: string): string => render(value, DATE, zone);
+
+/** "23 October 2026" in the viewer's zone: S09's certificate and status panel. */
+export const localDateLong = (value: Instant, zone?: string): string =>
+  render(value, LONG_DATE, zone);
 
 /** "23 Oct 2026, 10:03 GMT+7" in the viewer's zone. */
 export const localDateTime = (value: Instant, zone?: string): string =>

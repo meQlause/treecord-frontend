@@ -18,3 +18,15 @@ export const api = <T>(path: string, options?: RequestOptions): Promise<T> => {
 
   return client<T>(path, options);
 };
+
+let publicClient: ReturnType<typeof createClient> | undefined;
+
+/** `api`, but a token is never sent: for the public reads whose endpoint ignores one (carbon.md §1, §5). */
+export const publicApi = <T>(path: string, options?: RequestOptions): Promise<T> => {
+  publicClient ??= createClient({
+    baseUrl: config().apiUrl,
+    getToken: () => Promise.resolve(null),
+  });
+
+  return publicClient<T>(path, options);
+};

@@ -47,4 +47,19 @@ describe('api', () => {
       ((fetchFake.mock.calls[0]?.[1] as RequestInit).headers as Headers).has('Authorization'),
     ).toBe(false);
   });
+
+  it('publicApi never sends an Authorization, whatever token the bridge holds', async () => {
+    const { publicApi, setTokenSource } = await import('../../../../src/app/session/api');
+    const fetchFake = vi.fn((_url: string, _init: RequestInit) =>
+      Promise.resolve(new Response('{}', { status: 200 })),
+    );
+
+    vi.stubGlobal('fetch', fetchFake);
+    setTokenSource(() => Promise.resolve('secret'));
+    await publicApi('/carbon/batches');
+
+    expect(
+      ((fetchFake.mock.calls[0]?.[1] as RequestInit).headers as Headers).has('Authorization'),
+    ).toBe(false);
+  });
 });
