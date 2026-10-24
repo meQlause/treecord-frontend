@@ -5,7 +5,12 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../../app/session/api';
 import { useAccountKey } from '../../app/session/use-account-key';
 import { ApiError } from '../../shared/api/errors';
-import { finishRecording, setSubmissionId, type QueuedRecording } from '../evidence/queue';
+import {
+  finishRecording,
+  readClip,
+  setSubmissionId,
+  type QueuedRecording,
+} from '../evidence/queue';
 import type { CaptureKind } from '../evidence/evidence.rules';
 
 export type CaptureTarget = {
@@ -218,4 +223,30 @@ export const sendRecording = async (row: QueuedRecording, blob: Blob): Promise<S
   } catch (error) {
     return { type: 'failed', failure: failureOf(error) };
   }
+};
+
+/** An earlier attempt got an id: the server may already hold the recording, and upload-url would call it a duplicate. */
+const alreadyHeld = async (submissionId: string): Promise<boolean> => {
+  try {
+    return (await api<{ status: string }>(`/evidence/${submissionId}`)).status !== 'queued';
+  } catch {
+    return false;
+  }
+};
+
+/** S20's "Upload now": the stored clip and row, never re-sealed (FR-110); a row the server already holds is only cleaned up. */
+export const sendQueued = async (row: QueuedRecording): Promise<SendResult> => {
+  const blob = await readClip(row.id);
+
+  if (blob === undefined) {
+    return { type: 'failed', failure: UPLOAD_FAILED };
+  }
+
+  if (row.submissionId !== null && (await alreadyHeld(row.submissionId))) {
+    await finishRecording(row, row.submissionId);
+
+    return { type: 'sent', submissionId: row.submissionId, rejected: false };
+  }
+
+  return sendRecording(row, blob);
 };

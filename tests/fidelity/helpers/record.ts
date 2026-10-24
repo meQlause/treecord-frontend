@@ -233,3 +233,43 @@ export const seeQr = (page: Page, values: string[]): Promise<void> =>
   page.evaluate((seen) => {
     Object.assign(window, { qrSeen: seen });
   }, values);
+
+/** Puts queue rows, each with a clip, into this phone's IndexedDB before the app loads. */
+export const seedQueue = async (page: Page, rows: { id: string }[]): Promise<void> => {
+  await page.addInitScript(async (seeded) => {
+    const database = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('treecord-device', 1);
+
+      request.onupgradeneeded = () =>
+        ['keys', 'clips', 'queue'].forEach((store) => request.result.createObjectStore(store));
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const write = database.transaction(['queue', 'clips'], 'readwrite');
+
+    seeded.forEach((row) => {
+      write.objectStore('queue').put(row, row.id);
+      write.objectStore('clips').put(new Blob(['clip'], { type: 'video/webm' }), row.id);
+    });
+  }, rows);
+};
+
+/** The keys of the stored clips now. */
+export const readClipIds = (page: Page): Promise<string[]> =>
+  page.evaluate(async () => {
+    const database = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('treecord-device', 1);
+
+      request.onupgradeneeded = () =>
+        ['keys', 'clips', 'queue'].forEach((store) => request.result.createObjectStore(store));
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+
+    return new Promise<string[]>((resolve, reject) => {
+      const request = database.transaction('clips').objectStore('clips').getAllKeys();
+
+      request.onsuccess = () => resolve(request.result.map(String));
+      request.onerror = () => reject(request.error);
+    });
+  });

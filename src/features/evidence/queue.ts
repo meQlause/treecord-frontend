@@ -62,3 +62,26 @@ export const finishRecording = async (
   await inStore(CLIPS, 'readwrite', (store) => store.delete(row.id));
   await inStore(QUEUE, 'readwrite', (store) => store.delete(row.id));
 };
+
+/** The queued recordings of `profileId`, newest capture first; `[]` when storage is blocked. */
+export const listQueued = async (profileId: string): Promise<QueuedRecording[]> => {
+  try {
+    const rows = (await inStore(QUEUE, 'readonly', (store) => store.getAll())) as QueuedRecording[];
+
+    return rows
+      .filter((row) => row.profileId === profileId)
+      .sort((first, second) => second.capturedAt.localeCompare(first.capturedAt));
+  } catch {
+    return [];
+  }
+};
+
+/** The original bytes of a queued recording, or `undefined` when the clip is gone from this device. */
+export const readClip = async (id: string): Promise<Blob | undefined> =>
+  (await inStore(CLIPS, 'readonly', (store) => store.get(id))) as Blob | undefined;
+
+/** "Discard": the row and its clip leave this device; nothing is sent (FR-111). */
+export const discardRecording = async (id: string): Promise<void> => {
+  await inStore(CLIPS, 'readwrite', (store) => store.delete(id));
+  await inStore(QUEUE, 'readwrite', (store) => store.delete(id));
+};

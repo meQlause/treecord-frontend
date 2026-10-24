@@ -3,7 +3,6 @@
 // page never decides eligibility. It lives in the workspace frame, so the shell's offline callout wraps it.
 import { useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence } from 'motion/react';
-import { useEffect, useState } from 'react';
 // eslint-disable-next-line import/no-unresolved -- react-router publishes only an exports map, which the import plugin's resolver cannot read
 import { Link, useSearchParams } from 'react-router';
 import { useSession } from '../../app/session/session';
@@ -21,6 +20,7 @@ import { Skeleton } from '../../shared/ui/Skeleton';
 import { LOADING } from '../../app/states/states.copy';
 import { useLocalDeviceId } from './device.store';
 import { Overview, TreeCard } from './my-trees.parts';
+import { FADE_AFTER_MS, useFadeAfter } from './use-fade-after';
 import { usePlanterTrees, type PlanterTree } from './planter.api';
 import { TreesArt } from './planter.art';
 import {
@@ -43,28 +43,6 @@ import {
   treeCount,
 } from './planter.copy';
 import { filterOf, flattenTrees, parseStatus, statusOfFilter } from './planter.rules';
-
-const FADE_AFTER_MS = 300;
-
-/** True once `active` has held for `delay` ms: the cards of a filter that is loading fade only if it takes a while. */
-function useFadeAfter(active: boolean, delay: number): boolean {
-  const [late, setLate] = useState(false);
-
-  useEffect(() => {
-    if (!active) {
-      return undefined;
-    }
-
-    const timer = setTimeout(() => setLate(true), delay);
-
-    return () => {
-      clearTimeout(timer);
-      setLate(false);
-    };
-  }, [active, delay]);
-
-  return late;
-}
 
 function useTrees() {
   const [params, setParams] = useSearchParams();

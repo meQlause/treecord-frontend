@@ -43,7 +43,7 @@ export const captureAlert = (key: AlertKey): ReactNode => ALERTS[key];
 const reasonText = (reason: string): string => REASON_TEXT[reason] ?? reason;
 
 /** What a failed send says in the review (§3, §5): the sentence and every reason of a refusal, or the registry copy. */
-function SendAlert({ failure }: { failure: SendFailure }) {
+export function SendAlert({ failure }: { failure: SendFailure }) {
   if (failure.type === 'refused') {
     return (
       <Banner tone="error">
