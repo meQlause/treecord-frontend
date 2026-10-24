@@ -26,3 +26,11 @@ export const TICK_MS = 100;
 export const QR_POLL_MS = 500;
 
 export const GPS_TIMEOUT_MS = 30_000;
+
+/** The server's own duration window (`duration` precheck); the app records 5-10 s inside it. */
+export const SERVER_VIDEO_MIN_SEC = 4;
+
+export const SERVER_VIDEO_MAX_SEC = 12;
+
+/** How near the planting a check-in must be (the `location` precheck). */
+export const CHECK_IN_RADIUS_M = 15;

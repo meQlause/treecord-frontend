@@ -53,7 +53,7 @@ describe('rejectedLine', () => {
           },
         }),
       ),
-    ).toBe('liveness_low');
+    ).toBe('Not a live scene');
     expect(rejectedLine(item({}))).toBe('Turned back by the server');
     expect(rejectedLine(item({ status: 'failed' }))).toBeNull();
   });

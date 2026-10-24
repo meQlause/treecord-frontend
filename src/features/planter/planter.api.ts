@@ -7,11 +7,10 @@ import {
   useQuery,
   type InfiniteData,
 } from '@tanstack/react-query';
-import { useRef } from 'react';
 import { api } from '../../app/session/api';
 import { useAccountKey } from '../../app/session/use-account-key';
-import { FIRST_POLL_MS, pollDelay } from '../accounts/accounts.rules';
 import type { CaptureKind } from '../evidence/evidence.rules';
+import { usePace } from './use-pace';
 
 export type TreeStatus = 'alive' | 'flagged' | 'dead' | 'removed' | 'completed';
 
@@ -182,7 +181,7 @@ const isMoving = (data: InfiniteData<UploadsPage> | undefined): boolean =>
  */
 export const usePlanterUploads = (filter: UploadFilter, enabled: boolean) => {
   const { ready, key } = useAccountKey();
-  const pace = useRef<{ seen: unknown; delay: number }>({ seen: undefined, delay: FIRST_POLL_MS });
+  const pace = usePace();
 
   return useInfiniteQuery({
     queryKey: ['planter', 'uploads', ...key, filter],
@@ -192,17 +191,6 @@ export const usePlanterUploads = (filter: UploadFilter, enabled: boolean) => {
     getNextPageParam: (last) => last.nextCursor ?? undefined,
     placeholderData: keepPreviousData,
     enabled: ready && enabled,
-    refetchInterval: ({ state }) => {
-      if (!isMoving(state.data)) {
-        return false;
-      }
-
-      pace.current = {
-        seen: state.data,
-        delay: pollDelay(pace.current.delay, state.data !== pace.current.seen),
-      };
-
-      return pace.current.delay;
-    },
+    refetchInterval: ({ state }) => pace(state.data, isMoving(state.data)),
   });
 };
