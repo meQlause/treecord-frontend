@@ -17,7 +17,7 @@ export type KeyRecord = {
 
 const BYTE = 0xff;
 
-const base64url = (bytes: Uint8Array): string =>
+export const base64url = (bytes: Uint8Array): string =>
   btoa(String.fromCharCode(...bytes.map((byte) => byte & BYTE)))
     .replaceAll('+', '-')
     .replaceAll('/', '_')

@@ -1,19 +1,64 @@
-// The offline queue of recordings (s19-record.md, s20-uploads.md). S22 only counts what this phone's key signed, to warn
-// before a revoke (devices.md §3 trap: those recordings would be rejected afterwards). A row is `{ profileId, payload }`
-// and `payload.deviceKey` is the thumbprint of the key that signed it.
-import { QUEUE, inStore } from './device-db';
+// The offline queue of recordings (s19-record.md §1, s20-uploads.md). A row is persisted before any network call, so a tab
+// that dies mid-upload loses nothing; it lives until its submit answers (202 or 422) or the planter discards it. Every
+// row carries its profile id and is never read under another (FR-106). The clip Blob sits beside it in `clips`.
+import { CLIPS, QUEUE, inStore } from './device-db';
+import type { CapturePayload, CaptureKind } from './evidence.rules';
 
-type QueuedRow = { profileId?: string; payload?: { deviceKey?: string } };
+export type QueuedRecording = {
+  id: string;
+  profileId: string;
+  submissionId: string | null;
+  kind: CaptureKind;
+  campaign: { address: string; title: string; regionName?: string };
+  slotId: string | null;
+  treeId: string | null;
+  milestone: number;
+  month: number | null;
+  durationSec: number;
+  sizeBytes: number;
+  contentType: string;
+  capturedAt: string;
+  payload: CapturePayload;
+  canonical: string;
+  signature: string;
+};
 
 /** How many queued recordings of `profileId` were signed with the key `thumbprint`; 0 when storage is blocked. */
 export const countQueuedFor = async (profileId: string, thumbprint: string): Promise<number> => {
   try {
-    const rows = (await inStore(QUEUE, 'readonly', (store) => store.getAll())) as QueuedRow[];
+    const rows = (await inStore(QUEUE, 'readonly', (store) => store.getAll())) as Pick<
+      QueuedRecording,
+      'profileId' | 'payload'
+    >[];
 
-    return rows.filter(
-      (row) => row.profileId === profileId && row.payload?.deviceKey === thumbprint,
-    ).length;
+    return rows.filter((row) => row.profileId === profileId && row.payload.deviceKey === thumbprint)
+      .length;
   } catch {
     return 0;
   }
+};
+
+/** Clip first, then the row: a clip without a row is harmless, a row without a clip is a promise we cannot keep. */
+export const queueRecording = async (row: QueuedRecording, blob: Blob): Promise<void> => {
+  await inStore(CLIPS, 'readwrite', (store) => store.put(blob, row.id));
+  await inStore(QUEUE, 'readwrite', (store) => store.put(row, row.id));
+};
+
+/** `submissionId` is stored before the PUT, so a retry reuses it. */
+export const setSubmissionId = (row: QueuedRecording, submissionId: string): Promise<IDBValidKey> =>
+  inStore(QUEUE, 'readwrite', (store) => store.put({ ...row, submissionId }, row.id));
+
+/** The submit answered: the row goes, the clip is re-keyed to the submission so S21 can play it (FR-114). */
+export const finishRecording = async (
+  row: QueuedRecording,
+  submissionId: string,
+): Promise<void> => {
+  const clip = (await inStore(CLIPS, 'readonly', (store) => store.get(row.id))) as Blob | undefined;
+
+  if (clip !== undefined) {
+    await inStore(CLIPS, 'readwrite', (store) => store.put(clip, submissionId));
+  }
+
+  await inStore(CLIPS, 'readwrite', (store) => store.delete(row.id));
+  await inStore(QUEUE, 'readwrite', (store) => store.delete(row.id));
 };

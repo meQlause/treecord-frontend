@@ -5,7 +5,13 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: 'tests/fidelity',
   testMatch: '**/*.spec.ts',
-  use: { baseURL: 'http://127.0.0.1:5173' },
+  // S19 films with Chromium's fake camera, so "Open camera & GPS" needs no prompt and no hardware
+  use: {
+    baseURL: 'http://127.0.0.1:5173',
+    launchOptions: {
+      args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'],
+    },
+  },
   // the app, served the way the API's CORS origin expects (backend WEB_ORIGIN)
   webServer: {
     command: 'npx vite --host 127.0.0.1 --port 5173 --strictPort',

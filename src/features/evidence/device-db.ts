@@ -6,7 +6,7 @@ const VERSION = 1;
 
 export const KEYS = 'keys';
 
-const CLIPS = 'clips';
+export const CLIPS = 'clips';
 
 export const QUEUE = 'queue';
 

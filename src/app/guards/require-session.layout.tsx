@@ -4,6 +4,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 // eslint-disable-next-line import/no-unresolved -- react-router publishes only an exports map, which the import plugin's resolver cannot read
 import { Navigate, Outlet, useLocation } from 'react-router';
+import { RECORD_PATH } from '../shell/shell-routes';
 import { signInUrl } from '../return-to';
 import { SESSION_EXPIRED } from '../session/expire';
 import { useSession } from '../session/session';
@@ -36,5 +37,5 @@ export function Component() {
     ready: <Outlet />,
   }[session.phase];
 
-  return <WorkspaceMain>{body}</WorkspaceMain>;
+  return <WorkspaceMain capturing={pathname.startsWith(RECORD_PATH)}>{body}</WorkspaceMain>;
 }

@@ -1,6 +1,8 @@
 // Every sentence the planter lists show (S16 now; S17, S18 and S22 add theirs). Verbatim from the mockup
 // (planter-pages.jsx), the SRS or error-handling §4; a COPY id with no approved text is a lorem placeholder.
 
+import { UPLOAD_WINDOW_HOURS } from '../evidence/evidence.config';
+
 // ---- shared by the planter lists ----
 export const WALLET_WAIT = 'Your wallet is still being prepared. Try again in a moment.';
 
@@ -235,7 +237,28 @@ export const heldLink = (month: number, status: string): string =>
 
 /** error-handling §4.2 sentences for the capture reasons a challenge can wait on. */
 export const REASON_TEXT: Readonly<Record<string, string>> = {
-  milestone_not_open: 'The check-in window isn’t open',
+  device_unknown_or_revoked: 'Device unavailable',
+  device_not_owned: 'Signed by another device',
+  signature_invalid: 'Device signature doesn’t match',
+  hash_mismatch: 'Video changed after signing',
+  duplicate_video: 'Video already used',
+  stale_capture: `Uploaded more than ${UPLOAD_WINDOW_HOURS} hours after recording`,
+  future_capture: 'Capture time is in the future',
+  gps_inaccurate: 'GPS accuracy too low',
+  outside_region: 'Outside the campaign region',
+  moved_tree: 'Too far from where the tree was planted',
+  video_too_short: 'Video too short',
+  video_too_long: 'Video too long',
+  slot_not_owned: 'You don’t hold this slot',
+  tree_not_owned: 'Tree unavailable for this account',
+  campaign_not_active: 'Campaign must be Active.',
   wrong_tree_status: 'Tree status changed',
-  milestone_already_done: 'The check-in for this window is already done',
+  replant_deadline_passed: 'The replant deadline has passed',
+  milestone_not_open: 'The check-in window isn’t open',
+  milestone_already_done: 'This milestone already has a check-in',
+  slot_already_planted: 'This slot already has a planting',
+  already_reported: 'Already submitted for this tree',
+  challenge_missing: 'The active challenge code is missing',
+  tag_missing: 'No tree tag has been issued for this target',
+  tag_mismatch: 'The recording names another tree tag',
 };
