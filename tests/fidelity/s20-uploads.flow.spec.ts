@@ -2,35 +2,13 @@
 // conditions (S20: clock 2026-10-23T10:00:00Z, UTC). Sign-in uses the real Privy test account; `GET /me`, the planter
 // uploads list and the evidence endpoints are answered by the spec (the backend does not run). The one local row and its
 // clip are seeded into this phone's IndexedDB before the app loads, and read back after.
-import type { Page } from '@playwright/test';
-import { SARI } from './fixtures/accounts';
-import {
-  CHECKING,
-  LOCAL_ROW,
-  NEEDS_REVIEW,
-  ONCHAIN,
-  REJECTED,
-  REJECTED_ID,
-  STALE,
-  SUMMARY_3,
-  uploadsOf,
-} from './fixtures/uploads';
-import type { Json } from './fixtures/campaigns';
-import { SUBMIT_202, TARGET_3001, UPLOAD_201, refusal } from './fixtures/record';
-import { expect, settle, test, type OpenOptions } from './helpers/flow';
-import { answerPlanter, type PlanterResponder } from './helpers/planter';
-import {
-  answerEvidence,
-  readClipIds,
-  readQueue,
-  seedQueue,
-  type EvidenceServer,
-  type Recorded,
-} from './helpers/record';
-import { openSignedIn } from './helpers/signed-in';
+import { CHECKING, ONCHAIN, REJECTED_ID, STALE, SUMMARY_3, uploadsOf } from './fixtures/uploads';
+import { refusal } from './fixtures/record';
+import { expect, settle, test } from './helpers/flow';
+import type { Recorded } from './helpers/record';
+import { readClipIds, readQueue } from './helpers/record';
+import { THREE, cards, localCard, ofFilter, openUploads } from './helpers/uploads';
 
-const ROW = 'S20';
-const PATH = '/app/planter/uploads';
 const TEST_MS = 120_000;
 const HTTP_UNPROCESSABLE = 422;
 const POLL_WINDOW_MS = 7000;
@@ -38,64 +16,6 @@ const QUIET_MS = 8000;
 const QUICK_MS = 1500;
 
 test.describe.configure({ timeout: TEST_MS });
-
-type Open = (options?: OpenOptions) => Promise<{ page: Page }>;
-
-type Setup = {
-  local?: boolean;
-  /** What the list answers for `filter`; defaults to the three fixture items. */
-  list?: (filter: string, record: Recorded) => Json;
-  server?: Partial<EvidenceServer>;
-};
-
-type Opened = { page: Page; record: Recorded; lists: URL[] };
-
-const THREE: Json[] = [NEEDS_REVIEW, REJECTED, ONCHAIN];
-
-const ofFilter = (filter: string, items: Json[]): Json[] => {
-  if (filter === 'sent') {
-    return items.filter((item) => item.status !== 'rejected');
-  }
-
-  return filter === 'rejected' ? items.filter((item) => item.status === 'rejected') : items;
-};
-
-const SERVER: EvidenceServer = {
-  target: { body: TARGET_3001 },
-  uploadUrl: { status: 201, body: UPLOAD_201 },
-  submit: { status: 202, body: SUBMIT_202 },
-};
-
-const openUploads = async (open: Open, setup: Setup = {}): Promise<Opened> => {
-  const record: Recorded = { api: [], puts: [] };
-  const lists: URL[] = [];
-  const responder: PlanterResponder = ({ url }) => {
-    const filter = url.searchParams.get('filter') ?? 'all';
-
-    return {
-      body: setup.list?.(filter, record) ?? uploadsOf(ofFilter(filter, THREE)),
-    };
-  };
-
-  const { page } = await openSignedIn(
-    open,
-    { row: ROW, profile: SARI, path: PATH },
-    async (target) => {
-      if (setup.local !== false) {
-        await seedQueue(target, [LOCAL_ROW]);
-      }
-
-      await answerPlanter(target, responder, lists);
-      await answerEvidence(target, { ...SERVER, ...setup.server }, record);
-    },
-  );
-
-  return { page, record, lists };
-};
-
-const cards = (page: Page) => page.locator('.campaign-card');
-
-const localCard = (page: Page) => cards(page).filter({ hasText: 'Waiting' });
 
 const submitted = (record: Recorded): boolean =>
   record.api.some(({ path }) => path.endsWith('/submit'));
