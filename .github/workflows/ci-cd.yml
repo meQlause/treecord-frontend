@@ -1,0 +1,74 @@
+name: ci-cd
+
+# Every pull request and every merge to master is checked. A merge to master that passes builds the web app with its
+# public settings and deploys it to Cloud Run.
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+env:
+  GCP_PROJECT: treecord-512605
+  GCP_REGION: asia-southeast1
+  IMAGE: asia-southeast1-docker.pkg.dev/treecord-512605/treecord/web
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm check
+
+  deploy:
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write # signs in to Google Cloud with no stored key (workload identity federation)
+    concurrency:
+      group: deploy-web
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/631130167814/locations/global/workloadIdentityPools/github/providers/github-frontend
+          service_account: frontend-deployer@treecord-512605.iam.gserviceaccount.com
+      - uses: google-github-actions/setup-gcloud@v2
+      - run: gcloud auth configure-docker asia-southeast1-docker.pkg.dev --quiet
+      - name: Build and push the image
+        # VITE_* values are public (ADR-014): the Privy app id, the chain and the API's address
+        run: |
+          docker build -t "$IMAGE:$GITHUB_SHA" \
+            --build-arg VITE_API_URL=https://treecord-api-631130167814.asia-southeast1.run.app/api/v1 \
+            --build-arg VITE_PRIVY_APP_ID=cmvmafmxp01080il0jl4a9x7u \
+            --build-arg VITE_CHAIN_ID=84532 \
+            --build-arg "VITE_NETWORK_LABEL=Base Sepolia" \
+            --build-arg VITE_RPC_URL=https://sepolia.base.org \
+            --build-arg VITE_CAMPAIGN_FACTORY_ADDRESS=0xB963c74a7a1456dd1f37252fBa53eEeF8E18e505 \
+            --build-arg VITE_TIME_UNIT_SECONDS=2592000 \
+            .
+          docker push "$IMAGE:$GITHUB_SHA"
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy treecord-web \
+            --project "$GCP_PROJECT" --region "$GCP_REGION" --image "$IMAGE:$GITHUB_SHA" \
+            --service-account "treecord-web@$GCP_PROJECT.iam.gserviceaccount.com" \
+            --allow-unauthenticated --port 8080 --cpu 1 --memory 256Mi \
+            --min-instances 0 --max-instances 3 --quiet
+          echo "Web: https://treecord-web-631130167814.asia-southeast1.run.app" >> "$GITHUB_STEP_SUMMARY"
