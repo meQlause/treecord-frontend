@@ -144,3 +144,39 @@ export const treesOf = (
   summary: options.summary ?? SUMMARY,
   chainTime: '2026-10-23T09:12:31.000Z',
 });
+
+const ROOTS_SLOT_CAMPAIGN: Json = {
+  address: '0x0000000000000000000000000000000000000003',
+  title: 'Roots that stay',
+  status: 'active',
+  regionName: 'Banyumas, Central Java',
+  regionRadiusM: 2500,
+  speciesName: 'Mahogany',
+};
+
+const SLOT_CAPTURE: Json = { allowed: true, reasons: [], held: null };
+
+/** Slot 41, a claimed open slot with its tag (planter.md §2). */
+export const SLOT_41: Json = {
+  campaign: ROOTS_SLOT_CAMPAIGN,
+  slotId: '41',
+  kind: 'open',
+  status: 'claimed',
+  claimedAt: '2026-10-20T02:11:09.000Z',
+  tag: { code: 'TC-B2YK-5ZWN', issuedAt: '2026-10-20T02:14:52.318Z' },
+  capture: SLOT_CAPTURE,
+};
+
+/** Slot 42, an anchor slot assigned by the operator, with its tag. */
+export const SLOT_42: Json = {
+  campaign: ROOTS_SLOT_CAMPAIGN,
+  slotId: '42',
+  kind: 'anchor',
+  status: 'anchor',
+  claimedAt: '2026-10-20T02:11:09.000Z',
+  tag: { code: 'TC-R7DH-8QEX', issuedAt: '2026-10-20T02:14:52.318Z' },
+  capture: SLOT_CAPTURE,
+};
+
+/** A `GET /planter/slots` answer: bounded, so never a cursor. */
+export const slotsOf = (items: Json[]): Json => ({ items, nextCursor: null, total: items.length });

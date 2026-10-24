@@ -1,7 +1,7 @@
 // docs/BE/features/planter.md §1 as S16 reads it: the planter's trees, one page per `nextCursor`, filtered by status, with
 // the overview totals and, per tree, the six milestone windows and what may be captured. Private: the key follows the
 // account and its wallet (NFR-051). The page decides nothing about eligibility; it shows what `capture` says.
-import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { api } from '../../app/session/api';
 import { useAccountKey } from '../../app/session/use-account-key';
 
@@ -59,6 +59,36 @@ export const usePlanterTrees = (status: TreeStatus | undefined) => {
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
     placeholderData: keepPreviousData,
+    enabled: ready,
+  });
+};
+
+// ---- GET /api/v1/planter/slots (planter.md §2): bounded, one call, no cursor ----
+export type SlotKind = 'open' | 'anchor';
+
+export type PlanterSlot = {
+  slotId: string;
+  kind: SlotKind;
+  status: 'claimed' | 'anchor';
+  campaign: {
+    address: string;
+    title: string;
+    regionName: string;
+    regionRadiusM: number;
+    speciesName: string;
+  };
+  /** The server issues it on load; `null` is kept for safety, not expected in a 200. */
+  tag: { code: string } | null;
+};
+
+export const usePlanterSlots = () => {
+  const { ready, key } = useAccountKey();
+
+  return useQuery({
+    queryKey: ['planter', 'slots', ...key],
+    queryFn: ({ signal }) =>
+      api<{ items: PlanterSlot[]; total: number }>('/planter/slots', { signal }),
+    select: ({ items }) => items,
     enabled: ready,
   });
 };

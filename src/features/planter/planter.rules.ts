@@ -4,7 +4,7 @@ import type { IconName } from '../../shared/art/Icon';
 import type { MilestoneStatus } from '../../shared/art/TreeCardArt';
 import { localDate } from '../../shared/format/datetime';
 import { usdc } from '../../shared/format/money';
-import type { PlanterTree, TreeMilestone, TreeStatus, TreesPage } from './planter.api';
+import type { PlanterSlot, PlanterTree, TreeMilestone, TreeStatus, TreesPage } from './planter.api';
 import {
   ALL_PAID,
   ALL_SETTLED,
@@ -183,3 +183,31 @@ export const flattenTrees = (pages: readonly TreesPage[] | undefined) => ({
   total: pages?.at(-1)?.total ?? 0,
   summary: pages?.at(-1)?.summary,
 });
+
+// ---- S17 (s17-slots.md §2, §4, §6) ----
+const SLOT_FILTER_PARAM = { Claimed: 'claimed', Assigned: 'anchor' } as const;
+
+/** The `?filter=` of S17: `claimed` or `assigned`; anything else is All. */
+export const parseSlotFilter = (raw: string | null): 'All' | 'Claimed' | 'Assigned' => {
+  if (raw === 'claimed') {
+    return 'Claimed';
+  }
+
+  return raw === 'assigned' ? 'Assigned' : 'All';
+};
+
+/** The URL value of a slot filter button; "All" has none. */
+export const slotFilterParam = (filter: string): string | undefined =>
+  filter === 'All' ? undefined : filter.toLowerCase();
+
+/** The filter runs in the browser over the whole list (the endpoint takes no query). */
+export const filterSlots = (slots: readonly PlanterSlot[], filter: string): PlanterSlot[] =>
+  filter === 'All'
+    ? [...slots]
+    : slots.filter(
+        ({ status }) => status === SLOT_FILTER_PARAM[filter as keyof typeof SLOT_FILTER_PARAM],
+      );
+
+/** Where "Record planting" goes: PLANTED needs the campaign, as slot ids are unique only within one. */
+export const plantingLink = ({ campaign, slotId }: PlanterSlot): string =>
+  `/app/planter/record?campaign=${campaign.address}&slot=${slotId}&kind=PLANTED`;

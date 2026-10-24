@@ -129,3 +129,53 @@ export const REPORT_DEAD = 'Report dead';
 
 export const checkInHeld = (month: number, state: string): string =>
   `Month ${month} check-in ${state}`;
+
+// ---- S17 slots ----
+export const SLOTS_EYEBROW = 'YOUR NEXT START';
+
+export const SLOTS_LINE = 'Room for';
+
+export const SLOTS_EM = 'new roots.';
+
+export const SLOTS_COORD = '06 / UNPLANTED SLOTS';
+
+export const SLOTS_CATALOG = 'Unplanted slots';
+
+export const SLOTS_KICKER = 'Claimed, waiting for a seedling.';
+
+export const SLOT_FILTERS = ['All', 'Claimed', 'Assigned'] as const;
+
+export const SLOT_FILTERS_LABEL = 'Slot status';
+
+export const slotCount = (shown: number, all: number): string =>
+  shown < all ? `${shown} slots of ${all}` : `${shown} slots`;
+
+export const CLAIM_MORE = 'Claim more in a campaign';
+
+export const NO_SLOTS = 'No unplanted slots';
+
+export const BROWSE_CAMPAIGNS = 'Browse campaigns';
+
+/** COPY-403: lorem until the owner approves the title of a filter that matches no slot. */
+export const NO_MATCHING_SLOTS_COPY = 'COPY-403';
+
+export const slotNumber = (slotId: string): string => `Slot #${slotId}`;
+
+export const SLOT_BADGE = { claimed: 'Claimed', anchor: 'Assigned' } as const;
+
+export const SLOT_BADGE_CLASS = { claimed: 'funding', anchor: 'active' } as const;
+
+export const slotKind = (kind: 'open' | 'anchor'): string =>
+  `${kind === 'open' ? 'Open' : 'Anchor'} slot`;
+
+export const TO_PLANT = 'to plant';
+
+export const radiusLabel = (metres: string): string => `${metres} m`;
+
+export const tagLine = (code: string | null): string => `Tag ${code ?? 'not issued'}`;
+
+export const PRINT_TAG = 'Print tag';
+
+export const printLine = (slotId: string, title: string): string => `Slot #${slotId} · ${title}`;
+
+export const RECORD_PLANTING = 'Record planting';

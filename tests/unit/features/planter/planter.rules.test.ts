@@ -1,14 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import type { PlanterTree } from '../../../../src/features/planter/planter.api';
+import type { PlanterSlot, PlanterTree } from '../../../../src/features/planter/planter.api';
 import {
   dotsOf,
   filterOf,
+  filterSlots,
   fundingRow,
   metaLine,
+  parseSlotFilter,
   parseStatus,
+  plantingLink,
   percentPaid,
   primaryAction,
   reportDeadLink,
+  slotFilterParam,
   statusOfFilter,
 } from '../../../../src/features/planter/planter.rules';
 
@@ -166,5 +170,40 @@ describe('primaryAction and reportDeadLink', () => {
 
   it('never reports a flagged tree dead', () => {
     expect(reportDeadLink(tree({ status: 'flagged' }))).toBeNull();
+  });
+});
+
+const slot = (slotId: string, status: 'claimed' | 'anchor'): PlanterSlot =>
+  ({
+    slotId,
+    status,
+    kind: status === 'anchor' ? 'anchor' : 'open',
+    campaign: { address: '0xabc' },
+  }) as PlanterSlot;
+
+describe('the slot filter', () => {
+  it('reads ?filter= as All, Claimed or Assigned, and writes it back without "All"', () => {
+    expect(parseSlotFilter('claimed')).toBe('Claimed');
+    expect(parseSlotFilter('assigned')).toBe('Assigned');
+    expect(parseSlotFilter('paused')).toBe('All');
+    expect(parseSlotFilter(null)).toBe('All');
+    expect(slotFilterParam('Assigned')).toBe('assigned');
+    expect(slotFilterParam('All')).toBeUndefined();
+  });
+
+  it('keeps the claimed slots for "Claimed" and the anchor ones for "Assigned", the whole list for "All"', () => {
+    const slots = [slot('41', 'claimed'), slot('42', 'anchor')];
+
+    expect(filterSlots(slots, 'All')).toHaveLength(2);
+    expect(filterSlots(slots, 'Claimed').map(({ slotId }) => slotId)).toEqual(['41']);
+    expect(filterSlots(slots, 'Assigned').map(({ slotId }) => slotId)).toEqual(['42']);
+  });
+});
+
+describe('plantingLink', () => {
+  it('names the campaign, as a slot id is unique only within one', () => {
+    expect(plantingLink(slot('41', 'claimed'))).toBe(
+      '/app/planter/record?campaign=0xabc&slot=41&kind=PLANTED',
+    );
   });
 });

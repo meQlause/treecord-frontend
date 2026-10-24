@@ -19,7 +19,7 @@ type EmptyStateProps =
       /** The action: a button or link. */
       children?: ReactNode;
     }
-  | { variant: 'compact'; icon?: IconName; title: string; children?: ReactNode }
+  | { variant: 'compact'; icon?: IconName; title: ReactNode; children?: ReactNode }
   | { variant: 'inline'; art: ReactNode; children: ReactNode };
 
 const TONE = {
