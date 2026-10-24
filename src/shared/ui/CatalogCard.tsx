@@ -56,7 +56,9 @@ export function CatalogCard({
           </span>
         )}
         <h2 className="clamp-2" title={title}>
-          <Link to={to}>{title}</Link>
+          <Link to={to} data-testid="campaign-title">
+            {title}
+          </Link>
         </h2>
         {children}
         <Link className="card-bottom" to={to} aria-label={ctaLabel}>
