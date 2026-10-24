@@ -805,6 +805,115 @@ small {
 .toast-error {
   background: #7d4c39;
 }
+/* transaction receipts (app/shell/TxReceipts): the toast's card, stacked bottom right, newest on top */
+.tx-receipts {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(340px, calc(100% - 32px));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tx-receipt {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #244f38;
+  color: #fffefa;
+  box-shadow: 0 10px 30px #19372533;
+  font-size: 12px;
+}
+.tx-reverted {
+  background: #7d4c39;
+}
+.tx-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffffff14;
+}
+.tx-pending .tx-icon {
+  animation: tx-pulse 1.4s ease-in-out infinite;
+}
+.tx-body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.tx-body strong {
+  font-size: 13px;
+}
+.tx-action {
+  color: #cfe3d4;
+}
+.tx-body dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  margin: 4px 0 0;
+}
+.tx-body dt {
+  color: #a9c6b2;
+}
+.tx-body dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.tx-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.tx-copy code {
+  font-size: 12px;
+}
+.tx-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  color: #bfe8cd;
+  font-weight: 600;
+  text-decoration: none;
+}
+.tx-link:hover {
+  text-decoration: underline;
+}
+.tx-receipt .icon-button:hover {
+  background: #ffffff18;
+}
+@keyframes tx-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tx-pending .tx-icon {
+    animation: none;
+  }
+}
+@media (max-width: 760px) {
+  .tx-receipts {
+    right: 16px;
+    bottom: 84px;
+  }
+}
 .empty-state {
   min-height: 380px;
   display: flex;
