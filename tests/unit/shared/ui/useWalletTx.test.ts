@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import {
+  WalletAbortError,
   WalletRejectedError,
   useWalletTx,
   type TxSteps,
@@ -153,5 +154,16 @@ describe('useWalletTx failure and guards', () => {
     expect(result.current.state).toBe('approval');
     act(() => result.current.start());
     expect(result.current.state).toBe('approval');
+  });
+
+  it('a step that finds the review out of date sends nothing and returns to the state it names', async () => {
+    const { result } = setup({
+      send: () => Promise.reject(new WalletAbortError('confirm')),
+      index: () => Promise.resolve(),
+    });
+
+    act(() => result.current.start());
+    await act(() => result.current.confirm());
+    expect(result.current).toMatchObject({ state: 'confirm', busy: false, active: true });
   });
 });

@@ -80,9 +80,14 @@ function Section({ title, kicker, children }: SectionProps) {
   );
 }
 
-type ReadyProps = { campaign: CampaignDetail; viewer: Viewer | null; onRetryWallet: () => void };
+type ReadyProps = {
+  campaign: CampaignDetail;
+  viewer: Viewer | null;
+  onRetryWallet: () => void;
+  onReread: () => Promise<{ campaign: CampaignDetail; viewer: Viewer | null } | undefined>;
+};
 
-function Ready({ campaign, viewer, onRetryWallet }: ReadyProps) {
+function Ready({ campaign, viewer, onRetryWallet, onReread }: ReadyProps) {
   const { notify } = useToast();
   const navigate = useNavigate();
   const { still } = useMotion();
@@ -121,7 +126,13 @@ function Ready({ campaign, viewer, onRetryWallet }: ReadyProps) {
           </Section>
           {viewer !== null && (
             <div id="campaign-actions">
-              <CampaignActions campaign={campaign} viewer={viewer} onRetryWallet={onRetryWallet} />
+              <CampaignActions
+                campaign={campaign}
+                viewer={viewer}
+                amount={amount}
+                onRetryWallet={onRetryWallet}
+                onReread={onReread}
+              />
             </div>
           )}
         </div>
@@ -170,7 +181,14 @@ function Body({ query }: { query: Query }) {
   };
 
   if (data !== undefined) {
-    return <Ready campaign={data.campaign} viewer={data.viewer} onRetryWallet={retryWallet} />;
+    return (
+      <Ready
+        campaign={data.campaign}
+        viewer={data.viewer}
+        onRetryWallet={retryWallet}
+        onReread={async () => (await query.refetch()).data}
+      />
+    );
   }
 
   if (isMissing(error)) {

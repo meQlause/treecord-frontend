@@ -38,6 +38,9 @@ import { answerMe, testLogin } from './helpers/privy';
 import { VIEWPORTS } from './matrix';
 
 const TREES = '/app/planter/trees';
+// a workspace page that is still a stub (no API read, a fixed heading): F4a replaces S14, then name another stub here
+const STUB = '/app/campaigns/new';
+const STUB_HEADING = 'S14 Create campaign';
 const LOADING = 'Loading workspace…';
 const ERROR_TITLE = 'Could not load this page';
 const ERROR_BODY = 'Your inputs and local records are unchanged.';
@@ -71,12 +74,12 @@ test('pattern 1 loading: a slow /me shows the workspace skeleton only after 300 
   const { page } = await open({ row: SHELL });
   const release = Promise.withResolvers<void>();
 
-  await signInWith(page, meBody(SARI), {
-    returnTo: TREES,
+  await signInWith(page, meBody(ALEX), {
+    returnTo: STUB,
     setup: (target) => holdMe(target, release.promise),
   });
   await pause(page);
-  await goInApp(page, TREES);
+  await goInApp(page, STUB);
 
   const status = workspace(page).getByRole('status').filter({ hasText: LOADING });
 
@@ -92,7 +95,7 @@ test('pattern 1 loading: a slow /me shows the workspace skeleton only after 300 
   await page.clock.resume();
   release.resolve();
   await expect(status).toHaveCount(0);
-  await expect(workspace(page).getByRole('heading', { name: 'S16 My trees' })).toBeVisible();
+  await expect(workspace(page).getByRole('heading', { name: STUB_HEADING })).toBeVisible();
 });
 
 test('pattern 8 read failure: a 503 on /me shows "Could not load this page" and Try again re-runs only that read', async ({
@@ -100,23 +103,23 @@ test('pattern 8 read failure: a 503 on /me shows "Could not load this page" and 
 }) => {
   const { page } = await open({ row: SHELL });
 
-  await signInWith(page, UNAVAILABLE, { status: HTTP_UNAVAILABLE, returnTo: TREES });
+  await signInWith(page, UNAVAILABLE, { status: HTTP_UNAVAILABLE, returnTo: STUB });
   await expect(page.locator('#si-error')).toContainText(ERROR_TITLE);
-  await goInApp(page, TREES);
+  await goInApp(page, STUB);
 
   const alert = workspace(page).getByRole('alert');
 
   await expect(alert).toContainText(ERROR_TITLE);
   await expect(alert).toContainText(ERROR_BODY);
   await expect(alert.locator('.error-icon')).toBeVisible();
-  await expect(workspace(page).getByText('S16 My trees')).toHaveCount(0);
+  await expect(workspace(page).getByText(STUB_HEADING)).toHaveCount(0);
 
-  await answerMe(page, meBody(SARI));
+  await answerMe(page, meBody(ALEX));
   const calls = requestsTo(page, OWN_API);
 
   await alert.getByRole('button', { name: 'Try again' }).click();
 
-  await expect(workspace(page).getByRole('heading', { name: 'S16 My trees' })).toBeVisible();
+  await expect(workspace(page).getByRole('heading', { name: STUB_HEADING })).toBeVisible();
   expect(calls.map((call) => `${call.method()} ${new URL(call.url()).pathname}`)).toEqual([
     'GET /api/v1/me',
   ]);
@@ -170,7 +173,7 @@ test('pattern 14 offline: going offline shows the callout and disables the page 
 }) => {
   const { page } = await open({ row: SHELL });
 
-  await signedInAt(page, SARI, TREES);
+  await signedInAt(page, ALEX, STUB);
   const body = workspace(page).locator('fieldset.ws-state-body');
 
   await expect(workspace(page).getByText(OFFLINE)).toHaveCount(0);
@@ -178,7 +181,7 @@ test('pattern 14 offline: going offline shows the callout and disables the page 
 
   await expect(workspace(page).locator('p.ws-callout')).toHaveText(OFFLINE);
   await expect(body).toHaveJSProperty('disabled', true);
-  await expect(workspace(page).getByRole('heading', { name: 'S16 My trees' })).toBeVisible();
+  await expect(workspace(page).getByRole('heading', { name: STUB_HEADING })).toBeVisible();
 
   await page.context().setOffline(false);
   await expect(workspace(page).getByText(OFFLINE)).toHaveCount(0);

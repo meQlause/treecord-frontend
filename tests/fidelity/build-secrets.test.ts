@@ -39,7 +39,19 @@ describe('the production client build', () => {
   let bundle = '';
 
   beforeAll(async () => {
-    const result = await build({ logLevel: 'silent', build: { write: false } });
+    // vitest runs with NODE_ENV=test, which Vite reads as a development build (`import.meta.env.DEV`): build as production
+    const mode = process.env.NODE_ENV;
+
+    process.env.NODE_ENV = 'production';
+
+    const result = await build({ logLevel: 'silent', mode: 'production', build: { write: false } });
+
+    if (mode === undefined) {
+      Reflect.deleteProperty(process.env, 'NODE_ENV');
+    } else {
+      process.env.NODE_ENV = mode;
+    }
+
     const outputs = (Array.isArray(result) ? result : [result]).flatMap((one) =>
       'output' in one ? one.output : [],
     );
@@ -55,6 +67,13 @@ describe('the production client build', () => {
 
   it.each(SECRET_NAMES)('does not name %s', (name) => {
     expect(bundle).not.toContain(name);
+  });
+  // F2b: the browser specs sign with a test key through `window.treecordE2E`, a dev-server-only seam (shared/chain/wallet.ts)
+  it('has no test-wallet seam and none of the anvil keys the specs use', () => {
+    expect(bundle).not.toContain('treecordE2E');
+    expect(bundle).not.toContain(
+      '8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba',
+    );
   });
 
   it("does not contain the value of any secret in the backend's .env", () => {

@@ -22,6 +22,13 @@ export type TxState =
 /** Throw this from a step when the person declined in their wallet: the state becomes `rejected`, not `failed`. */
 export class WalletRejectedError extends Error {}
 
+/** Throw this from a step that found the review out of date: nothing was sent, and the flow goes back to `to`. */
+export class WalletAbortError extends Error {
+  constructor(readonly to: TxState) {
+    super(to);
+  }
+}
+
 type Step = () => Promise<unknown>;
 type Plan = [during: TxState, step: Step | undefined][];
 
@@ -37,6 +44,14 @@ export type TxSteps = {
 const WAITING: readonly TxState[] = ['approval', 'confirm'];
 const IN_FLIGHT: readonly TxState[] = ['approving', 'confirming', 'indexing'];
 const RESTING: readonly TxState[] = ['idle', 'done', 'rejected', 'failed'];
+
+const outcomeOf = (error: unknown): TxState => {
+  if (error instanceof WalletAbortError) {
+    return error.to;
+  }
+
+  return error instanceof WalletRejectedError ? 'rejected' : 'failed';
+};
 
 export function useWalletTx(steps: TxSteps) {
   const [state, setState] = useState<TxState>('idle');
@@ -66,7 +81,7 @@ export function useWalletTx(steps: TxSteps) {
         await step?.();
       }
     } catch (error) {
-      outcome = error instanceof WalletRejectedError ? 'rejected' : 'failed';
+      outcome = outcomeOf(error);
     }
 
     flight.current = false;
@@ -102,9 +117,10 @@ export function useWalletTx(steps: TxSteps) {
     busy: IN_FLIGHT.includes(state),
     /** A transaction is open (waiting for a click or running). */
     active: !RESTING.includes(state),
-    start: (): void => {
+    /** Opens the transaction; `withApproval` says whether the allowance step comes first (default: the steps have one). */
+    start: (withApproval = steps.approve !== undefined): void => {
       if (RESTING.includes(state)) {
-        setState(steps.approve === undefined ? 'confirm' : 'approval');
+        setState(withApproval ? 'approval' : 'confirm');
       }
     },
     approve,

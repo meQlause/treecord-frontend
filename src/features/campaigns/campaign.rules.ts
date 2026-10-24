@@ -119,3 +119,40 @@ export const branchesFor = (campaign: CampaignDetail, viewer: Viewer) => {
     readOnly: !(walletAction || flags.operator || flags.donorActive),
   };
 };
+
+const AMOUNT_PATTERN = /^\d+(\.\d{1,6})?$/u;
+const MICRO_DIGITS = 6;
+
+/** FR-043: the typed amount as base units (bigint, never a float), or `null` when it is not an amount above zero. */
+export const parseAmount = (text: string): bigint | null => {
+  const trimmed = text.trim();
+
+  if (!AMOUNT_PATTERN.test(trimmed)) {
+    return null;
+  }
+
+  const [whole = '0', fraction = ''] = trimmed.split('.');
+  const units = BigInt(whole) * MICRO + BigInt(fraction.padEnd(MICRO_DIGITS, '0'));
+
+  return units > ZERO ? units : null;
+};
+
+/** FR-044: what the contract will take, `min(amount, fundingTarget − totalRaised)`. */
+export const effectiveOf = (units: bigint, target: bigint, raised: bigint): bigint =>
+  units < target - raised ? units : target - raised;
+
+/** FR-048: refunding returns the contribution; a completed campaign its pro-rata share of the pool; a claimed one nothing. */
+export const refundableOf = (
+  status: 'refunding' | 'completed',
+  figures: { contributed: bigint; claimed: boolean; pool: bigint; raised: bigint },
+): bigint => {
+  if (figures.claimed) {
+    return ZERO;
+  }
+
+  if (status === 'refunding') {
+    return figures.contributed;
+  }
+
+  return figures.raised === ZERO ? ZERO : (figures.pool * figures.contributed) / figures.raised;
+};

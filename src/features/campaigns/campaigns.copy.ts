@@ -268,3 +268,66 @@ export const START_REFUND = 'Start refund';
 export const DONOR_ACTIVE = 'Funding complete. Follow the campaign impact report.';
 
 export const READ_ONLY = 'Campaign read-only for this account.';
+
+// ---- S04 wallet actions: D04 Contribute, Start refund, D05 Claim refund (s04-campaign.md §3.4-§3.6) ----
+export const CONTRIBUTION_LABEL = 'Contribution · USDC';
+
+/** COPY-409: the amount rule, shown after the label. */
+export const AMOUNT_RULE = 'COPY-409';
+
+export const CONTRIBUTE = 'Contribute';
+
+export const CONFIRM = 'Confirm';
+
+export const CANCEL = 'Cancel';
+
+export const CLOSE = 'Close';
+
+export const reviewOf = (action: string): string => `Review ${action}`;
+
+export const fromWallet = (usdcText: string): string => `${usdcText} USDC from your wallet.`;
+
+export const FACT_ALLOWANCE = 'USDC allowance';
+
+export const FACT_STEP = 'Step';
+
+export const STEP_TWO = '1 of 2 · approve USDC, then contribute';
+
+export const approveLabel = (usdcText: string): string => `Approve ${usdcText} USDC in wallet`;
+
+export const allowanceOf = (usdcText: string): string => `${usdcText} USDC`;
+
+/** COPY-406 (the remaining changed), COPY-407 (no longer open), COPY-154 (not enough USDC), COPY-408 (refund not due). */
+export const CHANGED_COPY = 'COPY-406';
+
+export const CLOSED_COPY = 'COPY-407';
+
+export const LOW_USDC_COPY = 'COPY-154';
+
+export const NOT_ELIGIBLE_COPY = 'COPY-408';
+
+export const doneOn = (action: string): string =>
+  `Done. ${action} is on its way; its status updates here.`;
+
+export const contributed = (usdcText: string): string =>
+  `Contribution confirmed: ${usdcText} USDC.`;
+
+export const REFUND_SUMMARY =
+  'The funding deadline passed before the target was reached. Starting refunds moves the campaign to Refunding, so every contributor can claim their USDC back.';
+
+export const FACT_CAMPAIGN = 'Campaign';
+
+export const REFUNDS_STARTED = 'Refunds started. The campaign is now Refunding.';
+
+export const CLAIM_REFUND = 'Claim refund';
+
+export const FACT_REFUNDABLE = 'Refundable amount';
+
+export const FACT_ELIGIBILITY = 'Eligibility';
+
+export const CONTRIBUTOR = 'Contributor';
+
+export const claimSummary = (usdcText: string): string =>
+  `Claim your ${usdcText} USDC refundable balance.`;
+
+export const REFUND_CONFIRMED = 'Refund confirmed.';

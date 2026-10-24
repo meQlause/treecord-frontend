@@ -140,7 +140,7 @@ describe('S04 campaign page, read', () => {
 });
 
 describe('S04 campaign page, states of the funding panel', () => {
-  it('P-6: past the deadline there is no call to action, and a donor is offered Start refund (not live yet)', async () => {
+  it('P-6: past the deadline there is no call to action, and a donor is offered Start refund', async () => {
     serve({ ...CAMPAIGN, fundingDeadlinePassed: true, daysLeft: null }, viewer('donor'));
     open();
 
@@ -149,7 +149,7 @@ describe('S04 campaign page, states of the funding panel', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Deadline passed')).toBeInTheDocument();
     expect(screen.getByText('Closed')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Start refund' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Start refund' })).toBeEnabled();
     expect(screen.queryByRole('button', { name: /Contribute/ })).toBeNull();
   });
 

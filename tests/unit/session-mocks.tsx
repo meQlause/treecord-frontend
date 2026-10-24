@@ -64,6 +64,8 @@ export const resetPrivy = (): void => {
 
 export const privyModule = {
   usePrivy: () => privyState,
+  // the specs of a screen draw its wallet actions, never run them: no wallet is connected
+  useWallets: () => ({ wallets: [] }),
   useLoginWithEmail: () => ({
     sendCode: privyState.sendCode,
     loginWithCode: privyState.loginWithCode,
