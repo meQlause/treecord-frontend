@@ -11,7 +11,7 @@ export type CarbonBatch = {
   campaign: {
     title: string;
     region: string;
-    species: { name: string };
+    species: { name: string; code?: string };
   };
   registry: string;
   vintage: number;

@@ -56,7 +56,24 @@ const holdingOf = async (batchId: string): Promise<bigint> => {
   return BigInt(balances.find((row) => row.batchId === batchId)?.amount ?? '0');
 };
 
-/** The ledger the campaign's roles point at, the USDC it takes, and what the wallet allowed it. */
+/** The ledger the campaign's roles point at: `roles()` of the campaign, then `carbonLedger()` of the roles. */
+export const readLedger = async (chainId: number, campaign: Address): Promise<Address> => {
+  const client = publicClientOf(chainId);
+
+  if (client === null) {
+    throw new Error('chain');
+  }
+
+  const roles = await client.readContract({
+    address: campaign,
+    abi: campaignAbi,
+    functionName: 'roles',
+  });
+
+  return client.readContract({ address: roles, abi: rolesAbi, functionName: 'carbonLedger' });
+};
+
+/** The ledger, the USDC it takes, and what the wallet allowed it. */
 const readAllowance = async (
   chainId: number,
   campaign: Address,
@@ -68,15 +85,10 @@ const readAllowance = async (
     throw new Error('chain');
   }
 
-  const [roles, usdc] = await Promise.all([
-    client.readContract({ address: campaign, abi: campaignAbi, functionName: 'roles' }),
+  const [ledger, usdc] = await Promise.all([
+    readLedger(chainId, campaign),
     client.readContract({ address: campaign, abi: campaignAbi, functionName: 'usdc' }),
   ]);
-  const ledger = await client.readContract({
-    address: roles,
-    abi: rolesAbi,
-    functionName: 'carbonLedger',
-  });
   const allowance = await client.readContract({
     address: usdc,
     abi: erc20Abi,

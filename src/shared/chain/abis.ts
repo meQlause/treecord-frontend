@@ -28,5 +28,8 @@ export const rolesAbi = parseAbi(['function carbonLedger() view returns (address
 
 export const carbonLedgerAbi = parseAbi([
   'function buy(uint256 batchId, uint256 amount) returns (uint256)',
+  'function declineReservation(address campaign)',
+  'function retire(uint256 batchId, uint256 amount, string beneficiary, string purpose) returns (uint256)',
   'event Purchased(uint256 indexed batchId, address indexed buyer, uint256 amount, uint256 usdcPaid)',
+  'event Retired(uint256 indexed retirementId, uint256 indexed batchId, address indexed holder, uint256 amount, string beneficiary, string purpose)',
 ]);
