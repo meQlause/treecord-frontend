@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
-    include: ['tests/unit/**/*.test.{ts,tsx}'],
+    include: ['tests/unit/**/*.test.{ts,tsx}', 'tests/fidelity/*.test.ts'],
     setupFiles: ['tests/unit/setup.ts'],
   },
 });
