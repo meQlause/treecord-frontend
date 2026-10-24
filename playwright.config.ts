@@ -4,5 +4,6 @@ import { defineConfig, devices } from '@playwright/test';
 // applies the §2 conditions of docs/FE/fidelity.md on top of this.
 export default defineConfig({
   testDir: 'tests/fidelity',
+  testMatch: '**/*.spec.ts',
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
 });
