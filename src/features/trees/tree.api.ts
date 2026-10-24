@@ -84,6 +84,9 @@ export function useTree(treeId: string) {
   return useQuery({
     queryKey: key,
     enabled: isTreeId(treeId) && session.phase !== 'resolving',
+    // the page and the D07 flag form share this read: a form that mounts later must not read the tree again
+    // (as `useMe`: refetched on focus and by the form's own refetch, not by every component that mounts and asks)
+    refetchOnMount: false,
     queryFn: ({ signal }) => api<TreeDetail>(`/trees/${treeId}`, { signal }),
   });
 }

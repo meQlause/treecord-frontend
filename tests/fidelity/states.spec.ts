@@ -38,7 +38,7 @@ import { answerMe, testLogin } from './helpers/privy';
 import { VIEWPORTS } from './matrix';
 
 const TREES = '/app/planter/trees';
-// a workspace page that is still a stub (no API read, a fixed heading): F4a replaces S14, then name another stub here
+// a workspace page that is still a stub (no API read, a fixed heading): S14 is built now (F4a), so Phase T names another stub here
 const STUB = '/app/campaigns/new';
 const STUB_HEADING = 'S14 Create campaign';
 const LOADING = 'Loading workspace…';

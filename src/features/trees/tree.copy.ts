@@ -125,6 +125,44 @@ export const RESOLVE_FLAG = 'Resolve flag';
 export const pending = (reason: string): string =>
   `Pending · ${reason}${/[.!?]$/.test(reason) ? '' : '.'} Reason saved; no on-chain flag or pause yet.`;
 
+// ---- D07 Flag tree (s05-tree.md §3.4) ----
+export const FLAG_REASON = 'Flag reason';
+
+/** COPY-410: the rule, stated up front in the label. */
+export const FLAG_RULE_COPY = 'COPY-410';
+
+export const FLAG_TREE = 'Flag tree';
+
+export const FLAG_SUMMARY = 'Save your reason. Payouts pause only after an on-chain flag.';
+
+export const FLAG_SENT = 'Done. Flag tree is on its way; its status updates here.';
+
+export const REASON_SAVED = 'Reason saved';
+
+export const FLAG_OPENED = 'Flag opened';
+
+export const SAVING = 'Saving your reason…';
+
+export const WALLET_LINE = 'Confirm in your wallet';
+
+/** COPY-165: the button that sends the wallet step again. */
+export const RETRY_FLAG_COPY = 'COPY-165';
+
+export const NOT_CONTRIBUTOR_COPY = 'COPY-007';
+
+export const NOT_FLAGGABLE_COPY = 'COPY-015';
+
+export const UNAVAILABLE =
+  'Could not load this page · Your inputs and local records are unchanged.';
+
+export const WALLET_PENDING = 'Your wallet is still being prepared. Try again in a moment.';
+
+export const TRY_AGAIN = 'Try again';
+
+export const CONFIRM = 'Confirm';
+
+export const CANCEL = 'Cancel';
+
 // ---- lifecycle ----
 export const LIFECYCLE = {
   label: 'Lifecycle',

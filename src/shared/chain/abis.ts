@@ -8,12 +8,17 @@ export const erc20Abi = parseAbi([
   'function approve(address spender, uint256 amount) returns (bool)',
 ]);
 
+const CONFIG = [
+  'struct Split { uint16 incentivesBps; uint16 seedlingsBps; uint16 verificationBps; uint16 reserveBps; uint16 feeBps; }',
+  'struct Config { address creator; string metadataURI; bytes32 speciesCode; bytes8 regionGeohash; uint32 regionRadiusM; uint32 treeTarget; uint16 anchorBps; uint16 perPlanterCap; uint256 fundingTarget; uint64 fundingDeadline; uint64 claimDeadline; uint16 commitmentUnits; uint64 timeUnit; Split split; }',
+] as const;
+
 export const campaignAbi = parseAbi([
   'function status() view returns (uint8)',
   'function usdc() view returns (address)',
   'function roles() view returns (address)',
-  'struct Split { uint16 incentivesBps; uint16 seedlingsBps; uint16 verificationBps; uint16 reserveBps; uint16 feeBps; }',
-  'struct Config { address creator; string metadataURI; bytes32 speciesCode; bytes8 regionGeohash; uint32 regionRadiusM; uint32 treeTarget; uint16 anchorBps; uint16 perPlanterCap; uint256 fundingTarget; uint64 fundingDeadline; uint64 claimDeadline; uint16 commitmentUnits; uint64 timeUnit; Split split; }',
+  'function treeRegistry() view returns (address)',
+  ...CONFIG,
   'function config() view returns (Config)',
   'function totalRaised() view returns (uint256)',
   'function contributions(address contributor) view returns (uint256)',
@@ -33,3 +38,12 @@ export const carbonLedgerAbi = parseAbi([
   'event Purchased(uint256 indexed batchId, address indexed buyer, uint256 amount, uint256 usdcPaid)',
   'event Retired(uint256 indexed retirementId, uint256 indexed batchId, address indexed holder, uint256 amount, string beneficiary, string purpose)',
 ]);
+
+export const factoryAbi = parseAbi([
+  ...CONFIG,
+  'function validateConfig(Config cfg) view',
+  'function createCampaign(Config cfg) returns (address)',
+  'event CampaignCreated(address indexed campaign, address indexed creator, Config config)',
+]);
+
+export const treeRegistryAbi = parseAbi(['function flag(uint256 treeId, bytes32 reasonHash)']);

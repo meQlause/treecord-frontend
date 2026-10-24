@@ -19,6 +19,7 @@ import { Panel } from '../../shared/ui/Panel';
 import { StockCard } from '../../shared/ui/StockCard';
 import { artForSpecies } from '../campaigns/art';
 import type { Flag, Milestone, TimelineEvent, TreeDetail } from './tree.api';
+import { FlagForm } from './tree.flag';
 import * as copy from './tree.copy';
 import {
   amountText,
@@ -247,8 +248,7 @@ export function Flags({ data, operator }: FlagsProps) {
         ))
       )}
       {reason !== null && <p className="ws-callout wrap-any">{copy.pending(reason)}</p>}
-      {/* F4a: the D07 flag form plugs in here (F-5…F-8, F-17…F-20): shown when `viewer.flag.eligible` and there is no
-          `viewer.pendingFlag`. The pending callout's wallet retry button (COPY-165, F-13…F-16) goes under the callout. */}
+      <FlagForm data={data} />
     </Panel>
   );
 }

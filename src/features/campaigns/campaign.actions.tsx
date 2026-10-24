@@ -1,5 +1,5 @@
 // S04's "Campaign actions" panel (s04-campaign.md §3.3): which rows apply to this viewer, the wallet-missing callout, Start
-// refund, D04 Contribute, D05 Claim refund, the operator link and the two plain lines. D06 (the slot claim, a job) is F4a.
+// refund, D04 Contribute, D05 Claim refund, the operator link and the two plain lines. D06 (the slot claim, a job) is `campaign.claim.tsx`.
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { Address } from 'viem';
@@ -12,6 +12,7 @@ import { Facts } from '../../shared/ui/Facts';
 import { Lorem } from '../../shared/ui/Lorem';
 import { Panel } from '../../shared/ui/Panel';
 import { CHAIN_STATUS, readFacts, readRefund } from './campaign.chain';
+import { ClaimSlots } from './campaign.claim';
 import { Contribute } from './campaign.contribute';
 import { branchesFor, refundableOf } from './campaign.rules';
 import type { CampaignDetail, Viewer } from './campaigns.api';
@@ -191,13 +192,9 @@ function WalletRows({
   );
 }
 
-export function CampaignActions({ campaign, viewer, amount, onRetryWallet, onReread }: Props) {
-  const branches = branchesFor(campaign, viewer);
-  const [notice, setNotice] = useState<Notice>(null);
-  const [done, setDone] = useState<string | null>(null);
-
+function Notices({ notice, done }: { notice: Notice; done: string | null }) {
   return (
-    <Panel title={copy.ACTIONS_TITLE} icon="wallet">
+    <>
       {notice !== null && (
         <Banner tone="info">
           <Lorem id={NOTICE_COPY[notice]} />
@@ -208,6 +205,18 @@ export function CampaignActions({ campaign, viewer, amount, onRetryWallet, onRer
           {done}
         </p>
       )}
+    </>
+  );
+}
+
+export function CampaignActions({ campaign, viewer, amount, onRetryWallet, onReread }: Props) {
+  const branches = branchesFor(campaign, viewer);
+  const [notice, setNotice] = useState<Notice>(null);
+  const [done, setDone] = useState<string | null>(null);
+
+  return (
+    <Panel title={copy.ACTIONS_TITLE} icon="wallet">
+      <Notices notice={notice} done={done} />
       {branches.walletMissing ? (
         <Banner tone="callout" action={copy.TRY_AGAIN} onAction={onRetryWallet}>
           {copy.WALLET_PENDING}
@@ -227,7 +236,9 @@ export function CampaignActions({ campaign, viewer, amount, onRetryWallet, onRer
           {copy.CTA_OPERATOR}
         </ArrowLink>
       )}
-      {/* F4a: D06 Claim slots (planter, any status) plugs in here. */}
+      {branches.claim && !branches.walletMissing && (
+        <ClaimSlots campaign={campaign} viewer={viewer} onReread={onReread} />
+      )}
       {branches.donorActive && <p>{copy.DONOR_ACTIVE}</p>}
       {branches.readOnly && <p>{copy.READ_ONLY}</p>}
     </Panel>
