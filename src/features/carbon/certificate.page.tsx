@@ -4,10 +4,12 @@
 import { useRef } from 'react';
 // eslint-disable-next-line import/no-unresolved -- react-router publishes only an exports map, which the import plugin's resolver cannot read
 import { Link, useParams } from 'react-router';
-import { AppState } from '../../app/states/app-state';
+import { OFFLINE, REFRESH } from '../../app/states/states.copy';
+import { useOnline } from '../../app/states/use-online';
 import { ErrorState } from '../../app/states/states';
 import { ApiError } from '../../shared/api/errors';
 import { Icon } from '../../shared/art/Icon';
+import { Banner } from '../../shared/ui/Banner';
 import { tonnes } from '../../shared/format/carbon';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { Lorem } from '../../shared/ui/Lorem';
@@ -149,14 +151,28 @@ function Body({ retirementId }: { retirementId: string }) {
   );
 }
 
+/** Pattern 14 without the disabled fieldset: nothing here is a network action, so copy and print stay on offline. */
+function OfflineBanner() {
+  const online = useOnline();
+
+  return online ? null : (
+    <div className="app-state">
+      <Banner icon="wifi" action={REFRESH} onAction={() => window.location.reload()}>
+        {OFFLINE}
+      </Banner>
+    </div>
+  );
+}
+
 export function Component() {
   const { retirementId = '' } = useParams();
 
   return (
-    <AppState>
+    <>
+      <OfflineBanner />
       <main className="mc-page" id="main-content" tabIndex={-1}>
         <Body retirementId={retirementId} />
       </main>
-    </AppState>
+    </>
   );
 }

@@ -4,6 +4,7 @@ import { AnimatePresence } from 'motion/react';
 import { useEffect, useRef } from 'react';
 // eslint-disable-next-line import/no-unresolved -- react-router publishes only an exports map, which the import plugin's resolver cannot read
 import { useSearchParams } from 'react-router';
+import { AppState } from '../../app/states/app-state';
 import { PageHead } from '../../shared/ui/PageHead';
 import { CatalogSection } from '../../shared/ui/CatalogSection';
 import { Grid } from '../../shared/ui/Grid';
@@ -146,38 +147,40 @@ export function Component() {
   const counting = view !== 'loading' && view !== 'error';
 
   return (
-    <main className="cb-page" id="main-content" tabIndex={-1}>
-      <Hero />
-      <CatalogSection
-        className="cb-catalog"
-        id="issued-batches"
-        title={CATALOG_TITLE}
-        kicker={CATALOG_KICKER}
-        filters={STATUS_FILTERS}
-        filtersLabel={STATUS_FILTERS_LABEL}
-        value={filters.status}
-        onChange={(status) => set('status', status)}
-        secondary={
-          <>
-            <RegistrySelect
-              value={filters.registry}
-              registries={catalog.registries}
-              onChange={(registry) => set('registry', registry)}
-            />
-            <QueryField value={filters.query} onChange={(query) => set('q', query)} />
-          </>
-        }
-        meta={counting ? catalog.count : undefined}
-        aside={
-          isFiltered(filters) ? (
-            <ClearFilters onClear={clear} />
-          ) : (
-            <span className="newest-label">{NEWEST_FIRST}</span>
-          )
-        }
-      >
-        <Results catalog={catalog} />
-      </CatalogSection>
-    </main>
+    <AppState>
+      <main className="cb-page" id="main-content" tabIndex={-1}>
+        <Hero />
+        <CatalogSection
+          className="cb-catalog"
+          id="issued-batches"
+          title={CATALOG_TITLE}
+          kicker={CATALOG_KICKER}
+          filters={STATUS_FILTERS}
+          filtersLabel={STATUS_FILTERS_LABEL}
+          value={filters.status}
+          onChange={(status) => set('status', status)}
+          secondary={
+            <>
+              <RegistrySelect
+                value={filters.registry}
+                registries={catalog.registries}
+                onChange={(registry) => set('registry', registry)}
+              />
+              <QueryField value={filters.query} onChange={(query) => set('q', query)} />
+            </>
+          }
+          meta={counting ? catalog.count : undefined}
+          aside={
+            isFiltered(filters) ? (
+              <ClearFilters onClear={clear} />
+            ) : (
+              <span className="newest-label">{NEWEST_FIRST}</span>
+            )
+          }
+        >
+          <Results catalog={catalog} />
+        </CatalogSection>
+      </main>
+    </AppState>
   );
 }
