@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { Icon, type IconName } from '../../shared/art/Icon';
 import { Photo } from '../../shared/art/Photo';
+import { shortAddress } from '../../shared/format/address';
 import { tonnes } from '../../shared/format/carbon';
 import { localDate, localDateLong, utcDateTime } from '../../shared/format/datetime';
 import { artForSpecies } from '../campaigns/art';
@@ -37,7 +38,6 @@ import {
   speciesMeta,
   vintageNote,
 } from './certificate.copy';
-import { shortHex } from './certificate.rules';
 import { SerialRange } from './carbon.parts';
 
 const SMALL_ICON = 12;
@@ -200,7 +200,7 @@ export function RetirementJourney({ retirement }: { retirement: Retirement }) {
       note: vintageNote(batch.registry, batch.vintage),
       state: 'done',
     },
-    { icon: 'wallet', label: STEP_HELD, note: shortHex(retirement.holder), state: 'done' },
+    { icon: 'wallet', label: STEP_HELD, note: shortAddress(retirement.holder), state: 'done' },
     {
       icon: 'check',
       label: STEP_RETIRED,
@@ -245,10 +245,10 @@ export function IssuanceTx({ issuedTx }: { issuedTx: Retirement['batch']['issued
   }
 
   return issuedTx.url === null ? (
-    shortHex(issuedTx.hash)
+    shortAddress(issuedTx.hash)
   ) : (
     <a href={issuedTx.url} target="_blank" rel="noopener noreferrer">
-      {shortHex(issuedTx.hash)}
+      {shortAddress(issuedTx.hash)}
     </a>
   );
 }
@@ -258,10 +258,10 @@ export function ProvenanceRecord({ retirement }: { retirement: Retirement }) {
   const { batch, campaign, registryRetirement } = retirement;
   const rows: [string, ReactNode][] = [
     ['Retired at', utcDateTime(retirement.retiredAt)],
-    ['Holder', shortHex(retirement.holder)],
+    ['Holder', shortAddress(retirement.holder)],
     ['Batch', batchFact(batch.batchId, batch.registry, batch.vintage)],
     ['Public geohash', campaign.region.geohash],
-    ['Retirement transaction', shortHex(retirement.txHash)],
+    ['Retirement transaction', shortAddress(retirement.txHash)],
     ['Issuance transaction', <IssuanceTx key="issuance" issuedTx={batch.issuedTx} />],
     ['Registry reference', registryRetirement.reference ?? NOT_AVAILABLE],
   ];

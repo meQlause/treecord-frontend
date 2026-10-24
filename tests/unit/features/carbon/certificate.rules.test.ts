@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { recordCoord, registryLine } from '../../../../src/features/carbon/certificate.copy';
-import { artName, shareOf, shortHex } from '../../../../src/features/carbon/certificate.rules';
-
-describe('shortHex', () => {
-  it('keeps the first six and the last four characters', () => {
-    expect(shortHex('0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9f0e')).toBe('0x1a2b…9f0e');
-  });
-});
+import { artName, shareOf } from '../../../../src/features/carbon/certificate.rules';
 
 describe('shareOf', () => {
   it('is the retired part of the batch: 500 of 16000', () => {
