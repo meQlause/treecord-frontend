@@ -11,7 +11,7 @@ import { LoadingState } from '../../app/states/states';
 import { WorkspaceMain } from '../../app/states/workspace-main';
 import { Banner } from '../../shared/ui/Banner';
 import { Lorem } from '../../shared/ui/Lorem';
-import { SESSION_ENDED_COPY_ID } from './accounts.copy';
+import { POWERED_BY, PRIVY_NAME, PRIVY_URL, SESSION_ENDED_COPY_ID } from './accounts.copy';
 import { whereLabel } from './accounts.rules';
 import { useSignIn } from './sign-in.flow';
 import { CodeStep, EmailStep, ReadyStep, SignInArt, SignInSteps } from './sign-in.parts';
@@ -66,6 +66,12 @@ function SignIn() {
       <section className="si-card" aria-labelledby="si-title">
         <SignInSteps step={STEP_OF[flow.stage]} />
         {steps[flow.stage]}
+        <p className="si-powered">
+          {POWERED_BY}{' '}
+          <a href={PRIVY_URL} target="_blank" rel="noopener noreferrer">
+            {PRIVY_NAME}
+          </a>
+        </p>
       </section>
     </div>
   );

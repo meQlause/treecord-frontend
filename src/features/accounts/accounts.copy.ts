@@ -41,6 +41,13 @@ export const VERIFY = 'Verify';
 
 export const DIFFERENT_EMAIL = 'Use a different email';
 
+// the user's words: the sign-in provider, named under the card
+export const POWERED_BY = 'Powered by';
+
+export const PRIVY_NAME = 'privy.io';
+
+export const PRIVY_URL = 'https://www.privy.io';
+
 // ---- S02 Ready (SI-16) ----
 export const READY_TITLE = 'You’re in.';
 
