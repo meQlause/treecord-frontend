@@ -1,13 +1,13 @@
 // S03 Campaigns (s03-campaigns.md): the public catalog, newest first, filtered through the URL, "Load more" by cursor.
 // Public: no guard, nothing is sent but the filters. It is not inside the workspace frame, so it draws its own
 // offline and error states (FR-034) instead of the shell's.
-import { onlineManager } from '@tanstack/react-query';
 import { AnimatePresence } from 'motion/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 // eslint-disable-next-line import/no-unresolved -- react-router publishes only an exports map, which the import plugin's resolver cannot read
 import { useSearchParams } from 'react-router';
 import { useToast } from '../../app/shell/toast-context';
 import { useOnline } from '../../app/states/use-online';
+import { useStale } from '../../app/states/use-stale';
 import { Icon } from '../../shared/art/Icon';
 import { Landscape } from '../../shared/art/Landscape';
 import { Banner } from '../../shared/ui/Banner';
@@ -91,23 +91,6 @@ function useUrlFilters() {
     speciesFailed: waiting && species.isError,
     speciesPaused: waiting && species.fetchStatus === 'paused',
   };
-}
-
-/** C-15 / C-16: once the browser has gone offline the cached cards wear a banner until "Refresh" succeeds. */
-function useStale() {
-  const [stale, setStale] = useState(() => !onlineManager.isOnline());
-
-  useEffect(
-    () =>
-      onlineManager.subscribe((online) => {
-        if (!online) {
-          setStale(true);
-        }
-      }),
-    [],
-  );
-
-  return [stale, setStale] as const;
 }
 
 function Hero() {
