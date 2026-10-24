@@ -8,8 +8,8 @@ import { PHOTOS } from '../../src/shared/art/Photo';
 const WIDTHS = [600, 900, 1400];
 const FIVE = 5;
 const SRC = 'src';
-// namespaces, not requests
-const INERT_HOST = /^https?:\/\/(www\.)?w3\.org\//;
+// namespaces and the explorer's links (explorer.ts), never requests
+const INERT_HOST = /^https?:\/\/((www\.)?w3\.org|sepolia\.basescan\.org)(\/|$)/;
 
 const sourceFiles = (dir: string): string[] =>
   readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
