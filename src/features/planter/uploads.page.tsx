@@ -39,6 +39,9 @@ import { FADE_AFTER_MS, useFadeAfter } from './use-fade-after';
 import { useNow } from './use-now';
 import { useLocalQueue, useQueueActions } from './use-uploads';
 
+// COPY-200 and COPY-201 name the list by the word this page already uses for it
+const NOUN = 'recordings';
+
 function useUploads(profileId: string) {
   const [params, setParams] = useSearchParams();
   const filter = parseFilter(params.get('filter'));
@@ -108,9 +111,11 @@ function MoreRow({ uploads }: { uploads: Uploads }) {
     <LoadMore
       shown={items.length}
       total={total}
-      label={<Lorem id={LOAD_MORE_COPY} kind="label" />}
+      label={<Lorem id={LOAD_MORE_COPY} values={{ noun: NOUN }} />}
       loading={query.isFetchingNextPage}
-      {...(query.isFetchNextPageError ? { failed: <Lorem id={LOAD_MORE_FAILED_COPY} /> } : {})}
+      {...(query.isFetchNextPageError
+        ? { failed: <Lorem id={LOAD_MORE_FAILED_COPY} values={{ noun: NOUN }} /> }
+        : {})}
       onMore={() => void query.fetchNextPage()}
     />
   );

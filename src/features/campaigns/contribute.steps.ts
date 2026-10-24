@@ -23,7 +23,10 @@ export type Review = { units: bigint; effective: bigint; wallet: WalletFigures }
 
 /** The line above Confirm: the remaining moved, the USDC is short, or a step failed with this outcome. */
 export type Notice =
-  { kind: 'changed' | 'closed' | 'lowUsdc' } | { kind: 'failed'; outcome: Outcome } | null;
+  | { kind: 'changed' | 'closed' }
+  | { kind: 'lowUsdc'; amount: string }
+  | { kind: 'failed'; outcome: Outcome }
+  | null;
 
 export type Context = {
   session: (chainId: number) => Promise<ChainSession>;

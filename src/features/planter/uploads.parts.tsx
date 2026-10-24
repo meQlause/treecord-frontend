@@ -8,6 +8,7 @@ import { Link } from 'react-router';
 import { Icon } from '../../shared/art/Icon';
 import { Button } from '../../shared/ui/Button';
 import { Facts } from '../../shared/ui/Facts';
+import { fillCopy } from '../../shared/ui/approved-copy';
 import { Lorem } from '../../shared/ui/Lorem';
 import { cardMotion } from '../../shared/motion/presets';
 import { localDateTime } from '../../shared/format/datetime';
@@ -220,7 +221,7 @@ export function QueuedCard(props: QueuedProps) {
           <div className="pl-actions">
             <Button
               busy={sending}
-              busyLabel="Lorem ipsum"
+              busyLabel={fillCopy('COPY-203')}
               disabled={!online || expired || otherSending}
               onClick={props.onSend}
             >

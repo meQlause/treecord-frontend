@@ -13,7 +13,6 @@ import { Badge } from '../../shared/ui/Badge';
 import { CarbonFunnel } from '../../shared/ui/CarbonFunnel';
 import { FundingRow } from '../../shared/ui/FundingRow';
 import { HEALTH, HealthForest, type RenderGlyph } from '../../shared/ui/HealthForest';
-import { Lorem } from '../../shared/ui/Lorem';
 import { PayoutGauge } from '../../shared/ui/PayoutGauge';
 import { artForSpecies } from '../campaigns/art';
 import { STATUS_LABEL } from '../campaigns/campaigns.copy';
@@ -32,7 +31,6 @@ import {
   REFUNDED,
   RELEASED,
   TREE_HEALTH,
-  UNTITLED,
   USDC,
   VIEW_CAMPAIGN,
   YOUR_CONTRIBUTION,
@@ -53,6 +51,7 @@ import {
   shareText,
   treesPerGlyph,
 } from './donor.rules';
+import { untitledCampaign } from '../../shared/ui/approved-copy';
 
 const PIN_ICON = 13;
 const OPEN_ICON = 17;
@@ -69,7 +68,7 @@ type CardProps = { card: DonorCard };
 function Heading({ card }: CardProps) {
   const { campaign } = card;
   const to = `/campaigns/${campaign.address}`;
-  const title = campaign.title ?? UNTITLED;
+  const title = campaign.title ?? untitledCampaign(campaign.address);
 
   return (
     <header className="pc-heading">
@@ -83,7 +82,7 @@ function Heading({ card }: CardProps) {
         </div>
         <h3>
           <Link className="clamp-2" to={to} title={title}>
-            {campaign.title ?? <Lorem id="COPY-157" kind="label" />}
+            {campaign.title ?? untitledCampaign(campaign.address)}
           </Link>
         </h3>
         {campaign.region !== null && (

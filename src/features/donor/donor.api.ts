@@ -8,7 +8,7 @@ import { useAccountKey } from '../../app/session/use-account-key';
 export type DonorFlag = {
   id: string;
   treeId: string;
-  campaign: { title: string | null };
+  campaign: { address: string; title: string | null };
   status: 'open' | 'pending';
   reasonText: string;
 };

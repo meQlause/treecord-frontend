@@ -19,6 +19,7 @@ const BUDGET = [
 ];
 
 const CAMPAIGN = {
+  address: '0x245467c74149f0ca0649ddb6817bae398ddbb64a',
   status: 'funding',
   title: 'A new tide for Demak',
   species: { code: 'RHIZOPHORA_MUCRONATA', name: 'Rhizophora mangrove' },
@@ -120,10 +121,10 @@ describe('Hero and FactStrip', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(title);
   });
 
-  it('puts the placeholder in an untitled campaign’s h1 and leaves out a missing species and region', () => {
+  it('names an untitled campaign by its short address in the h1 and leaves out a missing species and region', () => {
     const { container } = renderHero({ ...CAMPAIGN, title: null, species: null, region: null });
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/\S/);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Campaign 0x2454…b64a');
     expect(container.querySelector('.hero-species')).toBeNull();
     expect(container.querySelector('.hero-location')).toBeNull();
   });

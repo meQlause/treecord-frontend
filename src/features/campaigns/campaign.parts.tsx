@@ -20,7 +20,6 @@ import {
   SLOTS_OPEN,
   SLOTS_PLANTED,
   STATUS_LABEL,
-  UNTITLED_CAMPAIGN,
   monthsLabel,
   networkName,
   radiusLabel,
@@ -29,6 +28,7 @@ import {
 } from './campaigns.copy';
 import { cellsOf } from './campaign.rules';
 import { usdc } from './campaigns.rules';
+import { untitledCampaign } from '../../shared/ui/approved-copy';
 
 const ICON = 15;
 const BACK_ICON = 17;
@@ -71,7 +71,7 @@ function HeroRegion({ region }: { region: CampaignDetail['region'] }) {
 }
 
 export function Hero({ campaign }: { campaign: CampaignDetail }) {
-  const title = campaign.title ?? UNTITLED_CAMPAIGN;
+  const title = campaign.title ?? untitledCampaign(campaign.address);
   const long = title.length > LONG_TITLE;
 
   return (

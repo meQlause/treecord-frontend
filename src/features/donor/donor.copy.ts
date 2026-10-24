@@ -88,9 +88,6 @@ export const LOAD_MORE_COPY = 'COPY-172';
 
 export const LOAD_MORE_FAILED_COPY = 'COPY-174';
 
-/** COPY-157: lorem until the owner approves the sentence. One constant for every untitled campaign. */
-export const UNTITLED = 'Lorem ipsum';
-
 // ---- the card ----
 export const VIEW_CAMPAIGN = 'View campaign';
 

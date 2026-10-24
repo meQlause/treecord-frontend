@@ -1,13 +1,13 @@
-// Placeholder for a COPY-nnn id with no approved text yet (rule 12). The id shows in `data-copy` and on hover.
-const LOREM = {
-  label: 'Lorem ipsum',
-  sentence: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-};
+import { fillCopy, type CopyValues } from './approved-copy';
 
-export function Lorem({ id, kind = 'sentence' }: { id: string; kind?: keyof typeof LOREM }) {
-  return (
-    <span data-copy={id} title={id}>
-      {LOREM[kind]}
-    </span>
-  );
+// The approved text of a COPY-nnn id (rule 12); the id stays in `data-copy` so a screen still names its source.
+export function Lorem({
+  id,
+  values,
+}: {
+  id: string;
+  kind?: 'label' | 'sentence';
+  values?: CopyValues;
+}) {
+  return <span data-copy={id}>{fillCopy(id, values)}</span>;
 }

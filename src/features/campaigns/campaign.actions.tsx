@@ -19,6 +19,7 @@ import type { CampaignDetail, Viewer } from './campaigns.api';
 import * as copy from './campaigns.copy';
 import { usdc } from './campaigns.rules';
 import { WalletAction } from './wallet-action';
+import { untitledCampaign } from '../../shared/ui/approved-copy';
 
 type Body = { campaign: CampaignDetail; viewer: Viewer | null };
 
@@ -66,7 +67,7 @@ function StartRefund({
       label={copy.START_REFUND}
       chainId={campaign.chainId}
       summary={copy.REFUND_SUMMARY}
-      target={[[copy.FACT_CAMPAIGN, campaign.title ?? copy.UNTITLED_CAMPAIGN]]}
+      target={[[copy.FACT_CAMPAIGN, campaign.title ?? untitledCampaign(campaign.address)]]}
       ids={ACTION_IDS}
       call={{ address, abi: campaignAbi, functionName: 'markRefunding' }}
       check={due}

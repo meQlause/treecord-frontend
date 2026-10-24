@@ -4,7 +4,6 @@
 import { Link } from 'react-router';
 import { Icon } from '../../shared/art/Icon';
 import { tonnes } from '../../shared/format/carbon';
-import { Lorem } from '../../shared/ui/Lorem';
 import { useStickyFit } from '../../shared/ui/useStickyFit';
 import type { Dashboard, DonorFlag } from './donor.api';
 import {
@@ -26,6 +25,7 @@ import {
   pendingCount,
   treeNumber,
 } from './donor.copy';
+import { untitledCampaign } from '../../shared/ui/approved-copy';
 
 const EMBLEM_ICON = 24;
 const CHECK_ICON = 14;
@@ -90,7 +90,7 @@ function FlagItem({ flag }: { flag: DonorFlag }) {
         </span>
         <span className="fi-identity">
           <strong>{treeNumber(flag.treeId)}</strong>
-          <small>{flag.campaign.title ?? <Lorem id="COPY-157" kind="label" />}</small>
+          <small>{flag.campaign.title ?? untitledCampaign(flag.campaign.address)}</small>
         </span>
         <span className="fi-badge">{FLAG_BADGE[flag.status]}</span>
         <Icon name="down" size={CHEVRON_ICON} />

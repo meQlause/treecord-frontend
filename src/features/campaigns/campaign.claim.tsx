@@ -67,7 +67,7 @@ const slotsProblem = (error: ApiError): Problem => {
   const available = detail(error, 'available');
 
   return {
-    field: <Lorem id={copy.NOT_ENOUGH_COPY} />,
+    field: <Lorem id={copy.NOT_ENOUGH_COPY} values={{ available: available ?? 0 }} />,
     ...(available === undefined ? {} : { available }),
     refetch: true,
   };

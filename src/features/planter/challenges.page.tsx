@@ -34,6 +34,9 @@ import {
 import { flattenChallenges } from './planter.rules';
 import { useNow } from './use-now';
 
+// COPY-200 and COPY-201 name the list by the word this page already uses for it
+const NOUN = 'challenges';
+
 function Failure({ error, retry }: { error: unknown; retry: () => void }) {
   if (error instanceof ApiError && error.code === 'wallet_missing') {
     return (
@@ -104,10 +107,10 @@ export function Component() {
           <LoadMore
             shown={items.length}
             total={total}
-            label={<Lorem id={LOAD_MORE_COPY} kind="label" />}
+            label={<Lorem id={LOAD_MORE_COPY} values={{ noun: NOUN }} />}
             loading={query.isFetchingNextPage}
             {...(query.isFetchNextPageError
-              ? { failed: <Lorem id={LOAD_MORE_FAILED_COPY} /> }
+              ? { failed: <Lorem id={LOAD_MORE_FAILED_COPY} values={{ noun: NOUN }} /> }
               : {})}
             onMore={() => void query.fetchNextPage()}
           />

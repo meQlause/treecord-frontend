@@ -2,9 +2,6 @@
 // error-handling §4; a COPY id with no approved text is a lorem placeholder (conventions §9).
 
 // ---- shared ----
-/** COPY-157: lorem until the owner approves the sentence. One constant for S03, S04, S05, S06, S13. */
-export const UNTITLED_CAMPAIGN = 'Lorem ipsum';
-
 export const STATUS_LABEL = {
   funding: 'Funding',
   active: 'Active',

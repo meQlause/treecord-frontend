@@ -148,7 +148,7 @@ const MESSAGES = {
 } as const;
 
 /** The line under the form after a rejection, a failure or a price that moved (states 13b, 20, 21). */
-function MessageLine({ message }: { message: steps.Message }) {
+function MessageLine({ message, price }: { message: steps.Message; price: string | null }) {
   if (message === null) {
     return null;
   }
@@ -156,7 +156,7 @@ function MessageLine({ message }: { message: steps.Message }) {
   if (message === 'priceChanged') {
     return (
       <Banner tone="info">
-        <Lorem id={copy.PRICE_CHANGED} />
+        <Lorem id={copy.PRICE_CHANGED} values={{ usdcPerTonne: priceText(price) }} />
       </Banner>
     );
   }
@@ -270,7 +270,7 @@ function AmountForm({ batch, buy, disabled, action }: FormProps) {
         </strong>
       </div>
       <p className="cb-gas-note">{copy.GAS_NOTE}</p>
-      <MessageLine message={buy.message} />
+      <MessageLine message={buy.message} price={batch.usdcPerTonne} />
       {action}
     </form>
   );

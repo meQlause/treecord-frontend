@@ -30,10 +30,10 @@ import {
   PLANTING_TITLE,
   SCHEDULE_KICKER,
   SCHEDULE_TITLE,
-  UNTITLED_CAMPAIGN,
   budgetOf,
 } from './campaigns.copy';
 import { usdc } from './campaigns.rules';
+import { untitledCampaign } from '../../shared/ui/approved-copy';
 
 const NOT_FOUND_CODES = new Set(['not_found', 'invalid_path']);
 const NOT_FOUND_ICON = 48;
@@ -160,7 +160,10 @@ const isMissing = (error: unknown): boolean =>
 
 /** The document title follows what is on screen: the campaign's, or "Not found" (P-2, P-10). */
 function useCampaignTitle({ data, error }: Query): void {
-  const title = data === undefined ? undefined : (data.campaign.title ?? UNTITLED_CAMPAIGN);
+  const title =
+    data === undefined
+      ? undefined
+      : (data.campaign.title ?? untitledCampaign(data.campaign.address));
   const missing = data === undefined && isMissing(error);
 
   useEffect(() => {

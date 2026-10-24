@@ -183,7 +183,7 @@ describe('S05 tree page, other records', () => {
     expect(screen.getByRole('heading', { name: 'No indexed events' })).toBeInTheDocument();
   });
 
-  it('T-15: a campaign without a title shows the placeholder, same element', async () => {
+  it('T-15: a campaign without a title is named by its short address, same element', async () => {
     serve({
       ...TREE_3001,
       tree: { ...TREE_3001.tree, campaign: { ...TREE_3001.tree.campaign, title: null } },
@@ -191,7 +191,9 @@ describe('S05 tree page, other records', () => {
     open();
     await ready();
 
-    expect(document.querySelector('.tr-hero h2 [data-copy="COPY-157"]')).not.toBeNull();
+    expect(document.querySelector('.tr-hero h2')).toHaveTextContent(
+      /^Campaign 0x[0-9a-fA-F]{4}…[0-9a-fA-F]{4}$/u,
+    );
   });
 
   it('T-7: a dead tree shows its replant deadline', async () => {
