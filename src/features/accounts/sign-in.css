@@ -9,3 +9,17 @@
 .si-card form > .text-button {
   align-self: center;
 }
+
+/* "Powered by privy.io" under every step of the card */
+.si-card .si-powered {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 11px;
+  color: #7b8c6c;
+}
+.si-card .si-powered a {
+  display: inline;
+  font-size: inherit;
+  color: #426738;
+  font-weight: 600;
+}
