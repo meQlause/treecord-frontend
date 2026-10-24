@@ -29,7 +29,7 @@ export const FIRST_SIGN_IN = {
   carbonRightsAcceptedAt: null,
 } as const;
 
-type Account = { id: string; email: { address: string } };
+type Account = { id: string; email: { address: string }; wallet?: { address: string } };
 
 /** What `usePrivy()` and `useLoginWithEmail()` return; a test edits it, then renders or re-renders. */
 export const privyState = {
@@ -40,6 +40,7 @@ export const privyState = {
   getAccessToken: vi.fn(),
   sendCode: vi.fn(),
   loginWithCode: vi.fn(),
+  createWallet: vi.fn(),
 };
 
 export const signedInAs = (address = 'sari@example.com'): void => {
@@ -60,12 +61,14 @@ export const resetPrivy = (): void => {
   privyState.getAccessToken = vi.fn(() => Promise.resolve('token'));
   privyState.sendCode = vi.fn(() => Promise.resolve());
   privyState.loginWithCode = vi.fn(() => Promise.resolve());
+  privyState.createWallet = vi.fn(() => Promise.resolve());
 };
 
 export const privyModule = {
   usePrivy: () => privyState,
   // the specs of a screen draw its wallet actions, never run them: no wallet is connected
   useWallets: () => ({ wallets: [] }),
+  useCreateWallet: () => ({ createWallet: privyState.createWallet }),
   useLoginWithEmail: () => ({
     sendCode: privyState.sendCode,
     loginWithCode: privyState.loginWithCode,

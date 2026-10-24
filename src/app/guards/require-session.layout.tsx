@@ -1,5 +1,6 @@
 // shell.md §6: every `/app/*` route. No session means S02 before anything private is rendered (FR-010, "never
-// rendered first and hidden afterwards"); a session waits for `GET /me` (SH-2) before the page below mounts.
+// rendered first and hidden afterwards"); a session waits for `GET /me` (SH-2) before the page below mounts. A session
+// whose wallet is still being prepared (SI-13) goes back to S02 too: the sign-in finishes there, not in the workspace.
 
 import { useQueryClient } from '@tanstack/react-query';
 // eslint-disable-next-line import/no-unresolved -- react-router publishes only an exports map, which the import plugin's resolver cannot read
@@ -19,14 +20,16 @@ export function Component() {
   const queryClient = useQueryClient();
   const { pathname, search } = useLocation();
 
-  if (session.phase === 'signed-out') {
+  if (session.phase === 'signed-out' || session.phase === 'wallet-pending') {
     // PageMotion keeps the page that is leaving for its exit, and that copy already reads /sign-in: it must not
     // send the visitor to S02 again with S02 as the page to come back to
     return pathname.startsWith(APP) ? (
       <Navigate
         replace
         to={signInUrl(pathname + search)}
-        state={session.expired ? { reason: SESSION_EXPIRED } : null}
+        state={
+          session.phase === 'signed-out' && session.expired ? { reason: SESSION_EXPIRED } : null
+        }
       />
     ) : null;
   }

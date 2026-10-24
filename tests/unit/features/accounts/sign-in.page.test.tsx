@@ -53,6 +53,20 @@ const loginSucceeds = (address = EMAIL) => {
   });
 };
 
+/** A login after which Privy's user carries its embedded wallet. */
+const loginWithWallet = () => {
+  loginSucceeds();
+  const login = privyState.loginWithCode;
+
+  privyState.loginWithCode = vi.fn(async () => {
+    await login();
+    privyState.user = {
+      ...(privyState.user ?? { id: '', email: { address: EMAIL } }),
+      wallet: { address: SARI.walletAddress },
+    };
+  });
+};
+
 const apiFails = (code: string, status: number) =>
   apiMock.mockRejectedValue(new ApiError({ code, message: code, status }));
 
@@ -352,7 +366,8 @@ describe('S02 Ready', () => {
 describe('S02 wallet and profile outcomes', () => {
   it('SI-AC8 / SI-13: no wallet yet is an alert with no Continue; Verify then re-reads /me only', async () => {
     apiMock.mockResolvedValueOnce({ profile: FIRST_SIGN_IN });
-    loginSucceeds();
+    // Privy has made the wallet; only the API has not seen it yet, so nothing is created here
+    loginWithWallet();
     open();
     await toCodeStep();
     await verify();
@@ -369,7 +384,22 @@ describe('S02 wallet and profile outcomes', () => {
 
     expect(await screen.findByText('You’re in.')).toBeInTheDocument();
     expect(privyState.loginWithCode).toHaveBeenCalledTimes(1);
+    expect(privyState.createWallet).not.toHaveBeenCalled();
     expect(apiMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('SI-13: an account Privy left without a wallet gets one, and /me is read again with no click', async () => {
+    apiMock
+      .mockResolvedValueOnce({ profile: FIRST_SIGN_IN })
+      .mockResolvedValue({ profile: { ...FIRST_SIGN_IN, walletAddress: SARI.walletAddress } });
+    loginSucceeds();
+    open();
+    await toCodeStep();
+    await verify();
+
+    expect(await screen.findByText('You’re in.')).toBeInTheDocument();
+    expect(privyState.createWallet).toHaveBeenCalledOnce();
+    expect(privyState.loginWithCode).toHaveBeenCalledTimes(1);
   });
 
   it('SI-AC9 / SI-9: 409 wallet_already_linked is an alert, the session is ended, there is no Ready', async () => {

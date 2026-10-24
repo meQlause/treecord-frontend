@@ -2077,6 +2077,8 @@
 
 /* explore: the lens visits each pin (6s, three stops), the pin it finds hops */
 .ex-lens {
+  /* the first stop is also where the lens rests when motion is reduced and the animation does not run */
+  transform: translate(52px, 58px);
   animation: ex-glide 3.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 @keyframes ex-glide {
@@ -2236,20 +2238,25 @@
   overflow: hidden;
   background: #eef3e6;
 }
-.action-card {
+/* the card is a link, and `.ws-main a` (workspace.css) makes every link an inline-flex row with a gap, link colour and
+   a hover underline: scoped under .donor-actions, the card's own grid wins and puts the art below the text */
+.donor-actions .action-card {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: 8px;
+  gap: 0 8px;
   align-content: start;
+  align-items: stretch;
   color: #26422f;
+  font-size: inherit;
   transition: background 0.25s;
 }
 .action-card + .action-card {
   border-left: 1px solid #d3dec5;
 }
-.action-card:hover {
+.donor-actions .action-card:hover {
   background: #e7efdc;
+  text-decoration: none;
 }
 .action-card:focus-visible {
   outline: 2px solid #4c7b4a;

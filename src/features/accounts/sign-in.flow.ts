@@ -2,7 +2,7 @@
 // this tab (email → code), and what Privy and `GET /me` say about the session. The second wins, so a person who
 // arrives already signed in lands on Ready or on the matching alert (SI-18) without any step of their own.
 
-import { useLoginWithEmail, usePrivy } from '@privy-io/react-auth';
+import { useCreateWallet, useLoginWithEmail, usePrivy } from '@privy-io/react-auth';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useMe } from '../../app/session/use-me';
 import type { SignInErrorKey } from './accounts.copy';
@@ -17,6 +17,9 @@ import {
 type Stage = 'email' | 'code' | 'ready';
 
 const NON_DIGITS = /\D/g;
+
+/** SI-13: while the wallet is being prepared, `GET /me` is read again this often. */
+const WALLET_POLL_MS = 3000;
 
 /** What the person has done here: the email, the code, and what the provider answered. */
 function useTypedSteps() {
@@ -66,12 +69,48 @@ function useTypedSteps() {
 
 type Typed = ReturnType<typeof useTypedSteps>;
 
+/**
+ * SI-13: a session whose `/me` has no wallet yet. Privy creates the embedded wallet at login (`createOnLogin`), but a
+ * login that did not finish (a closed tab, an API that was down) leaves an account without one, and waiting would
+ * never help: so a missing wallet is created here, once, and `/me` is read again until it names the wallet.
+ */
+function useWalletRepair(
+  pending: boolean,
+  user: { wallet?: unknown } | null,
+  reread: () => Promise<unknown>,
+) {
+  const { createWallet } = useCreateWallet();
+  const hasWallet = user?.wallet !== undefined;
+  const asked = useRef(false);
+
+  useEffect(() => {
+    if (!pending) {
+      return undefined;
+    }
+
+    if (!hasWallet && !asked.current) {
+      asked.current = true;
+      // a refused creation (wallets switched off for the app) leaves the alert up; Verify re-reads as before
+      void createWallet()
+        .catch(() => undefined)
+        .finally(() => void reread());
+    }
+
+    const timer = window.setInterval(() => void reread(), WALLET_POLL_MS);
+
+    return () => window.clearInterval(timer);
+  }, [pending, hasWallet, createWallet, reread]);
+}
+
 /** What Privy and `GET /me` say, and the two outcomes that end the session (SI-9, SI-15). */
 function useSessionView({ setFailure, backToEmail }: Typed) {
   const { authenticated, user, logout } = usePrivy();
   const result = useMe();
   const outcome: ProfileOutcome | null = authenticated ? profileOutcome(result) : null;
   const handled = useRef<ProfileOutcome | null>(null);
+  const { refetch } = result;
+
+  useWalletRepair(outcome === 'wallet-pending', user, refetch);
 
   useEffect(() => {
     if (handled.current === outcome) {

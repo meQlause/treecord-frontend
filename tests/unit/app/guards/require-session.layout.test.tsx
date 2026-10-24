@@ -152,6 +152,17 @@ describe('RequireSession', () => {
     expect(mounted).not.toHaveBeenCalled();
   });
 
+  it('SI-13: a session whose wallet is still being prepared goes back to S02, never into the workspace', async () => {
+    apiMock.mockResolvedValue({ profile: { ...SARI, walletAddress: null } });
+    signedInAs();
+    const { router } = renderRoutes(routes, '/app/profile');
+
+    await screen.findByText('sign in screen');
+
+    expect(here(router)).toBe('/sign-in?returnTo=%2Fapp%2Fprofile');
+    expect(mounted).not.toHaveBeenCalled();
+  });
+
   it('SH-3: a ready session renders the page inside the workspace main', async () => {
     apiMock.mockResolvedValue({ profile: SARI });
     signedInAs();
