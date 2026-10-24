@@ -22,14 +22,16 @@ type BannerProps = {
   /** The one button's label ("Try again", "Refresh"); needs `onAction`. */
   action?: string;
   onAction?: () => void;
+  /** A hook for the browser specs that name this banner. */
+  testId?: string;
 };
 
-export function Banner({ tone = 'info', icon, children, action, onAction }: BannerProps) {
+export function Banner({ tone = 'info', icon, children, action, onAction, testId }: BannerProps) {
   const { className, role, icon: toneIcon } = TONE[tone];
   const glyph = icon === undefined ? toneIcon : icon;
 
   return (
-    <div className={className} role={role}>
+    <div className={className} role={role} data-testid={testId}>
       {glyph !== null && <Icon name={glyph} size={ICON_SIZE} />}
       <span>{children}</span>
       {action !== undefined && tone === 'callout' && (

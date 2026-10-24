@@ -56,4 +56,14 @@ describe('Banner', () => {
 
     expect(screen.queryByRole('button')).toBeNull();
   });
+
+  it('testId: lands on the banner itself', () => {
+    render(
+      <Banner tone="error" testId="note">
+        No
+      </Banner>,
+    );
+
+    expect(screen.getByTestId('note')).toHaveAttribute('role', 'alert');
+  });
 });

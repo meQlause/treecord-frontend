@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { createElement, type ReactNode } from 'react';
 import { Icon, type IconName } from '../art/Icon';
 
 // P12. Three mockup shapes behind one name: `hero` (main.jsx:54 .empty-state), `compact` (workspace-ui.jsx:9 .ws-empty)
@@ -12,6 +12,8 @@ type EmptyStateProps =
       tone?: 'default' | 'error';
       icon?: IconName;
       eyebrow?: string;
+      /** The title's heading level: a page that is only this state makes it the `h1`. */
+      level?: 1 | 2;
       title: string;
       description?: string;
       /** The action: a button or link. */
@@ -24,6 +26,8 @@ const TONE = {
   default: { discClass: 'empty-icon', role: 'status', icon: 'tree' },
   error: { discClass: 'empty-icon error-icon', role: 'alert', icon: 'warning' },
 } as const;
+
+const titleTag = (level: 1 | 2 | undefined): 'h1' | 'h2' => (level === 1 ? 'h1' : 'h2');
 
 export function EmptyState(props: EmptyStateProps) {
   switch (props.variant) {
@@ -51,7 +55,7 @@ export function EmptyState(props: EmptyStateProps) {
             <Icon name={props.icon ?? tone.icon} size={HERO_ICON} />
           </span>
           {props.eyebrow !== undefined && <span className="eyebrow">{props.eyebrow}</span>}
-          <h2>{props.title}</h2>
+          {createElement(titleTag(props.level), null, props.title)}
           {props.description !== undefined && <p>{props.description}</p>}
           {props.children}
         </div>

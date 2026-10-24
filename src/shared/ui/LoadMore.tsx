@@ -17,17 +17,29 @@ type RowProps = {
   loadingLabel: string;
   end?: ReactNode;
   onMore: () => void;
+  /** A hook for the browser specs: on the button, and `{testId}-error` on the failure banner. */
+  testId?: string;
 };
 
 type LoadMoreProps = Omit<RowProps, 'loading' | 'loadingLabel'> & {
   loading?: boolean;
   loadingLabel?: string;
   /** The failure copy; shows an error Banner above the row. */
-  failed?: string;
+  failed?: ReactNode;
   retryLabel?: string;
 };
 
-function LoadRow({ shown, total, label, meta, loading, loadingLabel, end, onMore }: RowProps) {
+function LoadRow({
+  shown,
+  total,
+  label,
+  meta,
+  loading,
+  loadingLabel,
+  end,
+  onMore,
+  testId,
+}: RowProps) {
   if (shown >= total) {
     return end === undefined ? null : (
       <div className="load-more">
@@ -43,6 +55,7 @@ function LoadRow({ shown, total, label, meta, loading, loadingLabel, end, onMore
         onClick={onMore}
         disabled={loading}
         aria-busy={loading || undefined}
+        data-testid={testId}
       >
         {loading ? loadingLabel : label}
         <Icon
@@ -66,7 +79,12 @@ export function LoadMore({
   return (
     <>
       {failed !== undefined && (
-        <Banner tone="error" action={retryLabel} onAction={row.onMore}>
+        <Banner
+          tone="error"
+          action={retryLabel}
+          onAction={row.onMore}
+          {...(row.testId === undefined ? {} : { testId: `${row.testId}-error` })}
+        >
           {failed}
         </Banner>
       )}

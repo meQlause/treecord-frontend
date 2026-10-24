@@ -80,4 +80,20 @@ describe('LoadMore', () => {
 
     expect(container).toBeEmptyDOMElement();
   });
+
+  it('testId: names the button, and the failure banner as {testId}-error', () => {
+    render(
+      <LoadMore
+        shown={6}
+        total={20}
+        label="Load more"
+        failed="No"
+        onMore={vi.fn()}
+        testId="more"
+      />,
+    );
+
+    expect(screen.getByTestId('more')).toHaveTextContent('Load more');
+    expect(screen.getByTestId('more-error')).toHaveAttribute('role', 'alert');
+  });
 });

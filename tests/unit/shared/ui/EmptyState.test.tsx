@@ -56,4 +56,13 @@ describe('EmptyState', () => {
     expect(screen.getByTestId('art')).toBeInTheDocument();
     expect(screen.getByText('No reports yet')).toBeInTheDocument();
   });
+
+  it('hero level 1: the title is the h1 of the page; the default is h2', () => {
+    const { rerender } = render(<EmptyState title="Gone" />);
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Gone' })).toBeInTheDocument();
+
+    rerender(<EmptyState level={1} title="Gone" />);
+    expect(screen.getByRole('heading', { level: 1, name: 'Gone' })).toBeInTheDocument();
+  });
 });
