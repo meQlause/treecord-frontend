@@ -21,7 +21,7 @@ import { foundry } from 'viem/chains';
 import { campaignAbi, erc20Abi } from '../../../src/shared/chain/abis';
 import { test as flow } from './flow';
 
-const CONTRACTS = resolve('..', 'treecord-backend', 'packages', 'contracts');
+const CONTRACTS = resolve('..', 'contracts');
 const RPC = 'http://127.0.0.1:8545';
 const BOOT_MS = 30_000;
 const ANVIL = join(
@@ -56,7 +56,15 @@ const mockUsdcAbi = parseAbi(['function mint(address to, uint256 amount)']);
 
 const completeAbi = parseAbi(['function complete()']);
 
-type Deployment = { usdc: Address; campaignFactory: Address };
+const ledgerAbi = parseAbi([
+  'function issueBatch(address campaign, string registry, string serialStart, string serialEnd, uint16 vintage, uint256 amount) returns (uint256)',
+  'function setPrice(uint256 batchId, uint256 usdcPerTonne)',
+  'function inventoryOf(uint256 batchId) view returns (uint256)',
+  'function balanceOf(address account, uint256 id) view returns (uint256)',
+  'function batchCount() view returns (uint256)',
+]);
+
+type Deployment = { usdc: Address; campaignFactory: Address; carbonLedger: Address };
 
 const deployment = (): Deployment =>
   JSON.parse(readFileSync(resolve(CONTRACTS, 'deployments', '31337.json'), 'utf8')) as Deployment;
@@ -128,8 +136,17 @@ export type State = {
   now: bigint;
 };
 
+type Batch = { batchId: string; campaign: Address };
+
+type CarbonState = { inventory: bigint; held: bigint };
+
 export type Chain = {
   usdc: Address;
+  ledger: Address;
+  /** A funded (Active) campaign with one issued batch of `amount` carbon units (1000 = 1 tCO₂e) at `price` USDC base units a tonne. */
+  issueBatch: (options: { amount: bigint; price: bigint }) => Promise<Batch>;
+  setPrice: (batchId: string, price: bigint) => Promise<void>;
+  carbonState: (batchId: string) => Promise<CarbonState>;
   /** A campaign in Funding, created by the operator for the test donor. */
   createCampaign: (options?: CampaignOptions) => Promise<Address>;
   /** `key` (default: the other wallet) mints and contributes `amount` USDC base units. */
@@ -167,6 +184,7 @@ type Wallet = ReturnType<typeof walletOf>;
 type Ctx = {
   usdc: Address;
   factory: Address;
+  ledger: Address;
   publicClient: ReturnType<typeof clients>['publicClient'];
   testClient: ReturnType<typeof clients>['testClient'];
   operator: Wallet;
@@ -215,8 +233,80 @@ const approveFrom = async (
   );
 };
 
+const issue = async (
+  ctx: Ctx,
+  { amount, price }: { amount: bigint; price: bigint },
+): Promise<Batch> => {
+  const campaign = await makeCampaign(ctx, { fundingTarget: 1000n * USDC, treeTarget: 10 });
+
+  await writesOf(ctx).contributeFrom(campaign, 1000n * USDC);
+  await mined(
+    ctx,
+    await ctx.operator.writeContract({
+      address: ctx.ledger,
+      abi: ledgerAbi,
+      functionName: 'issueBatch',
+      args: [campaign, 'SRN PPI', 'SRN-2025-00001', 'SRN-2025-16000', 2025, amount],
+    }),
+  );
+
+  const count = await ctx.publicClient.readContract({
+    address: ctx.ledger,
+    abi: ledgerAbi,
+    functionName: 'batchCount',
+  });
+  const batchId = String(count);
+
+  await setBatchPrice(ctx, batchId, price);
+
+  return { batchId, campaign };
+};
+
+const setBatchPrice = async (ctx: Ctx, batchId: string, price: bigint): Promise<void> => {
+  await mined(
+    ctx,
+    await ctx.operator.writeContract({
+      address: ctx.ledger,
+      abi: ledgerAbi,
+      functionName: 'setPrice',
+      args: [BigInt(batchId), price],
+    }),
+  );
+};
+
+const carbonOf = async (ctx: Ctx, batchId: string): Promise<CarbonState> => {
+  const [inventory, held] = await Promise.all([
+    ctx.publicClient.readContract({
+      address: ctx.ledger,
+      abi: ledgerAbi,
+      functionName: 'inventoryOf',
+      args: [BigInt(batchId)],
+    }),
+    ctx.publicClient.readContract({
+      address: ctx.ledger,
+      abi: ledgerAbi,
+      functionName: 'balanceOf',
+      args: [DONOR, BigInt(batchId)],
+    }),
+  ]);
+
+  return { inventory, held };
+};
+
 /** The writes a spec stages before the page opens: who holds USDC, who allowed what, refunds started or claimed. */
-const writesOf = (ctx: Ctx): Omit<Chain, 'createCampaign' | 'read' | 'allowanceOf' | 'usdc'> => ({
+const writesOf = (
+  ctx: Ctx,
+): Omit<
+  Chain,
+  | 'createCampaign'
+  | 'read'
+  | 'allowanceOf'
+  | 'usdc'
+  | 'ledger'
+  | 'issueBatch'
+  | 'setPrice'
+  | 'carbonState'
+> => ({
   fund: (amount) => mint(ctx, DONOR, amount),
   approve: (campaign, amount) => approveFrom(ctx, ctx.donor, campaign, amount),
   startRefunding: (campaign) => campaignCall(ctx, ctx.operator, campaign, 'markRefunding'),
@@ -344,10 +434,11 @@ const makeCampaign = async (
 };
 
 const chainOf = (): Chain => {
-  const { usdc, campaignFactory } = deployment();
+  const { usdc, campaignFactory, carbonLedger } = deployment();
   const ctx: Ctx = {
     usdc,
     factory: campaignFactory,
+    ledger: carbonLedger,
     ...clients(),
     operator: walletOf(OPERATOR_KEY),
     donor: walletOf(DONOR_KEY),
@@ -355,6 +446,10 @@ const chainOf = (): Chain => {
 
   return {
     usdc,
+    ledger: carbonLedger,
+    issueBatch: (options) => issue(ctx, options),
+    setPrice: (batchId, price) => setBatchPrice(ctx, batchId, price),
+    carbonState: (batchId) => carbonOf(ctx, batchId),
     ...writesOf(ctx),
     read: (campaign) => readState(ctx, campaign),
     createCampaign: (options = {}) => makeCampaign(ctx, options),

@@ -5,37 +5,16 @@ import type { ReactNode } from 'react';
 // eslint-disable-next-line import/no-unresolved -- react-router publishes only an exports map, which the import plugin's resolver cannot read
 import { Link } from 'react-router';
 import { Icon } from '../../shared/art/Icon';
-import { tonnes } from '../../shared/format/carbon';
-import { Button } from '../../shared/ui/Button';
-import { FacetCoin } from '../../shared/ui/FacetCoin';
 import { CreditArt } from './art/CreditArt';
-import {
-  AMOUNT_LABEL,
-  BUY_EYEBROW,
-  BUY_NOTE,
-  BUY_TITLE,
-  GAS_NOTE,
-  ISSUED_ON,
-  MAX,
-  NO_VALUE,
-  PER_TONNE,
-  RECORD_EYEBROW,
-  RECORD_TITLE,
-  TOTAL,
-  USDC,
-  provenanceMeta,
-} from './batch.copy';
-import { issuedOn, priceText } from './batch.rules';
+import { ISSUED_ON, RECORD_EYEBROW, RECORD_TITLE, provenanceMeta } from './batch.copy';
+import { issuedOn } from './batch.rules';
 import type { BatchDetail } from './carbon.api';
-import { AVAILABILITY_LABEL, AVAILABLE_UNIT, ISSUED } from './carbon.copy';
+import { ISSUED } from './carbon.copy';
 import { SerialRange } from './carbon.parts';
 import { IssuanceTx } from './certificate.parts';
 
 const SMALL_ICON = 12;
 const PIN_ICON = 14;
-const BUY_ICON = 22;
-const NOTE_ICON = 16;
-const COIN_SIZE = { cx: 30, cy: 28, r: 22 };
 const SEAL_DOTS = 12;
 const SEAL_RADIUS = 17;
 const SEAL_KEYS = Array.from({ length: SEAL_DOTS }, (_item, dot) => dot);
@@ -137,55 +116,5 @@ export function BatchRecord({ batch }: { batch: BatchDetail }) {
         />
       </div>
     </section>
-  );
-}
-
-/** D08's panel, read side: what the batch costs and what is left; the controls are off (F2b). */
-export function BuyPanel({ batch }: { batch: BatchDetail }) {
-  const available = batch.availability === 'available';
-
-  return (
-    <aside className="cb-buy">
-      <div className="cb-buy-heading">
-        <h2>{BUY_TITLE}</h2>
-        <Icon name="wallet" size={BUY_ICON} />
-      </div>
-      <span className="eyebrow">{BUY_EYEBROW}</span>
-      <div className="cb-buy-price">
-        <svg className="cb-buy-coin" viewBox="0 0 60 60" aria-hidden="true">
-          <FacetCoin {...COIN_SIZE} id={`buy-${batch.batchId}`} />
-        </svg>
-        <strong>{priceText(batch.usdcPerTonne)}</strong>
-        <span>{PER_TONNE}</span>
-      </div>
-      <form noValidate>
-        <label className="cb-quantity" htmlFor="credit-quantity">
-          {AMOUNT_LABEL}
-          <div>
-            <input id="credit-quantity" inputMode="decimal" defaultValue="" disabled />
-            <button type="button" disabled>
-              {MAX}
-            </button>
-          </div>
-        </label>
-        <span className="cb-inventory">
-          {tonnes(batch.inventoryAmount)} {AVAILABLE_UNIT}
-        </span>
-        <div className="cb-quote">
-          <span>{TOTAL}</span>
-          <strong>
-            {NO_VALUE} <small>{USDC}</small>
-          </strong>
-        </div>
-        <p className="cb-gas-note">{GAS_NOTE}</p>
-        <Button icon="arrow" disabled>
-          {available ? BUY_TITLE : AVAILABILITY_LABEL[batch.availability]}
-        </Button>
-      </form>
-      <div className="cb-buy-note">
-        <Icon name="leaf" size={NOTE_ICON} />
-        <span>{BUY_NOTE}</span>
-      </div>
-    </aside>
   );
 }

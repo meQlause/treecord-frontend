@@ -13,6 +13,7 @@ import {
   type Hash,
   type Hex,
   type PublicClient,
+  type TransactionReceipt,
   type WalletClient,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
@@ -25,7 +26,7 @@ export type ChainSession = {
   walletClient: WalletClient;
 };
 
-type Seam = { privateKey: Hex };
+type Seam = { privateKey: Hex; chainId?: number };
 
 /**
  * The browser specs' wallet: a funded anvil account set by the spec as `window.treecordE2E`. It exists only in the dev
@@ -38,6 +39,12 @@ const seamOf = (chainId: number): Seam | null => {
 
   return (window as { treecordE2E?: Seam }).treecordE2E ?? null;
 };
+
+/** The chain a screen without a campaign of its own acts on: the build's, or the local one when a spec set the seam. */
+export const actingChainId = (configured: number): number =>
+  import.meta.env.DEV
+    ? ((window as { treecordE2E?: Seam }).treecordE2E?.chainId ?? configured)
+    : configured;
 
 const LOCAL_CHAIN = 31_337;
 const RECEIPT_POLL_MS = 1000;
@@ -105,7 +112,7 @@ export const sendWrite = (session: ChainSession, call: Call): Promise<Hash> =>
   });
 
 /** Waits for the receipt by hash, as long as it takes (a slow chain is never a failure); a revert throws `RevertedError`. */
-export const settle = async (session: ChainSession, hash: Hash): Promise<void> => {
+export const settle = async (session: ChainSession, hash: Hash): Promise<TransactionReceipt> => {
   const receipt = await session.publicClient.waitForTransactionReceipt({
     hash,
     pollingInterval: RECEIPT_POLL_MS,
@@ -115,6 +122,8 @@ export const settle = async (session: ChainSession, hash: Hash): Promise<void> =
   if (receipt.status !== 'success') {
     throw new RevertedError(hash);
   }
+
+  return receipt;
 };
 
 /** Reads need no wallet: a public client on the campaign's chain, or `null` for a chain the app does not know. */

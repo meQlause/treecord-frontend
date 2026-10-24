@@ -29,7 +29,8 @@ import {
   stockNote,
 } from './batch.copy';
 import { Journey } from './batch.journey';
-import { BatchRecord, BuyPanel, Provenance } from './batch.parts';
+import { BatchRecord, Provenance } from './batch.parts';
+import { BuyPanel } from './buy.panel';
 import { useBatch, type BatchDetail } from './carbon.api';
 import { FAILED_TITLE, LOADING, TRY_AGAIN, UNIT } from './carbon.copy';
 import { BackLink } from './carbon.parts';

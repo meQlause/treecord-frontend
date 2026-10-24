@@ -15,7 +15,9 @@ const BPS = 10_000n;
 const NOT_FOUND = 404;
 const STATUS = ['funding', 'active', 'refunding', 'completed'] as const;
 
-type Rpc = {
+export type Rpc = {
+  /** Every JSON-RPC call the app has made to anvil (reads and sends). */
+  calls: () => number;
   /** Send calls so far (`eth_sendRawTransaction`, or `eth_sendTransaction` for a wallet that signs itself). */
   sent: () => number;
   /** The next send is refused the way a declined wallet refuses (EIP-1193 4001). */
@@ -60,14 +62,17 @@ const reverted = async (route: Route): Promise<void> => {
 };
 
 /** Counts and, on request, spoils the calls the app makes to anvil; every other call goes through untouched. */
-const watchRpc = async (page: Page): Promise<Rpc> => {
+export const watchRpc = async (page: Page): Promise<Rpc> => {
   let sent = 0;
+  let calls = 0;
   let refusal: Refusal | null = null;
   let revert = false;
 
   await page.route(RPC, async (route) => {
     const call = callOf(route);
     const isSend = call !== null && SENDS.has(call.method);
+
+    calls += Number(call !== null);
 
     sent += isSend ? 1 : 0;
 
@@ -84,6 +89,7 @@ const watchRpc = async (page: Page): Promise<Rpc> => {
   });
 
   return {
+    calls: () => calls,
     sent: () => sent,
     refuseNext: () => {
       refusal = { code: 4001, message: 'User rejected the request.' };
@@ -98,9 +104,9 @@ const watchRpc = async (page: Page): Promise<Rpc> => {
 };
 
 /** The app signs with the test donor's key (the seam exists only in the dev server and only on chain 31337). */
-const giveTestWallet = async (page: Page): Promise<void> => {
+export const giveTestWallet = async (page: Page): Promise<void> => {
   await page.addInitScript((key) => {
-    Object.assign(window, { treecordE2E: { privateKey: key } });
+    Object.assign(window, { treecordE2E: { privateKey: key, chainId: 31_337 } });
   }, DONOR_KEY);
 };
 

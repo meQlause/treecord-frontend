@@ -11,6 +11,7 @@ export const erc20Abi = parseAbi([
 export const campaignAbi = parseAbi([
   'function status() view returns (uint8)',
   'function usdc() view returns (address)',
+  'function roles() view returns (address)',
   'struct Split { uint16 incentivesBps; uint16 seedlingsBps; uint16 verificationBps; uint16 reserveBps; uint16 feeBps; }',
   'struct Config { address creator; string metadataURI; bytes32 speciesCode; bytes8 regionGeohash; uint32 regionRadiusM; uint32 treeTarget; uint16 anchorBps; uint16 perPlanterCap; uint256 fundingTarget; uint64 fundingDeadline; uint64 claimDeadline; uint16 commitmentUnits; uint64 timeUnit; Split split; }',
   'function config() view returns (Config)',
@@ -21,4 +22,11 @@ export const campaignAbi = parseAbi([
   'function contribute(uint256 amount) returns (uint256)',
   'function markRefunding()',
   'function claimRefund() returns (uint256)',
+]);
+
+export const rolesAbi = parseAbi(['function carbonLedger() view returns (address)']);
+
+export const carbonLedgerAbi = parseAbi([
+  'function buy(uint256 batchId, uint256 amount) returns (uint256)',
+  'event Purchased(uint256 indexed batchId, address indexed buyer, uint256 amount, uint256 usdcPaid)',
 ]);
