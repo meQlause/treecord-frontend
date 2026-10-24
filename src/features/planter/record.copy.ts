@@ -1,6 +1,7 @@
 // S19's words (s19-record.md §3, §6, §7). Registry and lorem ids are placeholders until the owner approves them.
 import { UPLOAD_WINDOW_HOURS, MAX_GPS_ACCURACY_M } from '../evidence/evidence.config';
 import type { CaptureKind } from '../evidence/evidence.rules';
+import { fillCopy } from '../../shared/ui/approved-copy';
 
 export const RECORD_BACK_SLOTS = 'Slots';
 
@@ -104,7 +105,8 @@ export const COPY_PAYLOAD_MISMATCH = 'COPY-005';
 
 export const COPY_VALIDATION = 'COPY-001';
 
-export const BUSY_LABEL = 'Lorem ipsum';
+/** COPY-203: the busy label of "Upload now" while sending (S19, S20). */
+export const BUSY_LABEL = fillCopy('COPY-203');
 
 // ---- blocked and sent ----
 export const BLOCKED_TITLE = 'Capture target unavailable';

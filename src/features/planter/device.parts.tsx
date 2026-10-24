@@ -137,7 +137,7 @@ function RevokeAction({ label, queued, failed, onRevoke }: RevokeProps) {
             {queued > 0 && (
               <div data-count={queued}>
                 <Banner tone="callout" icon="warning">
-                  <Lorem id={QUEUED_WARNING} />
+                  <Lorem id={QUEUED_WARNING} values={{ count: queued }} />
                 </Banner>
               </div>
             )}

@@ -1,6 +1,7 @@
 // Every sentence S09 (the retirement certificate) shows. Verbatim from the mockup (my-carbon.jsx:65-72,140-181), SRS
 // §3.6.5, error-handling §4 or FR-012 (s09-certificate.md §9). A COPY id with no approved text is a lorem placeholder.
 import type { RegistryStatus } from './certificate.api';
+import { fillCopy } from '../../shared/ui/approved-copy';
 
 // ---- back link, heading ----
 export const BACK_TO_CARBON = 'My carbon';
@@ -22,7 +23,7 @@ export const NOT_FOUND_TITLE = 'Retirement record not found';
 export const NOT_FOUND_BUTTON = 'Back to My carbon';
 
 /** COPY-401: lorem until the owner approves the sentence (s09 state 10). */
-export const COPY_FAILED = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+export const COPY_FAILED = fillCopy('COPY-401');
 
 // ---- certificate ----
 export const CERTIFICATE_LABEL = 'Certificate of retirement';

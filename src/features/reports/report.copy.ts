@@ -17,9 +17,6 @@ export const AS_OF = 'As of';
 
 export const CAMPAIGN_WIDE = 'Campaign-wide totals';
 
-/** COPY-157: lorem until the owner approves the title fallback. */
-export const UNTITLED = { copyId: 'COPY-157' } as const;
-
 // ---- R-1 .. R-3 ----
 export const LOADING = 'Loading impact report…';
 

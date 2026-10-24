@@ -11,12 +11,6 @@ export const HEADING = 'Tree';
 export const coordinate = (id: string, region: string): string =>
   `TREE #${id} / ${region.toUpperCase()}`;
 
-/** COPY-157: the campaign title fallback. */
-export const UNTITLED = { copyId: 'COPY-157' } as const;
-
-/** The same placeholder where the field needs a plain string (the Reprint line). */
-export const UNTITLED_LINE = 'Lorem ipsum';
-
 // ---- T-2 ----
 export const notFoundTitle = (id: string): string => `Tree #${id} doesn’t exist`;
 
@@ -75,9 +69,6 @@ export const SCORE_LABEL = { copyId: 'COPY-161' } as const;
 export const HASH_LABEL = { copyId: 'COPY-162' } as const;
 
 export const TX_LABEL = { copyId: 'COPY-163' } as const;
-
-/** COPY-164 is a sentence: lorem until approved, and it must be a plain string for `alt`. */
-export const THUMBNAIL_ALT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
 
 // ---- milestones ----
 export const SCHEDULE_TITLE = 'Milestone schedule';

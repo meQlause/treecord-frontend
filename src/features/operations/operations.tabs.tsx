@@ -4,6 +4,7 @@ import { useState, type ReactNode } from 'react';
 import { idempotencyKey } from '../../shared/api/client';
 import { tonnes } from '../../shared/format/carbon';
 import { usdc } from '../../shared/format/money';
+import type { ApiError } from '../../shared/api/errors';
 import { Banner } from '../../shared/ui/Banner';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { Facts } from '../../shared/ui/Facts';
@@ -36,9 +37,9 @@ export type TabProps = {
   onRefetch: () => void;
 };
 
-const rule = (label: string, id: string) => (
+const rule = (label: string, id: string, values?: Record<string, number>) => (
   <>
-    {label} · <Lorem id={id} kind="label" />
+    {label} · <Lorem id={id} values={values ?? {}} />
   </>
 );
 
@@ -47,7 +48,22 @@ const NOT_ACTIVE = { banner: copy.MUST_BE_ACTIVE, blocking: true, refetch: true 
 const ANCHOR_ERRORS = {
   validation_error: fieldProblem,
   campaign_not_active: NOT_ACTIVE,
-  not_enough_slots: { field: { name: 'count', text: <Lorem id="COPY-013" /> }, refetch: true },
+  not_enough_slots: (error: ApiError) => {
+    const available = (error.details as Record<string, unknown> | null | undefined)?.['available'];
+
+    return {
+      field: {
+        name: 'count',
+        text: (
+          <Lorem
+            id="COPY-013"
+            values={{ available: typeof available === 'number' ? available : 0 }}
+          />
+        ),
+      },
+      refetch: true,
+    };
+  },
 } as const;
 
 export function AnchorTab({ data, online, onQueued, onRefetch }: TabProps) {
@@ -92,7 +108,7 @@ export function AnchorTab({ data, online, onQueued, onRefetch }: TabProps) {
         />
       </Field>
       <Field
-        label={rule(copy.F_COUNT, copy.RULE_COPY.count)}
+        label={rule(copy.F_COUNT, copy.RULE_COPY.count, { max: maxCount(availableSlots) })}
         error={fieldText(action.problem, 'count')}
       >
         <input

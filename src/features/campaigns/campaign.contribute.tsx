@@ -92,7 +92,7 @@ function useContribute({
     const effective = effectiveOf(units, facts.target, facts.raised);
 
     setReview({ units, effective, wallet });
-    setNotice(wallet.balance < effective ? { kind: 'lowUsdc' } : null);
+    setNotice(wallet.balance < effective ? { kind: 'lowUsdc', amount: usdc(effective) } : null);
     flow.start(wallet.allowance < effective);
   };
 
@@ -130,7 +130,7 @@ function NoticeLine({ notice }: { notice: steps.Notice }) {
 
   return (
     <Banner tone={tone}>
-      <Lorem id={copyId} />
+      <Lorem id={copyId} values={notice.kind === 'lowUsdc' ? { amount: notice.amount } : {}} />
     </Banner>
   );
 }

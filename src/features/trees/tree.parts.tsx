@@ -36,6 +36,7 @@ import {
   windowText,
   type Row,
 } from './tree.rules';
+import { fillCopy, untitledCampaign } from '../../shared/ui/approved-copy';
 
 const ICON = 16;
 const SMALL_ICON = 15;
@@ -63,7 +64,7 @@ export function Provenance({ data }: { data: TreeDetail }) {
     <Link className="cb-provenance rc-where tr-hero" to={`/campaigns/${campaign.address}`}>
       <div>
         <Tag>{label(status)}</Tag>
-        <h2 className="wrap-any">{campaign.title ?? <Say message={copy.UNTITLED} />}</h2>
+        <h2 className="wrap-any">{campaign.title ?? untitledCampaign(campaign.address)}</h2>
         <span className="location wrap-any">
           <Icon name="pin" size={PIN_SIZE} />
           {campaign.region.name}
@@ -88,9 +89,11 @@ export function Provenance({ data }: { data: TreeDetail }) {
 /** TL-8 / TL-9: thumbnail (removed when it fails to load), score, short evidence hash, transaction link. */
 function EvidenceDetails({
   event,
+  treeId,
   onThumbError,
 }: {
   event: TimelineEvent;
+  treeId: string;
   onThumbError: () => void;
 }) {
   const [thumbnail, setThumbnail] = useState(true);
@@ -108,7 +111,7 @@ function EvidenceDetails({
         <img
           className="ev-thumb"
           src={thumbUrl}
-          alt={copy.THUMBNAIL_ALT}
+          alt={fillCopy('COPY-164', { id: treeId })}
           data-copy="COPY-164"
           loading="lazy"
           onError={() => {
@@ -140,9 +143,11 @@ function EvidenceDetails({
 
 export function Timeline({
   events,
+  treeId,
   onThumbError,
 }: {
   events: readonly TimelineEvent[];
+  treeId: string;
   onThumbError: () => void;
 }) {
   return (
@@ -158,7 +163,7 @@ export function Timeline({
                 <Say message={timelineTitle(event)} />
               </h3>
               <p>{timelineNote(event.kind)}</p>
-              <EvidenceDetails event={event} onThumbError={onThumbError} />
+              <EvidenceDetails event={event} treeId={treeId} onThumbError={onThumbError} />
             </li>
           ))}
         </ol>
@@ -281,7 +286,7 @@ function Tagged({ data }: { data: TreeDetail }) {
     return copy.NO_TAG;
   }
 
-  const line = copy.reprintLine(treeId, campaign.title ?? copy.UNTITLED_LINE);
+  const line = copy.reprintLine(treeId, campaign.title ?? untitledCampaign(campaign.address));
 
   return (
     <>

@@ -25,6 +25,7 @@ import {
   survivalPercent,
   wholePercent,
 } from './report.rules';
+import { untitledCampaign } from '../../shared/ui/approved-copy';
 
 const ICON_SIZE = 20;
 const PIN_SIZE = 16;
@@ -97,7 +98,7 @@ export function ReportHead({ report }: { report: Report }) {
           </div>
           <Badge status={statusLabel(campaign.status)} />
         </div>
-        <h1 className="wrap-any">{campaign.title ?? <Say message={copy.UNTITLED} />}</h1>
+        <h1 className="wrap-any">{campaign.title ?? untitledCampaign(campaign.address)}</h1>
         <p className="wrap-any">
           <Icon name="pin" size={PIN_SIZE} />
           {campaign.region.name} <span>·</span> {campaign.species.name}

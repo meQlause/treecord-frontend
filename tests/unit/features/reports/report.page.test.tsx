@@ -178,21 +178,16 @@ describe('S06 report page, carbon and evidence', () => {
     open();
     await ready();
 
-    expect(screen.getByText(/linear-maturity-v1/)).toHaveTextContent(
-      'Lorem ipsum · linear-maturity-v1',
-    );
+    expect(screen.getByText(/linear-maturity-v1/)).toHaveTextContent('Method · linear-maturity-v1');
   });
 
-  it('R-14: a campaign without a title shows the placeholder in the same h1', async () => {
+  it('R-14: a campaign without a title is named by its short address in the same h1', async () => {
     const campaign = { ...REPORT.campaign, title: null };
 
     serve({ [REPORT_URL]: { body: { report: { ...REPORT, campaign } } } });
     open();
 
-    expect(await ready()).toHaveTextContent('Lorem ipsum');
-    expect(
-      screen.getByRole('heading', { level: 1 }).querySelector('[data-copy="COPY-157"]'),
-    ).not.toBeNull();
+    expect(await ready()).toHaveTextContent(/^Campaign 0x[0-9a-fA-F]{4}…[0-9a-fA-F]{4}$/u);
   });
 
   it('E-1: evidence rows link to the tree and the explorer; signed out has no roster note', async () => {

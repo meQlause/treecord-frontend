@@ -29,12 +29,12 @@ import {
   SPECIES_FILTER_LABEL,
   STATUS_LABEL,
   TRY_AGAIN,
-  UNTITLED_CAMPAIGN,
   VIEW_CAMPAIGN,
   monthsLabel,
   viewCampaignLabel,
 } from './campaigns.copy';
 import { barPercent, cardMeta, percentOf, usdc, type CatalogView } from './campaigns.rules';
+import { untitledCampaign } from '../../shared/ui/approved-copy';
 
 const SMALL_ICON = 14;
 const FIELD_ICON = 16;
@@ -46,7 +46,7 @@ const REGION_MAX_LENGTH = 120;
 
 /** `main.jsx:29`: one campaign. The API has no art field, so the picture follows the species (FD-23). */
 export function CampaignCard({ item, index }: { item: CampaignItem; index: number }) {
-  const title = item.title ?? UNTITLED_CAMPAIGN;
+  const title = item.title ?? untitledCampaign(item.address);
 
   return (
     <CatalogCard

@@ -31,7 +31,13 @@ export function Component() {
   return (
     <ForbiddenState>
       {TWO_ROLE_PLACEHOLDER.has(pathname) ? (
-        <Lorem id={ROLE_UNAVAILABLE_TWO} />
+        <Lorem
+          id={ROLE_UNAVAILABLE_TWO}
+          values={{
+            roleA: roles.map(roleLabel)[0] ?? OTHER_ROLE,
+            roleB: roles.map(roleLabel)[1] ?? OTHER_ROLE,
+          }}
+        />
       ) : (
         roleBody(roles.map(roleLabel)[0] ?? OTHER_ROLE)
       )}

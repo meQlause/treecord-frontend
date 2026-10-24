@@ -1,6 +1,7 @@
 // Every sentence of S23-S26 and S10 (s23, s24, s25, s26 and s10 feature documents). Verbatim from the mockup
 // (audit-pages.jsx), the SRS or error-handling §4; COPY-300..307, 402 and 405 stay lorem until the owner approves them.
 import type { Words } from '../planter/evidence.copy';
+import { fillCopy } from '../../shared/ui/approved-copy';
 
 export type { Words };
 
@@ -491,4 +492,4 @@ export const SAMPLE_DIFFERS =
 export const RECOMPUTE_FAILED_COPY = 'COPY-307';
 
 /** COPY-402 as the error toast reads it (a toast takes text, not an element): lorem until approved. */
-export const COPY_REFUSED_TEXT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+export const COPY_REFUSED_TEXT = fillCopy('COPY-402');

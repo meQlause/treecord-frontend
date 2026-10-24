@@ -44,6 +44,9 @@ import {
 } from './planter.copy';
 import { filterOf, flattenTrees, parseStatus, statusOfFilter } from './planter.rules';
 
+// COPY-200 and COPY-201 name the list by the word this page already uses for it
+const NOUN = 'trees';
+
 function useTrees() {
   const [params, setParams] = useSearchParams();
   const status = parseStatus(params.get('status'));
@@ -104,9 +107,11 @@ function Cards({ trees }: { trees: Trees }) {
         <LoadMore
           shown={items.length}
           total={total}
-          label={<Lorem id={LOAD_MORE_COPY} kind="label" />}
+          label={<Lorem id={LOAD_MORE_COPY} values={{ noun: NOUN }} />}
           loading={query.isFetchingNextPage}
-          {...(query.isFetchNextPageError ? { failed: <Lorem id={LOAD_MORE_FAILED_COPY} /> } : {})}
+          {...(query.isFetchNextPageError
+            ? { failed: <Lorem id={LOAD_MORE_FAILED_COPY} values={{ noun: NOUN }} /> }
+            : {})}
           onMore={() => void query.fetchNextPage()}
         />
       )}

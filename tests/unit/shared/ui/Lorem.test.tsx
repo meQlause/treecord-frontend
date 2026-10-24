@@ -3,18 +3,17 @@ import { describe, expect, it } from 'vitest';
 import { Lorem } from '../../../../src/shared/ui/Lorem';
 
 describe('Lorem', () => {
-  it('shows the lorem sentence and marks the COPY id', () => {
-    render(<Lorem id="COPY-418" />);
+  it('shows the approved text and marks the COPY id', () => {
+    render(<Lorem id="COPY-001" />);
 
-    const copy = screen.getByText(/^Lorem ipsum dolor/);
-
-    expect(copy).toHaveAttribute('data-copy', 'COPY-418');
-    expect(copy).toHaveAttribute('title', 'COPY-418');
+    expect(
+      screen.getByText('Some details aren’t valid. Check them and try again.'),
+    ).toHaveAttribute('data-copy', 'COPY-001');
   });
 
-  it('shows the short label for kind="label"', () => {
-    render(<Lorem id="COPY-1" kind="label" />);
+  it('fills the slots from values', () => {
+    render(<Lorem id="COPY-154" values={{ amount: '4' }} />);
 
-    expect(screen.getByText('Lorem ipsum')).toBeInTheDocument();
+    expect(screen.getByText('Not enough USDC in your wallet for 4 USDC.')).toBeInTheDocument();
   });
 });

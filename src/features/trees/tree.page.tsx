@@ -62,7 +62,7 @@ function TreeView({ data, onThumbError }: ViewProps) {
       <div className="cb-detail tr-detail">
         <section>
           <Provenance data={data} />
-          <Timeline events={data.timeline} onThumbError={onThumbError} />
+          <Timeline events={data.timeline} treeId={data.tree.treeId} onThumbError={onThumbError} />
           <Schedule milestones={data.milestones} signedIn={data.viewer !== null} />
           <Payouts data={data} />
           <Flags
