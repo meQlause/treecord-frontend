@@ -31,7 +31,7 @@ export const NEEDS_REVIEW: Json = {
   rejection: null,
 };
 
-/** Tree 3001: turned back at the prechecks for a 41 m fix. */
+/** Tree 3001: turned back at the prechecks for a 341 m fix. */
 export const REJECTED: Json = {
   ...NEEDS_REVIEW,
   id: REJECTED_ID,
@@ -40,11 +40,11 @@ export const REJECTED: Json = {
   capturedAt: '2026-10-17T06:40:00.000Z',
   uploadBy: '2026-10-20T06:40:00.000Z',
   durationSec: 6,
-  accM: 41.0,
+  accM: 341.0,
   pipeline: { step: 2, failedAt: 'prechecks' },
   rejection: {
     stage: 'precheck',
-    reasons: [{ reason: 'gps_inaccurate', value: '41.0 m' }],
+    reasons: [{ reason: 'gps_inaccurate', value: '341.0 m' }],
     note: null,
   },
 };

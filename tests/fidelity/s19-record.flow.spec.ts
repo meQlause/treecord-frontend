@@ -181,12 +181,12 @@ test('#4 the live fix reads in the chip and the facts, and Start waits for one',
   await expect(waiting.page.getByRole('button', { name: 'Start recording' })).toBeDisabled();
 });
 
-test('#5 a 41 m fix warns, explains, and still lets the planter record', async ({ open }) => {
-  const { page } = await openRecord(open, { fix: { ...FIX, accuracy: 41 } });
+test('#5 a 341 m fix warns, explains, and still lets the planter record', async ({ open }) => {
+  const { page } = await openRecord(open, { fix: { ...FIX, accuracy: 341 } });
 
   await goLive(page);
   await expect(page.locator('.ev-chip.warn')).toBeVisible();
-  await expect(page.locator('.ws-callout')).toContainText('Accuracy is above 30 m.');
+  await expect(page.locator('.ws-callout')).toContainText('Accuracy is above 300 m.');
   await expect(page.getByRole('button', { name: 'Start recording' })).toBeEnabled();
 });
 
