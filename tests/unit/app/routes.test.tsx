@@ -50,7 +50,8 @@ describe('routes', () => {
 
       expect(typeof (await load()).Component).toBe('function');
     }
-  });
+    // the guards and S02 load the Privy SDK, which takes a cold import several seconds
+  }, 60_000);
 
   it('no route holds an element or component of its own: screens are always lazy', () => {
     walk(routes).forEach((route) => {

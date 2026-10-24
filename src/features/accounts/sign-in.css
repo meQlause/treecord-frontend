@@ -1,0 +1,11 @@
+/* The shared Button takes no class, so the mockup's `.si-submit` / `.si-restart` become structural selectors. */
+.si-card form > .button.primary,
+.si-done > .button.primary {
+  width: 100%;
+  justify-content: center;
+  min-height: 50px;
+}
+
+.si-card form > .text-button {
+  align-self: center;
+}
