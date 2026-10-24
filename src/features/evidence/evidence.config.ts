@@ -4,7 +4,7 @@ export const APP_MIN_SEC = 5;
 
 export const APP_MAX_SEC = 10;
 
-export const MAX_GPS_ACCURACY_M = 30;
+export const MAX_GPS_ACCURACY_M = 300;
 
 export const MAX_UPLOAD_BYTES = 26_214_400;
 

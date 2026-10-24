@@ -33,12 +33,12 @@ describe('stepOf', () => {
 describe('rejectedLine', () => {
   it('joins precheck reasons with their value, quotes the operator, lists policy reasons, and has a fallback', () => {
     const reasons = [
-      { reason: 'gps_inaccurate', value: '41.0 m' },
+      { reason: 'gps_inaccurate', value: '341.0 m' },
       { reason: 'video_too_short', value: '3.1 s' },
     ];
 
     expect(rejectedLine(item({ rejection: { stage: 'precheck', reasons, note: null } }))).toBe(
-      'GPS accuracy too low (41.0 m) · Video too short (3.1 s)',
+      'GPS accuracy too low (341.0 m) · Video too short (3.1 s)',
     );
     expect(
       rejectedLine(item({ rejection: { stage: 'operator', reasons: [], note: 'Blurry' } })),

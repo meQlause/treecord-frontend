@@ -1,6 +1,6 @@
 // docs/BE/features/evidence.md §4 and evidence-prechecks.md §4: the `GET /evidence/:id` bodies the S21 spec answers with —
 // fixture A, the check-in of tree 3104 waiting for an operator (all 14 prechecks pass), and fixture B, the check-in of
-// tree 3001 turned back at the prechecks for a 41 m fix.
+// tree 3001 turned back at the prechecks for a 341 m fix.
 import { SARI, type MeProfile } from './accounts';
 import type { Json } from './campaigns';
 import { HELD, ROOTS } from './record';
@@ -108,15 +108,15 @@ export const FIXTURE_A: Json = {
   pipeline: { step: 3, failedAt: null },
 };
 
-/** Fixture B: turned back at the prechecks (41 m), never scored. */
+/** Fixture B: turned back at the prechecks (341 m), never scored. */
 export const FIXTURE_B: Json = {
   ...FIXTURE_A,
   id: REJECTED,
   status: 'rejected',
   treeId: '3001',
-  payload: { ...PAYLOAD, treeId: '3001', acc: 41 },
+  payload: { ...PAYLOAD, treeId: '3001', acc: 341 },
   precheckResults: ALIVE_ROWS.map((entry) =>
-    entry.check === 'gps_accuracy' ? row('gps_accuracy', '41.0 m', 'gps_inaccurate') : entry,
+    entry.check === 'gps_accuracy' ? row('gps_accuracy', '341.0 m', 'gps_inaccurate') : entry,
   ),
   rejectReasons: ['gps_inaccurate'],
   policyDecision: null,

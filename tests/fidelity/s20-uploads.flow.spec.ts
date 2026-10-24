@@ -61,7 +61,7 @@ test('#3 the rejected card says why, crosses "Checks" and opens its submission',
   await expect(card.locator('.pl-facts')).toContainText('17 Oct 2026, 06:40');
   await expect(card.locator('.pl-facts')).toContainText('6 s');
   await expect(card.locator('.pl-facts')).toContainText('20 Oct 2026');
-  await expect(card.locator('.pl-reason')).toHaveText('GPS accuracy too low (41.0 m)');
+  await expect(card.locator('.pl-reason')).toHaveText('GPS accuracy too low (341.0 m)');
   await expect(card.locator('svg path[stroke="#9c4a36"]')).toHaveCount(2);
   await card.getByRole('link', { name: 'View submission' }).click();
   await page.waitForURL(`**/app/evidence/${REJECTED_ID}`);

@@ -149,8 +149,8 @@ test('#5 the signed record shows the exact GPS with its map link, and the preche
     'https://www.openstreetmap.org/?mlat=-7.424298&mlon=109.239893#map=18/-7.424298/109.239893',
   );
   await expect(page.locator('.cb-record', { hasText: 'Signed record' })).toContainText('±8.4 m');
-  await expect(checks.filter({ hasText: 'GPS accuracy 30 m or better' })).toContainText('✓');
-  await expect(checks.filter({ hasText: 'GPS accuracy 30 m or better' })).toContainText('8.4 m');
+  await expect(checks.filter({ hasText: 'GPS accuracy 300 m or better' })).toContainText('✓');
+  await expect(checks.filter({ hasText: 'GPS accuracy 300 m or better' })).toContainText('8.4 m');
   await expect(
     checks.filter({ hasText: 'Within 15 m of where the tree was planted' }),
   ).toContainText('3.2 m away');
@@ -178,9 +178,9 @@ test('#7 a submission turned back at the prechecks says so, row by row', async (
   await expect(page.locator('.page-heading [aria-live]')).toHaveText(
     'Rejected before scoring: GPS accuracy too low.',
   );
-  await expect(checks.filter({ hasText: 'GPS accuracy 30 m or better' })).toContainText('✕');
-  await expect(checks.filter({ hasText: 'GPS accuracy 30 m or better' })).toContainText(
-    '41.0 m · gps_inaccurate',
+  await expect(checks.filter({ hasText: 'GPS accuracy 300 m or better' })).toContainText('✕');
+  await expect(checks.filter({ hasText: 'GPS accuracy 300 m or better' })).toContainText(
+    '341.0 m · gps_inaccurate',
   );
   await expect(stages(page).nth(1)).toHaveClass(/bad/u);
   await expect(page.locator('.cb-stock-card')).toContainText('Status');
