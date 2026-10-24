@@ -212,9 +212,25 @@ test('pattern 15 timeout: a /me that never answers is cut off at about 30 s and 
   expect(calls).toHaveLength(1);
 });
 
-test.fixme('pattern 20 error toast: no shell row raises an error toast yet', () => {
-  // The only `notify` caller on a shell row is Sign out ("Signed out", the plain variant). The error variant
-  // (`notify(message, true)`, `.toast-error`) belongs to S04/S09/S11/S26 copy failures, whose pages are still stubs.
+test('pattern 20 error toast: a refused clipboard raises the error toast, polite and dismissible', async ({
+  open,
+}) => {
+  const page = await campaignPage(open, DEMAK_DETAIL);
+
+  await page.evaluate(() => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: () => Promise.reject(new DOMException('denied', 'NotAllowedError')) },
+    });
+  });
+  await page.getByTitle('Copy full campaign address').click();
+
+  const toast = page.locator('.toast-error');
+
+  await expect(toast).toBeVisible();
+  await expect(page.locator('.toast-area')).toHaveAttribute('aria-live', 'polite');
+  await toast.getByRole('button', { name: /dismiss/i }).click();
+  await expect(toast).toHaveCount(0);
 });
 
 test("pattern 21 time zone: the shared formatter prints the viewer's zone, Asia/Jakarta and UTC differ", async ({
