@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
 // eslint-disable-next-line import/no-unresolved -- react-router publishes only an exports map, which the import plugin's resolver cannot read
 import { Link } from 'react-router';
-import { Icon } from '../art/Icon';
+import { Icon, type IconName } from '../art/Icon';
 import { cardMotion } from '../motion/presets';
 
 const PIN_SIZE = 14;
@@ -24,6 +24,10 @@ type CatalogCardProps = {
   cta: ReactNode;
   /** The footer link's accessible name, naming the record. */
   ctaLabel: string;
+  /** Where the footer link goes, when that is not the record (a planter's next action); `to` by default. */
+  ctaTo?: string;
+  /** The icon in the footer's circle: an arrow, or what the action does (check, clock, plus). */
+  ctaIcon?: IconName;
   /** The mockup's own card modifier (`cb-batch-card`). */
   className?: string;
 };
@@ -39,6 +43,8 @@ export function CatalogCard({
   children,
   cta,
   ctaLabel,
+  ctaTo,
+  ctaIcon = 'arrow',
   className = '',
 }: CatalogCardProps) {
   return (
@@ -61,10 +67,10 @@ export function CatalogCard({
           </Link>
         </h2>
         {children}
-        <Link className="card-bottom" to={to} aria-label={ctaLabel}>
+        <Link className="card-bottom" to={ctaTo ?? to} aria-label={ctaLabel}>
           <span>{cta}</span>
           <span className="arrow-circle">
-            <Icon name="arrow" size={ARROW_SIZE} />
+            <Icon name={ctaIcon} size={ARROW_SIZE} />
           </span>
         </Link>
       </div>
