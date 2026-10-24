@@ -4,6 +4,7 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { api } from '../../app/session/api';
+import { ApiError } from '../../shared/api/errors';
 import { config } from '../../app/session/config';
 import { useSession } from '../../app/session/session';
 import { ME_KEY } from '../../app/session/use-me';
@@ -60,11 +61,19 @@ const dropOldRolePrivateData = (queryClient: QueryClient): void => {
   });
 };
 
+// the refusals that mean the profile is not what the page thought (conflict, ui-gaps pattern 5): read it again
+const PROFILE_CHANGED = new Set(['agreement_required', 'role_locked']);
+
 export function useSwitchRole() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (body: Switch) => post(body),
+    onError: (error) => {
+      if (error instanceof ApiError && PROFILE_CHANGED.has(error.code)) {
+        void queryClient.invalidateQueries({ queryKey: ME_KEY });
+      }
+    },
     onSuccess: async (body) => {
       replace(queryClient, body);
       dropOldRolePrivateData(queryClient);

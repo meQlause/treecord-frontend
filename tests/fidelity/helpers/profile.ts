@@ -13,7 +13,7 @@ export type ProfileAnswer = { status?: number; body: unknown; after?: Promise<un
 export type ProfileResponder = (body: unknown) => ProfileAnswer;
 
 /** The profile `GET /me` answers right now: the spec reassigns `current` to change what the next read sees. */
-export type MeState = { current: MeProfile };
+export type MeState = { current: MeProfile; reads?: number };
 
 /** `GET /me` answers `state.current`; a later route of the page wins over the sign-in harness's fixed one. */
 export const meFollows = async (page: Page, state: MeState): Promise<void> => {
@@ -24,6 +24,7 @@ export const meFollows = async (page: Page, state: MeState): Promise<void> => {
       return;
     }
 
+    state.reads = (state.reads ?? 0) + 1;
     await route.fulfill({
       status: STATUS_OK,
       headers: { ...API_CORS, ...JSON_TYPE },
