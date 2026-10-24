@@ -1,0 +1,54 @@
+/* S8 UI-gap states on the planter pages (planter-pages.jsx). Spacing only: a Banner or callout drawn inside a card,
+   the capture panel or the device panel keeps the look the shared styles give it and sits on the panel's own rhythm. */
+.pl-up .state-banner,
+.pl-up .ws-callout,
+.ev-side .state-banner,
+.pl-device .state-banner {
+  margin: 0 0 14px;
+}
+/* capture panel: a note or callout sits on the panel's 14px gap, not on top of it */
+.ev-side > :is(.ws-note, .ws-callout) {
+  margin: 0;
+}
+/* D03: the review opens where the Revoke button stood; its alert or callout sits 16px from the summary and from Confirm,
+   icon beside the sentence even in a phone-width review */
+.pl-device .ws-action .ws-review {
+  margin-top: 0;
+}
+.pl-device .ws-review > :is(.state-banner, .ws-callout) {
+  margin: 16px 0 4px;
+  flex-wrap: nowrap;
+}
+.pl-device .ws-review > .ws-banner {
+  align-items: flex-start;
+}
+.pl-device .ws-review > .ws-banner > svg {
+  margin-top: 2px;
+}
+.pl-device .ws-review > .ws-banner > span {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* catalog heading: a long title and the kicker wrap as two lines instead of colliding (phones) */
+.pl-catalog .catalog-heading {
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+/* card text that wraps (long region, title · region) keeps its pin on the first line */
+.pl-catalog .location {
+  align-items: flex-start;
+}
+/* S20 card facts wrap instead of clipping: "Recorded" keeps its time zone in view */
+.pl-up .pl-facts dd {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* S20 server list pending: the card skeleton keeps the grid's gap and the results-meta line style */
+.pl-catalog > [role='status'] {
+  margin-top: 24px;
+}
+.pl-catalog > [role='status'] > p {
+  margin: 0 0 14px;
+  font-size: 10px;
+  color: var(--muted);
+}

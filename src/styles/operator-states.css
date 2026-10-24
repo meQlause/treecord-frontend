@@ -1,0 +1,24 @@
+/* S8 drawn states on S27–S29 + D14 (operator-pages.jsx): spacing only, reusing workspace.css values.
+   op-loading: the panel skeleton's label clears the panel; op-form-grid: Mirror issuance rows keep the 20 px field
+   rhythm (grid margins do not collapse); op-line: an outcome or reason line clears the link / action above it;
+   op-job: a failed job's "Last error" row closes the callout without a trailing rule. */
+.op-loading [role='status'] > p {
+  margin-bottom: 16px;
+}
+.ws-form-grid.op-form-grid {
+  row-gap: 20px;
+  margin: 20px 0;
+}
+.op-form-grid > .ws-field.ws-field {
+  margin: 0;
+}
+.op-line {
+  margin-top: 14px;
+}
+.op-job > .ws-facts {
+  margin: 8px 0 0;
+}
+.op-job > .ws-facts > div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}

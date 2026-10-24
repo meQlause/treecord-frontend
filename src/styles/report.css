@@ -1,0 +1,644 @@
+.report-main {
+  max-width: 1320px;
+  padding-bottom: 64px;
+}
+.rp-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 28px 0;
+}
+.rp-heading h1 {
+  font-size: clamp(34px, 4vw, 56px);
+  line-height: 1.1;
+  margin: 14px 0;
+}
+.rp-heading p,
+.rp-snapshot > span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #73836b;
+}
+.rp-heading p {
+  flex-wrap: wrap;
+}
+.rp-snapshot {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid #dce3d3;
+  padding: 17px 0;
+  font-size: 12px;
+}
+.rp-overview {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  overflow: hidden;
+  border: 1px solid #dce3d3;
+  border-radius: 20px;
+  background: #fffefa;
+  margin: 12px 0 24px;
+}
+.rp-lead {
+  padding: 32px;
+  background: #234834;
+  color: #eef5e6;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.rp-lead > span {
+  font-size: 12px;
+  color: #c9d8bf;
+}
+.rp-lead > strong {
+  font-size: 58px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -2px;
+}
+.rp-lead strong small {
+  font-size: 20px;
+  letter-spacing: 0;
+  color: #afc6a3;
+  margin-left: 12px;
+}
+.rp-progress {
+  height: 5px;
+  background: #e8eddf;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 16px 0;
+}
+.rp-progress i {
+  display: block;
+  height: 100%;
+  background: #8daa6d;
+}
+.rp-lead .rp-progress {
+  background: #42634b;
+  margin: 0;
+}
+.rp-key-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 14px;
+}
+.rp-key-metrics .rp-metric {
+  padding: 24px;
+}
+.rp-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.rp-metric > span {
+  font-size: 12px;
+  color: #74836c;
+}
+.rp-metric strong {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.7px;
+}
+.rp-metric small {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0;
+  margin-left: 7px;
+  color: #77866e;
+}
+.rp-section {
+  padding: 28px;
+  background: #fffefa;
+  border: 1px solid #dce3d3;
+  border-radius: 18px;
+  margin-bottom: 24px;
+  min-width: 0;
+}
+.rp-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+.rp-section-title h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  margin: 0;
+}
+.rp-section-title > span,
+.rp-note {
+  font-size: 12px;
+  color: #7c8973;
+  line-height: 1.7;
+}
+.rp-health {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+.rp-health > div {
+  border-left: 2px solid #d6dfcc;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.rp-health strong {
+  font-size: 28px;
+  font-weight: 500;
+}
+.rp-health span {
+  font-size: 12px;
+  color: #74836c;
+}
+.rp-health i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6a9352;
+  margin-right: 7px;
+}
+.rp-health .rp-health-1 i {
+  background: #ba944e;
+}
+.rp-health .rp-health-2 i {
+  background: #a17c67;
+}
+.rp-health .rp-health-3 i {
+  background: #9fa597;
+}
+.rp-health .rp-health-4 i {
+  background: #315941;
+}
+.rp-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.rp-ledger {
+  margin: 20px 0 0;
+}
+.rp-ledger > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid #e8ecdf;
+  font-size: 13px;
+}
+.rp-ledger dt {
+  color: #7c8973;
+}
+.rp-ledger dd {
+  margin: 0;
+  text-align: right;
+}
+.rp-incentives {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.rp-carbon {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 32px;
+}
+.rp-carbon > div + div {
+  border-left: 1px solid #dce3d3;
+  padding-left: 32px;
+}
+.rp-carbon .eyebrow {
+  display: block;
+  font-size: 10px;
+  margin-bottom: 20px;
+}
+.rp-carbon .rp-metric strong {
+  font-size: 28px;
+}
+.rp-table-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+  margin-top: 26px;
+}
+.rp-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+}
+.rp-table-wrap caption {
+  text-align: left;
+  color: #7c8973;
+  padding-bottom: 12px;
+}
+.rp-table-wrap th {
+  background: #f2f5ec;
+  color: #73816a;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.rp-table-wrap td,
+.rp-table-wrap th {
+  padding: 14px 12px;
+  border-bottom: 1px solid #e5eada;
+}
+.rp-table-wrap td {
+  line-height: 1.7;
+}
+.rp-table-wrap a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #365d39;
+  white-space: nowrap;
+}
+.rp-serial {
+  font-family: monospace;
+  overflow-wrap: anywhere;
+  min-width: 180px;
+}
+.rp-empty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  background: #f3f6ed;
+  border-radius: 10px;
+  color: #7b8b6d;
+  font-size: 13px;
+  margin: 24px 0 0;
+}
+.rp-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #87917e;
+}
+.rp-foot code {
+  overflow-wrap: anywhere;
+}
+.rp-loading {
+  padding-top: 28px;
+}
+.pc-report-link {
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px 24px;
+  border-top: 1px solid #e4e9db;
+  font-size: 12px;
+  gap: 8px;
+  color: #426839;
+}
+.report-main ~ .preview-tools {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  right: auto;
+  bottom: auto;
+  padding: 0 24px 20px;
+}
+.report-main ~ .preview-tools .preview-panel {
+  bottom: 66px;
+  right: 24px;
+}
+@media (max-width: 760px) {
+  .rp-overview,
+  .rp-columns,
+  .rp-carbon {
+    grid-template-columns: 1fr;
+  }
+  .rp-columns {
+    gap: 0;
+  }
+  .rp-heading {
+    align-items: flex-start;
+  }
+  .rp-heading .badge {
+    flex-shrink: 0;
+  }
+  .rp-snapshot {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .rp-lead {
+    padding: 24px;
+  }
+  .rp-section {
+    padding: 20px;
+  }
+  .rp-health {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px 12px;
+  }
+  .rp-section-title {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .rp-carbon > div + div {
+    padding: 24px 0 0;
+    border-left: 0;
+    border-top: 1px solid #dce3d3;
+  }
+  .rp-key-metrics .rp-metric {
+    padding: 18px 12px;
+  }
+  .rp-metric strong {
+    font-size: 28px;
+  }
+  .rp-heading h1 {
+    font-size: 34px;
+  }
+}
+@media (max-width: 400px) {
+  .rp-heading {
+    flex-direction: column;
+  }
+  .rp-health {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ---------- report, in the shared style: serif headings like every other page, the Campaigns heading with an
+   illustration top right, icon badges, illustrated empty states */
+.rp-heading.page-heading {
+  margin: 4px 0 56px;
+  min-height: 0;
+  align-items: center;
+}
+.rp-eyebrow-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.rp-heading h1 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  letter-spacing: -2px;
+}
+.rp-section-title h2 {
+  font:
+    400 26px Georgia,
+    serif;
+  letter-spacing: -0.6px;
+}
+.rp-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #edf2e6;
+  color: #5f8a4f;
+}
+.rp-lead > strong,
+.rp-metric strong,
+.rp-health strong {
+  font-family: Georgia, serif;
+  font-weight: 400;
+}
+.rp-empty {
+  position: relative;
+  gap: 18px;
+  padding: 14px 22px;
+  background: #f3f6ed;
+}
+.rp-empty .stat-art {
+  position: static;
+  transform: none;
+  width: 130px;
+  flex: none;
+}
+.rp-data {
+  offset-path: path('M176 112C204 84 224 128 262 100');
+  animation: ca-travel 3.3s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation-delay: var(--d);
+}
+@keyframes ca-travel {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+.rp-sheet {
+  animation: ca-float 6s ease-in-out infinite;
+}
+.rp-bar {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: rp-bar 4.4s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  animation-delay: var(--d);
+}
+@keyframes rp-bar {
+  0%,
+  8% {
+    transform: scaleY(0);
+    opacity: 1;
+  }
+  30%,
+  88% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 0.4;
+  }
+}
+.rp-trend {
+  stroke-dasharray: 1;
+  animation: rp-trend 4.4s ease-out infinite;
+}
+@keyframes rp-trend {
+  0%,
+  30% {
+    stroke-dashoffset: 1;
+  }
+  55%,
+  92% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+.rp-seal {
+  animation: rp-seal 4.4s cubic-bezier(0.3, 1.5, 0.5, 1) infinite;
+}
+@keyframes rp-seal {
+  0%,
+  52% {
+    transform: translate(396px, 182px) scale(0) rotate(-30deg);
+    opacity: 1;
+  }
+  64%,
+  92% {
+    transform: translate(396px, 182px) scale(1) rotate(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(396px, 182px) scale(1);
+    opacity: 0;
+  }
+}
+@media (max-width: 680px) {
+  .rp-empty .stat-art {
+    width: 96px;
+  }
+  .rp-empty {
+    padding: 10px 14px;
+  }
+}
+.rp-heading .heading-art {
+  height: 204px;
+}
+@media (max-width: 680px) {
+  .rp-heading .heading-art {
+    height: 170px;
+  }
+}
+
+/* svg sections: the overview as two scenes, the health forest, milestone bars, the carbon funnel */
+.rp-duo {
+  margin: 0 0 24px;
+}
+.rp-forest {
+  padding: 0;
+  border: 0;
+}
+.rp-forest dl {
+  margin-top: 4px;
+}
+.rp-gauge-row {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+.rp-bars {
+  margin: 18px 0 0;
+}
+.rp-bars svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.rp-bars figcaption {
+  font-size: 10px;
+  color: #819275;
+  margin-top: 6px;
+}
+.rp-funnel {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  margin: 22px 0 4px;
+}
+.rp-funnel span {
+  font-size: 10px;
+  color: #7f8d72;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.rp-funnel .pc-key {
+  margin: 0 2px 0 12px;
+}
+.rp-forest .pc-forest {
+  max-width: 760px;
+}
+.rp-forest .pc-forest {
+  margin-inline: auto;
+}
+
+/* the heading keeps its art beside a long title (the art never collapses), and the region line wraps as text so the
+   pin stays with it; the loading state mirrors these shapes */
+.rp-heading p {
+  display: block;
+  line-height: 1.6;
+}
+.rp-heading p > svg {
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 10px;
+}
+.rp-heading p > span {
+  margin: 0 10px;
+}
+@media (min-width: 401px) {
+  .rp-heading > div:first-child {
+    flex: 1;
+    min-width: 0;
+  }
+  .rp-heading .heading-art {
+    flex: none;
+    aspect-ratio: 2/1;
+    max-width: 45%;
+  }
+}
+.rp-carbon .rp-metric + .rp-note,
+.rp-carbon .rp-incentives + .rp-note {
+  margin-top: 10px;
+}
+.rp-loading > .eyebrow {
+  margin-bottom: 16px;
+}
+.rp-skel-art {
+  border-radius: 100px 14px 100px 14px;
+}
+.skeleton.rp-skel-h1 {
+  height: 52px;
+  width: 70%;
+}
+.rp-skel-duo {
+  height: 310px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+.skeleton.rp-skel-title {
+  width: 40%;
+}
+.rp-skel-block {
+  height: 180px;
+  border-radius: 10px;
+}
+@media (max-width: 900px) {
+  .rp-skel-duo {
+    height: 400px;
+  }
+}
+@media (max-width: 680px) {
+  .rp-skel-art {
+    border-radius: 72px 12px 72px 12px;
+  }
+}
+@media (max-width: 400px) {
+  .rp-loading .rp-heading > * {
+    align-self: stretch;
+  }
+}

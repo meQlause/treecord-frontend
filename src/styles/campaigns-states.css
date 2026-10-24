@@ -1,0 +1,83 @@
+/* S03 / S04 UI-gap states (S8 Step 4). Mockup values only (design-system §2); no new colour, font, spacing or radius. */
+
+/* banners inside the S04 "Campaign actions" panel sit on the panel's own rhythm (--space-7 below, none above) */
+#campaign-actions .state-banner {
+  margin: 0 0 16px;
+}
+
+/* pattern 16: a 120-character campaign title is wrapped, never cut — the S04 hero grows with it instead of clipping
+   (hero height, offsets and the 680 breakpoint are the hero's own values) */
+.detail-hero.wrap-title {
+  height: auto;
+  min-height: clamp(320px, 40vw, 480px);
+  display: grid;
+  align-items: end;
+}
+.detail-hero.wrap-title .hero-copy {
+  position: relative;
+  inset: auto;
+  margin: 84px 44px;
+}
+.detail-hero.wrap-title h1 {
+  max-width: none;
+}
+@media (max-width: 680px) {
+  .detail-hero.wrap-title {
+    min-height: 360px;
+  }
+  .detail-hero.wrap-title .hero-copy {
+    margin: 70px 20px;
+  }
+}
+
+/* S03 cards in one row end level: the free height goes above the "View campaign" row (a 2-line title next to a 1-line one) */
+.catalog .campaign-card {
+  display: flex;
+  flex-direction: column;
+}
+.catalog .card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.catalog .card-meta {
+  margin-bottom: auto;
+}
+
+/* S04 "Campaign actions": full width of its column, one section rhythm below Planting overview (the section's own padding) */
+#campaign-actions {
+  width: 100%;
+  margin-top: 30px;
+}
+/* lines inside the review (info / error) keep the review's 12px step to the summary, the approve button and Confirm */
+#campaign-actions .ws-review .state-banner {
+  margin: 12px 0;
+}
+/* a status / reason line under the action button ("Campaign must be Active.", "Contribution confirmed …") */
+#campaign-actions .ws-action + p {
+  margin-top: 12px;
+}
+
+/* P-1 page skeleton: the hero block first (no photo gradient on it), then the layout skeleton at full width at 360 */
+.detail-hero.skeleton::after {
+  content: none;
+}
+.detail-main .ws-loading .detail-layout > * {
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  #campaign-actions {
+    margin-top: 24px;
+  }
+}
+/* one column: funding summary → its call to action's target (Campaign actions) → the sections, instead of the actions first */
+@media (max-width: 680px) {
+  #campaign-actions {
+    margin-top: 0;
+    order: 2;
+  }
+  .detail-main .funding-panel {
+    order: 1;
+  }
+}

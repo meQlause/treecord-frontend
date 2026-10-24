@@ -1,0 +1,55 @@
+/* S8 UI-gap states on the audit pages (S10, S23–S26, D11–D13). Existing values only: the form grid's 12px gap and
+   24px side padding (.au-open), the panels' 14px rhythm (.au-choice, .au-checks). */
+.au-open .state-banner,
+.au-open .si-error {
+  margin: 0;
+}
+.au-duo .duo-half > .state-banner {
+  margin: 16px 24px 0;
+}
+.cb-cert > .state-banner,
+.pl-panel > .state-banner {
+  margin: 0 0 14px;
+}
+.pl-panel > .eyebrow + .state-banner {
+  margin-top: 14px;
+}
+.au-duo .state-banner button {
+  white-space: nowrap;
+}
+/* S23 #2: the campaign select itself shimmers while campaigns load (the skeleton's own gradient, the select's own box) */
+.au-open .ws-field select.skeleton {
+  appearance: none;
+  color: transparent;
+  border-color: transparent;
+  background: linear-gradient(110deg, #e7ecdf 25%, #f0f3e9 45%, #e7ecdf 65%);
+  background-size: 220% 100%;
+}
+/* D11: the save alert sits above Save finding on the panel's 14px step */
+.cb-cert form > .state-banner {
+  margin: 0 0 14px;
+}
+/* D12 review in the rail reads like the D13 review in the main column (.cb-record h3 / p) */
+.pl-panel .ws-review h3 {
+  font:
+    400 18px Georgia,
+    serif;
+  letter-spacing: -0.5px;
+}
+.pl-panel .ws-review p {
+  font-size: 10px;
+  line-height: 1.8;
+  color: #89967b;
+  margin: 14px 0 0;
+}
+/* alerts in panels keep their icon beside the text at 360 instead of on a line of its own */
+:is(.pl-panel, .cb-cert, .au-open) .state-banner {
+  flex-wrap: nowrap;
+}
+:is(.pl-panel, .cb-cert, .au-open) .state-banner > span {
+  min-width: 0;
+}
+/* the rail note's margin is auto, i.e. 0 once the rail stops stretching (≤900px): keep its 14px step below the action */
+.pl-panel > .au-review {
+  margin-bottom: 14px;
+}

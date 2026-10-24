@@ -1,0 +1,96 @@
+/* S8 Step 4 states on S02 / S05 / S11 / S12 (shared-pages.jsx). Existing classes do the rest; tokens only. */
+
+/* S05 TL-8 (pattern 31): evidence details under a timeline row — thumbnail, then score, short hash, transaction link.
+   The facts sit beside the thumbnail when there is room and drop under it (one per line) on a phone. */
+.tl-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.tl-evidence .ev-thumb {
+  width: 96px;
+  flex: none;
+}
+.tl-ev-facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 18px;
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.tl-evidence code {
+  overflow-wrap: anywhere;
+  color: var(--ink);
+}
+.tl-evidence a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--pine);
+  font-weight: 600;
+}
+/* .ws-timeline styles every span as the row date; a label inside the heading or the evidence keeps its own type */
+.tr-detail .ws-timeline :is(h3, .tl-evidence) span {
+  font-size: inherit;
+  color: inherit;
+}
+
+/* pattern 16: a long region wraps inside the heading art's width and grows downward from the one-line position,
+   never up over the art; the heading keeps room for it below */
+.hero-coordinate.wrap-any {
+  left: 10px;
+  text-align: right;
+  bottom: auto;
+  top: calc(100% + 10px);
+  line-height: 12px;
+}
+@media (max-width: 680px) {
+  .hero-coordinate.wrap-any {
+    top: calc(100% + 4px);
+  }
+  .tr-coord-long {
+    margin-bottom: 56px;
+  }
+}
+
+/* long flag reason / resolution: label above, text left-aligned across the row */
+.ws-facts > div:has(> dd > .tr-prose) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+.ws-facts dd:has(> .tr-prose) {
+  max-width: none;
+  text-align: left;
+}
+
+/* alerts keep the panel rhythm: a banner in a panel or the form foot sits 14–16px above what follows */
+.tr-detail .ws-panel > .state-banner {
+  margin: 0 0 14px;
+}
+.tr-detail .ws-panel > .ws-callout + .state-banner {
+  margin-top: -6px;
+}
+.pf-foot > .state-banner + .pf-actions,
+:is(.pf-columns, .tr-detail) .ws-review > .state-banner + .ws-actions {
+  margin-top: 16px;
+}
+
+/* a check label that wraps keeps its box full size, aligned to the first line */
+:is(.pf-columns, .tr-detail) .ws-check {
+  align-items: flex-start;
+}
+:is(.pf-columns, .tr-detail) .ws-check input {
+  flex: none;
+  margin-top: 2px;
+}
+
+/* S12: created / updated break between the two times, never inside one */
+.jb-when {
+  white-space: nowrap;
+}
