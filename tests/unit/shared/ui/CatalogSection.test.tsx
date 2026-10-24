@@ -77,4 +77,15 @@ describe('CatalogSection', () => {
     );
     expect(container.querySelector('.filter-bar')).toBeNull();
   });
+
+  it('leaves the results row out when there is no count yet', () => {
+    const { container } = render(
+      <CatalogSection title="Issued batches" kicker="k">
+        <p>loading</p>
+      </CatalogSection>,
+    );
+
+    expect(container.querySelector('.results-meta')).toBeNull();
+    expect(screen.getByText('loading')).toBeInTheDocument();
+  });
 });

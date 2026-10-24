@@ -11,8 +11,8 @@ type CatalogSectionProps = {
   onChange?: (filter: string) => void;
   /** The select and search fields beside the status filters (`.secondary-filters`). */
   secondary?: ReactNode;
-  /** The result count; announced politely when it changes. */
-  meta: ReactNode;
+  /** The result count; announced politely when it changes. Left out, the whole results row is (a page still loading). */
+  meta?: ReactNode;
   /** The right side of the results row ("Newest first", or a Clear filters button). */
   aside?: ReactNode;
   className?: string;
@@ -67,10 +67,12 @@ export function CatalogSection({
           {secondary !== undefined && <div className="secondary-filters">{secondary}</div>}
         </div>
       )}
-      <div className="results-meta">
-        <span aria-live="polite">{meta}</span>
-        {aside}
-      </div>
+      {meta !== undefined && (
+        <div className="results-meta">
+          <span aria-live="polite">{meta}</span>
+          {aside}
+        </div>
+      )}
       {children}
     </section>
   );
