@@ -44,8 +44,8 @@ export const answerPlanter = async (
 };
 
 /**
- * The key record S22 keeps in IndexedDB (`treecord` / `keys`, one per profile): the spec seeds the device id of "this phone"
- * before the app loads (the app keeps no login across a reload, so it cannot be done afterwards).
+ * The key record of this phone (`treecord-device` / `keys`, one per profile, s22-device.md §1): the spec seeds the device
+ * id of "this phone" before the app loads (the app keeps no login across a reload, so it cannot be done afterwards).
  */
 export const seedDeviceId = async (
   page: Page,
@@ -54,9 +54,10 @@ export const seedDeviceId = async (
 ): Promise<void> => {
   await page.addInitScript(
     ([profile, device]) => {
-      const request = indexedDB.open('treecord', 1);
+      const request = indexedDB.open('treecord-device', 1);
 
-      request.onupgradeneeded = () => request.result.createObjectStore('keys');
+      request.onupgradeneeded = () =>
+        ['keys', 'clips', 'queue'].forEach((store) => request.result.createObjectStore(store));
       request.onsuccess = () => {
         request.result
           .transaction('keys', 'readwrite')
