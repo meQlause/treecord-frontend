@@ -6,12 +6,13 @@ import { SARI, meBody } from './fixtures/accounts';
 import { DEMAK_DETAIL, ROOTS_DETAIL, campaignBody, type Json } from './fixtures/campaigns';
 import { claim } from './fixtures/job';
 import { answerApi, failure, type ApiAnswer, type ApiCall } from './helpers/api';
-import { expect, signInWith, test, type OpenOptions } from './helpers/flow';
+import { expect, refocus, signInWith, test, type OpenOptions } from './helpers/flow';
 
 const TEST_MS = 120_000;
 const ACCEPTED = 202;
 const HTTP_OK = 200;
 const CONFLICT = 409;
+const FORBIDDEN = 403;
 const UNAVAILABLE = 503;
 const JOB_ID = '3b1e0c8a-6f2d-4a9b-8c7e-1d5f4a2b9e60';
 
@@ -30,7 +31,8 @@ const planter = (remainingCap: number, queuedJobId: string | null = null): Json 
 
 type Scene = {
   campaign: Json;
-  viewer: Json;
+  /** The viewer as the next read finds her: a function lets a spec change it. */
+  viewer: Json | (() => Json);
   /** The answer to each `POST …/claims`, by how many came before. */
   post?: (before: number) => ApiAnswer;
 };
@@ -67,7 +69,7 @@ const visit = async (open: Open, { campaign, viewer, post }: Scene): Promise<Vis
         }
 
         return call.path === path
-          ? { body: campaignBody(campaign, viewer) }
+          ? { body: campaignBody(campaign, typeof viewer === 'function' ? viewer() : viewer) }
           : failure(404, 'not_found');
       });
     },
@@ -187,4 +189,26 @@ test('#31 while a claim job is queued the button stays disabled', async ({ open 
 
   await count(page).fill('1');
   await expect(trigger(page)).toBeDisabled();
+});
+
+test('pattern 13 forbidden S04 D06: a refused role puts the sentence inside D06, and the panel follows the new role', async ({
+  open,
+}) => {
+  let viewer: Json = planter(3);
+  const { page } = await visit(open, {
+    campaign: ROOTS_DETAIL,
+    viewer: () => viewer,
+    post: () => failure(FORBIDDEN, 'forbidden_role'),
+  });
+
+  await send(page, '2');
+
+  const alert = actions(page).getByRole('alert').first();
+
+  await expect(alert).toContainText('Role unavailable');
+  await expect(alert).toContainText('This screen is for Planter accounts.');
+  // the re-read after the refusal finds the account is a donor now: D06 is gone, the banner with it
+  viewer = { ...planter(3), role: 'donor', claim: null };
+  await refocus(page);
+  await expect(count(page)).toHaveCount(0);
 });

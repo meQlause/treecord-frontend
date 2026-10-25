@@ -19,6 +19,7 @@ const TEST_MS = 180_000;
 const REASON = 'Tree condition needs an independent check.';
 const FORBIDDEN = 403;
 const CREATED = 201;
+const CONFLICT = 409;
 
 test.describe.configure({ timeout: TEST_MS });
 
@@ -29,8 +30,9 @@ type State = {
   /** While set, the tree reads as it did before the chain moved. */
   frozen: boolean;
   eligible: boolean;
-  /** The next `POST /flags` is refused as `not_contributor`. */
-  refuse: boolean;
+  blockedBy: string;
+  /** The next `POST /flags` is refused with this answer, and the tree then reads as blocked for that reason. */
+  refuse: { answer: ApiAnswer; blockedBy: string } | null;
   pending: Pending | null;
   posts: unknown[];
 };
@@ -65,7 +67,7 @@ const treeBody = async ({ tree, state }: Pick<Visit, 'tree' | 'state'>) => {
     viewer: {
       isPlanter: false,
       liveSubmissions: [],
-      flag: { eligible: state.eligible, blockedBy: state.eligible ? null : 'not_contributor' },
+      flag: { eligible: state.eligible, blockedBy: state.eligible ? null : state.blockedBy },
       pendingFlag: flagged ? null : state.pending,
     },
   };
@@ -74,10 +76,11 @@ const treeBody = async ({ tree, state }: Pick<Visit, 'tree' | 'state'>) => {
 const postFlag = (visit: Visit, call: ApiCall): ApiAnswer => {
   const { state, tree } = visit;
 
-  if (state.refuse) {
+  if (state.refuse !== null) {
     state.eligible = false;
+    state.blockedBy = state.refuse.blockedBy;
 
-    return failure(FORBIDDEN, 'not_contributor');
+    return state.refuse.answer;
   }
 
   state.posts.push(call.body);
@@ -95,7 +98,14 @@ const postFlag = (visit: Visit, call: ApiCall): ApiAnswer => {
 const openTree = async (open: Open, chain: Chain): Promise<Visit> => {
   const tree = await plantTree(chain);
   const { page } = await open({ row: 'S05' });
-  const state: State = { frozen: false, eligible: true, refuse: false, pending: null, posts: [] };
+  const state: State = {
+    frozen: false,
+    eligible: true,
+    blockedBy: 'not_contributor',
+    refuse: null,
+    pending: null,
+    posts: [],
+  };
 
   await giveTestWallet(page);
 
@@ -153,7 +163,7 @@ test('#9 a short reason keeps "Flag tree" disabled; a valid one is saved, then t
   await reason(page).fill(REASON);
   await page.getByRole('button', { name: 'Flag tree' }).click();
   await confirm(page).click();
-  await expect(page.getByText('Reason saved')).toBeVisible();
+  await expect(page.getByText('Reason saved', { exact: true })).toBeVisible();
   await expect.poll(() => rpc.sent()).toBe(1);
   expect(state.posts).toEqual([{ treeId: tree.treeId, reasonText: REASON }]);
   expect(flagCall(rpc)).toEqual({
@@ -208,7 +218,24 @@ test('#14 a refusal as not_contributor shows an alert, and after the re-read the
   const { page, state } = await openTree(open, chain);
 
   await reason(page).fill(REASON);
-  state.refuse = true;
+  state.refuse = { answer: failure(FORBIDDEN, 'not_contributor'), blockedBy: 'not_contributor' };
+  await page.getByRole('button', { name: 'Flag tree' }).click();
+  await confirm(page).click();
+  await expect(page.getByRole('alert').first()).toBeVisible();
+  await expect(reason(page)).toHaveCount(0);
+});
+
+test('#14 (conflict 5) a tree that can no longer be flagged shows the registry sentence, then the form is gone', async ({
+  open,
+  chain,
+}) => {
+  const { page, state } = await openTree(open, chain);
+
+  await reason(page).fill(REASON);
+  state.refuse = {
+    answer: failure(CONFLICT, 'tree_not_flaggable'),
+    blockedBy: 'tree_not_flaggable',
+  };
   await page.getByRole('button', { name: 'Flag tree' }).click();
   await confirm(page).click();
   await expect(page.getByRole('alert').first()).toBeVisible();

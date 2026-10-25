@@ -4,6 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Page } from '@playwright/test';
+import type { Hex } from 'viem';
 import { SARI, meBody, type MeProfile } from '../fixtures/accounts';
 import { SPECIES } from '../fixtures/campaigns';
 import { answerApi, failure, type ApiAnswer, type ApiCall } from './api';
@@ -39,6 +40,8 @@ const factory = (): string =>
 
 export type Scene = {
   profile?: MeProfile;
+  /** The key the app signs with; the donor's unless a spec needs another wallet (an operator). */
+  signer?: Hex;
   /** The answer to `POST /campaigns/metadata`; the body it received is in `Visit.posts`. */
   metadata?: () => ApiAnswer | Promise<ApiAnswer>;
   /** Reads of `GET /campaigns/:address` so far (1 for the first); the default answers 200 at once. */
@@ -87,7 +90,11 @@ export const openCreate = async (open: Open, scene: Scene = {}): Promise<Visit> 
   const posts: unknown[] = [];
   let calls: ApiCall[] = [];
 
-  await giveTestWallet(page, { factory: factory(), timeUnit: TIME_UNIT });
+  await giveTestWallet(page, {
+    factory: factory(),
+    timeUnit: TIME_UNIT,
+    ...(scene.signer === undefined ? {} : { privateKey: scene.signer }),
+  });
 
   const rpc = await watchRpc(page);
 
