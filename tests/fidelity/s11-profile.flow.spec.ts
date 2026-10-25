@@ -336,7 +336,7 @@ test('PF-AC16 a refused clipboard raises the error toast "Copy unavailable. Sele
   );
 });
 
-test('PF-AC17 a first sign-in without wallet or name reads "Wallet not ready" and the email before "@"', async ({
+test('PF-AC17 a session whose wallet is gone closes the workspace: back to sign-in, wallet still being prepared (SI-13)', async ({
   open,
 }) => {
   const { page, account } = await openProfile(open, ALEX);
@@ -344,12 +344,11 @@ test('PF-AC17 a first sign-in without wallet or name reads "Wallet not ready" an
   account.current = { ...FIRST_SIGN_IN, id: ALEX.id };
   await refocus(page);
 
-  await expect(fact(page, 'Address').locator('dd')).toHaveText('Wallet not ready');
-  await expect(page.getByRole('button', { name: 'Copy wallet' })).toBeDisabled();
-  await expect(page.locator('svg[aria-label^="Wallet 0x"]')).toHaveCount(0);
-  await expect(heading(page)).toHaveText(`Hello, ${sessionEmail().split('@')[0]}.`);
-  await expect(field(page)).toHaveValue('');
-  await expect(page.getByRole('button', { name: SAVE })).toBeDisabled();
+  await expect(page).toHaveURL(/\/sign-in/u);
+  await expect(
+    page.getByText('Your wallet is still being prepared. Try again in a moment.'),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Copy wallet' })).toHaveCount(0);
 });
 
 test('PF-AC18 "Sign out" in the Wallet panel goes to /campaigns, toasts and shows "Sign in"', async ({

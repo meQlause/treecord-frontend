@@ -369,7 +369,7 @@ test('#16 more cards are asked by the cursor, and a bad cursor keeps the cards w
     return { body: cardsOf([ROOTS_CARD, MANGROVES_CARD], CURSOR, 3) };
   });
 
-  await page.getByRole('button', { name: /^Lorem ipsum/ }).click();
+  await page.locator('.load-more').getByRole('button').click();
 
   await expect(page.getByRole('alert')).toBeVisible();
   await expect(page.locator('.portfolio-card')).toHaveCount(2);

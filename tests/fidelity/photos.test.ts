@@ -8,9 +8,9 @@ import { PHOTOS } from '../../src/shared/art/Photo';
 const WIDTHS = [600, 900, 1400];
 const FIVE = 5;
 const SRC = 'src';
-// namespaces and the links a person opens in a new tab (explorer.ts, S21's map point), never requests
+// namespaces and the links a person opens in a new tab (explorer.ts, S21's map point, the "Powered by privy.io" line), never requests
 const INERT_HOST =
-  /^https?:\/\/((www\.)?w3\.org|sepolia\.basescan\.org|www\.openstreetmap\.org)(\/|$)/;
+  /^https?:\/\/((www\.)?w3\.org|sepolia\.basescan\.org|www\.openstreetmap\.org|www\.privy\.io)(\/|$)/;
 
 const sourceFiles = (dir: string): string[] =>
   readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>

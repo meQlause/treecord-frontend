@@ -361,7 +361,7 @@ test('S06 #15 an estimate method shows one line under the estimate; none without
   const first = section(page, 'Carbon').locator('.rp-carbon > div').first();
 
   await expect(page.getByText('linear-maturity-v1')).toHaveCount(1);
-  await expect(first.locator('.rp-note').first()).toHaveText('Lorem ipsum · linear-maturity-v1');
+  await expect(first.locator('.rp-note').first()).toHaveText('Method · linear-maturity-v1');
   await expect(first.locator('[data-copy="COPY-420"]')).toBeVisible();
 
   const none = await opened(open);
