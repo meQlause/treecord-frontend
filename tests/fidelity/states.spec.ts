@@ -557,10 +557,6 @@ test('pattern 32 planter CTA S04: during Funding a planter sees "Claim open slot
   await expect(page.locator('#campaign-actions')).toBeInViewport();
 });
 
-test.fixme('pattern 32 planter CTA S04: the D06 form below shows a disabled button with "Campaign must be Active."', () => {
-  // D06 Claim slots is not built yet (campaign.actions.tsx marks it F2b/F4a): the panel has no form and no line to assert.
-});
-
 const expectOfflineBanner = async (page: Page): Promise<void> => {
   await page.context().setOffline(true);
   await expect(page.locator('.app-state .state-banner')).toContainText(OFFLINE);
