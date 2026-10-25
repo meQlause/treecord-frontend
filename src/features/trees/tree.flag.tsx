@@ -296,8 +296,15 @@ function RetryFlag({ flag }: { flag: Flag }) {
       <Button
         icon="arrow"
         busy={flow.busy}
-        disabled={flow.active}
+        disabled={flow.busy}
         onClick={() => {
+          // a wallet that failed after the reason was saved leaves the review open at its Confirm (F-14)
+          if (flow.state === 'confirm') {
+            void flow.confirm();
+
+            return;
+          }
+
           pressed.current = true;
           flow.start(false);
         }}
