@@ -3,10 +3,14 @@ import userEvent from '@testing-library/user-event';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { Dialog } from '../../../../src/shared/ui/Dialog';
 
-// jsdom has <dialog> but not showModal; opening is all the component needs from it
+// jsdom has <dialog> but neither showModal nor close; opening and closing are all the component needs from it
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
     this.setAttribute('open', '');
+  };
+
+  HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
+    this.removeAttribute('open');
   };
 });
 
@@ -70,5 +74,30 @@ describe('Dialog', () => {
     expect(document.body.style.overflow).toBe('hidden');
     unmount();
     expect(document.body.style.overflow).toBe('auto');
+  });
+
+  it('closes the dialog before it gives the focus back, so the opener is no longer inert', () => {
+    const opener = document.createElement('button');
+    const order: string[] = [];
+
+    document.body.append(opener);
+    opener.focus();
+    vi.spyOn(HTMLDialogElement.prototype, 'close').mockImplementation(() => {
+      order.push('close');
+    });
+    vi.spyOn(opener, 'focus').mockImplementation(() => {
+      order.push('focus');
+    });
+
+    const { unmount } = render(
+      <Dialog title="T" closeLabel="Close" onClose={vi.fn()}>
+        x
+      </Dialog>,
+    );
+
+    unmount();
+    expect(order).toEqual(['close', 'focus']);
+    vi.restoreAllMocks();
+    opener.remove();
   });
 });

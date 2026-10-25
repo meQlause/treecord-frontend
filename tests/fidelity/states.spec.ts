@@ -260,10 +260,6 @@ test("pattern 21 time zone: the shared formatter prints the viewer's zone, Asia/
   expect(await show('S16')).toEqual(['23 Oct 2026, 03:02 UTC', '23 Oct 2026']);
 });
 
-test.fixme('pattern 23 dialog modality: no shell row has a dialog yet', () => {
-  // `shared/ui/Dialog` exists and is tested alone, but nothing mounts it: D09/D10 live on S15, which is a stub.
-});
-
 test('pattern 24 display name null: the account menu shows the part of the sign-in email before "@"', async ({
   open,
 }) => {

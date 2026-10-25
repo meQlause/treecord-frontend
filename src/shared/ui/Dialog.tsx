@@ -40,6 +40,8 @@ export function Dialog({
 
     return () => {
       document.body.style.overflow = overflow;
+      // still modal at this point, so the opener is inert and could not take the focus back
+      dialog?.close();
 
       if (previous instanceof HTMLElement) {
         previous.focus();
