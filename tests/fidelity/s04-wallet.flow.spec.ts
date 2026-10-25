@@ -350,3 +350,33 @@ test('#25 a confirmed claim says so; a refused one leaves the claim open', async
   await expect(page.getByText('Refund confirmed.')).toBeVisible();
   expect((await chain.read(campaign)).claimed).toBe(true);
 });
+
+// NFR-054: every wallet action of S04 sends one transaction however fast the button is pressed (Contribute: #16).
+test('NFR-054 a double click on the approval sends one transaction', async ({ open, chain }) => {
+  const visit = await visitCampaign(open, chain, await demak(chain));
+
+  await toReview(visit, '25');
+  await review(visit.page, 'Contribute')
+    .getByRole('button', { name: 'Approve 25 USDC in wallet' })
+    .dblclick();
+  await expect(review(visit.page, 'Contribute')).toContainText('USDC allowance25 USDC');
+  expect(visit.rpc.sent()).toBe(1);
+});
+
+test('NFR-054 a double click on Start refund sends one transaction', async ({ open, chain }) => {
+  const { page, rpc } = await visitCampaign(open, chain, await lapsed(chain));
+
+  await press(page, 'Start refund').click();
+  await review(page, 'Start refund').getByRole('button', { name: 'Confirm' }).dblclick();
+  await expect(page.locator('.detail-hero .badge')).toHaveText('Refunding');
+  expect(rpc.sent()).toBe(1);
+});
+
+test('NFR-054 a double click on Claim refund sends one transaction', async ({ open, chain }) => {
+  const { page, rpc } = await visitCampaign(open, chain, await refunding(chain));
+
+  await press(page, 'Claim refund').click();
+  await review(page, 'Claim refund').getByRole('button', { name: 'Confirm' }).dblclick();
+  await expect(page.getByText('Refund confirmed.')).toBeVisible();
+  expect(rpc.sent()).toBe(1);
+});
