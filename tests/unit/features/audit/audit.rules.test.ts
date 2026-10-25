@@ -1,5 +1,12 @@
+import type { Hex } from 'viem';
 import { describe, expect, it } from 'vitest';
-import { auditSeed, reportHash, sampleTreeIds } from '../../../../src/features/audit/audit.rules';
+import {
+  auditSeed,
+  flip,
+  reportHash,
+  sampleTreeIds,
+} from '../../../../src/features/audit/audit.rules';
+import { NOTES, NOTES_HASH, REPORT, REPORT_HASH } from '../../../fidelity/fixtures/audit-report';
 
 // REG-002 / NFR-070 (docs/BE/features/audit.md §10): the browser copy must hash exactly like the server, so these are the
 // shared vectors the server's own REG-002 test asserts.
@@ -43,5 +50,37 @@ describe('audit.rules: the shared vectors', () => {
 
     expect(sample).toHaveLength(50);
     expect(sampleTreeIds([...population].reverse(), seed, 50)).toEqual(sample);
+  });
+});
+
+const flipped = (hash: Hex): Hex => flip(hash) as Hex;
+
+describe('audit.rules: the S10 vectors (NFR-070)', () => {
+  const block = '0x39e41cfd9e316d39bb6ad8058c9cfbbb2d19fa7938c68e1e32009e56e735a4cd';
+  const ids = [3001n, 3020n, 3021n, 3091n, 3092n, 3103n, 3104n];
+
+  it('FR-184: the sample of "demo-audit", and of the block with its last bit flipped (FR-206)', () => {
+    const seed = auditSeed('demo-audit', block);
+
+    expect(sampleTreeIds(ids, seed, 3)).toEqual([3001n, 3091n, 3104n]);
+    expect(sampleTreeIds(ids, auditSeed('demo-audit', flipped(block)), 3)).toEqual([
+      3103n,
+      3001n,
+      3091n,
+    ]);
+  });
+
+  it('the uuid session e9219997 draws the published seed and, flipped, 3020, 3091, 3001', () => {
+    const id = 'e9219997-5281-4602-b694-f3c4b08cf7c3';
+
+    expect(auditSeed(id, block)).toBe(
+      '0x09c2dea7c3ba4fc471025dabff6ef8967bbe0efb0c99a832da02e3e8f0d75778',
+    );
+    expect(sampleTreeIds(ids, auditSeed(id, flipped(block)), 3)).toEqual([3020n, 3091n, 3001n]);
+  });
+
+  it('the closed session: its public report and its sealed notes hash to the published values', () => {
+    expect(reportHash(REPORT as never)).toBe(REPORT_HASH);
+    expect(reportHash(NOTES as never)).toBe(NOTES_HASH);
   });
 });

@@ -7,7 +7,7 @@ const CAMPAIGN = { address: CAMPAIGN_ADDRESS, title: 'Kalimantan Mangrove Restor
 
 export const REPORT_HASH = '0x97eb3c933091e9f179119cb8a4396c7301c1ccc911fa4573ccce6ffd1d2c5341';
 
-const NOTES_HASH = '0x60b1ce72a79120a3d943e93d68c5cfbaa7e5b98b99114469896c74f4da14d545';
+export const NOTES_HASH = '0x60b1ce72a79120a3d943e93d68c5cfbaa7e5b98b99114469896c74f4da14d545';
 
 export const SUMMARY =
   'Sample reviewed; one tree needs follow-up while its flag is resolved. No registry certification is implied.';
@@ -77,4 +77,38 @@ export const NOT_CLOSED: Json = {
   reportHash: null,
   report: null,
   notes: null,
+};
+
+const CHECK = { seedMatches: true, sampleMatches: true };
+
+/** audit.md §9: the open session's public reproduction. */
+export const REPRODUCE_OPEN: Json = {
+  sessionId: OPEN_ID,
+  status: 'open',
+  campaign: CAMPAIGN,
+  blockNumber: '17000015',
+  blockHash: '0x39e41cfd9e316d39bb6ad8058c9cfbbb2d19fa7938c68e1e32009e56e735a4cd',
+  seed: '0x09c2dea7c3ba4fc471025dabff6ef8967bbe0efb0c99a832da02e3e8f0d75778',
+  algorithm: ALGORITHM,
+  population: ['3001', '3020', '3021', '3091', '3092', '3103', '3104'],
+  sampleSize: 3,
+  sample: ['3001', '3091', '3104'],
+  check: { ...CHECK, recomputedSample: ['3001', '3091', '3104'], reportMatches: null },
+  reportHash: null,
+  report: null,
+};
+
+/** The closed session's: sample 3091, 3001, and the report whose hash the browser re-checks. */
+export const REPRODUCE_CLOSED: Json = {
+  ...REPRODUCE_OPEN,
+  sessionId: CLOSED_ID,
+  status: 'closed',
+  blockNumber: '17000001',
+  blockHash: '0xd0e38899a3d5c3657e22f95fdada4f0da6aa36ea51545d334455da8663d50701',
+  seed: '0x791f45521e15b6066b8e598549c8dd5f59d9283ffe919c1cb3418767d3534c49',
+  sampleSize: 2,
+  sample: ['3091', '3001'],
+  check: { ...CHECK, recomputedSample: ['3091', '3001'], reportMatches: true },
+  reportHash: REPORT_HASH,
+  report: REPORT,
 };
