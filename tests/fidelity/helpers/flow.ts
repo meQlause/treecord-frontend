@@ -218,7 +218,8 @@ type SignInOptions = {
 
 /**
  * The real sign-in form with the Privy test account (backend/.env); `GET /me` answers `body` with `status`. Ends right
- * after "Verify" is answered, whatever the outcome, so a spec asserts what it expects next.
+ * after "Verify" is answered, whatever the outcome, so a spec asserts what it expects next. A `body` of `undefined` leaves
+ * `GET /me` to the real API (the stack specs).
  */
 export const signInWith = async (
   page: Page,
@@ -228,7 +229,11 @@ export const signInWith = async (
   const { email, code } = testLogin();
 
   await spaceLogins(page);
-  await answerMe(page, body, status);
+
+  if (body !== undefined) {
+    await answerMe(page, body, status);
+  }
+
   await setup?.(page);
   await page.goto(`/sign-in?returnTo=${encodeURIComponent(returnTo)}`);
   await page.getByLabel('Email').fill(email);

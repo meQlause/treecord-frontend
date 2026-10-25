@@ -434,7 +434,7 @@ const makeCampaign = async (
   });
 };
 
-const chainOf = (): Chain => {
+export const chainOf = (): Chain => {
   const { usdc, campaignFactory, carbonLedger } = deployment();
   const ctx: Ctx = {
     usdc,
