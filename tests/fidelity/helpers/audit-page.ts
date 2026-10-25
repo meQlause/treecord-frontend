@@ -13,6 +13,9 @@ const HTTP_OK = 200;
 const SESSION = /^\/audit\/sessions\/([^/]+)$/u;
 const REPORT = /^\/audit\/sessions\/([^/]+)\/report$/u;
 const CLOSE = /^\/audit\/sessions\/([^/]+)\/close$/u;
+const FINDINGS = /^\/audit\/sessions\/[^/]+\/findings$/u;
+const CHALLENGES = /^\/audit\/sessions\/[^/]+\/challenges$/u;
+const BUNDLE = /^\/audit\/sessions\/([^/]+)\/trees\/([^/]+)$/u;
 
 export type Scene = {
   profile?: MeProfile;
@@ -29,9 +32,21 @@ export type Scene = {
   report?: (id: string) => Json | ApiAnswer;
   /** The answer to each close, by how many came before. */
   close?: (call: ApiCall, before: number) => ApiAnswer;
+  /** `GET /audit/sessions/:id/trees/:treeId`, as each read finds it. */
+  bundle?: (treeId: string) => Json | ApiAnswer;
+  /** The answer to each finding / challenge write, by how many came before. */
+  finding?: (call: ApiCall, before: number) => ApiAnswer;
+  challenge?: (call: ApiCall, before: number) => ApiAnswer;
 };
 
-export type Visit = { page: Page; calls: ApiCall[]; opens: ApiCall[]; closes: ApiCall[] };
+export type Visit = {
+  page: Page;
+  calls: ApiCall[];
+  opens: ApiCall[];
+  closes: ApiCall[];
+  findings: ApiCall[];
+  challenges: ApiCall[];
+};
 
 type Open = (options?: OpenOptions) => Promise<{ page: Page }>;
 
@@ -47,36 +62,53 @@ const byStatus = (call: ApiCall): Json => {
   return sessionsOf(status === null ? all : all.filter((item) => item.status === status));
 };
 
-type Writes = { opens: ApiCall[]; closes: ApiCall[] };
+type Writes = {
+  opens: ApiCall[];
+  closes: ApiCall[];
+  findings: ApiCall[];
+  challenges: ApiCall[];
+};
 
-const writeOf = (scene: Scene, call: ApiCall, { opens, closes }: Writes): ApiAnswer | undefined => {
+const writeOf = (scene: Scene, call: ApiCall, writes: Writes): ApiAnswer | undefined => {
   if (call.method !== 'POST') {
     return undefined;
   }
 
-  if (call.path === '/audit/sessions') {
-    opens.push(call);
+  const routes: [RegExp, ApiCall[], Scene[keyof Scene], ApiAnswer][] = [
+    [/^\/audit\/sessions$/u, writes.opens, scene.open, { status: CREATED, body: OPENED }],
+    [CLOSE, writes.closes, scene.close, { status: HTTP_OK, body: {} }],
+    [FINDINGS, writes.findings, scene.finding, { status: HTTP_OK, body: {} }],
+    [CHALLENGES, writes.challenges, scene.challenge, { status: CREATED, body: {} }],
+  ];
+  const route = routes.find(([pattern]) => pattern.test(call.path));
 
-    return scene.open?.(call, opens.length - 1) ?? { status: CREATED, body: OPENED };
+  if (route === undefined) {
+    return undefined;
   }
 
-  if (CLOSE.test(call.path)) {
-    closes.push(call);
+  const [, list, answer, fallback] = route;
 
-    return scene.close?.(call, closes.length - 1) ?? { status: HTTP_OK, body: {} };
-  }
+  list.push(call);
 
-  return undefined;
+  return (answer as Scene['open'])?.(call, list.length - 1) ?? fallback;
 };
 
-const idRead = (scene: Scene, path: string): ApiAnswer | undefined => {
-  const report = REPORT.exec(path)?.[1];
-  const session = SESSION.exec(path)?.[1];
-  const found = report === undefined ? session : report;
-  const read = report === undefined ? scene.session : scene.report;
+/** The read of one id taken from `path` by `pattern`, answered by `read` when the scene has one. */
+const byId = (
+  path: string,
+  pattern: RegExp,
+  group: number,
+  read: ((id: string) => Json | ApiAnswer) | undefined,
+): ApiAnswer | undefined => {
+  const id = pattern.exec(path)?.[group];
 
-  return found === undefined || read === undefined ? undefined : asAnswer(read(found));
+  return id === undefined || read === undefined ? undefined : asAnswer(read(id));
 };
+
+const idRead = (scene: Scene, path: string): ApiAnswer | undefined =>
+  byId(path, BUNDLE, 2, scene.bundle) ??
+  byId(path, REPORT, 1, scene.report) ??
+  byId(path, SESSION, 1, scene.session);
 
 const readOf = (scene: Scene, call: ApiCall): ApiAnswer => {
   const reads: Record<string, () => ApiAnswer> = {
@@ -96,7 +128,7 @@ const responderOf =
 /** Signs in and presses "Continue" to the audit page (the page itself is for the spec to wait for). */
 export const openAudit = async (open: Open, scene: Scene = {}): Promise<Visit> => {
   const { page } = await open({ row: 'S23' });
-  const writes: Writes = { opens: [], closes: [] };
+  const writes: Writes = { opens: [], closes: [], findings: [], challenges: [] };
   const path = scene.path ?? '/app/audit';
   let calls: ApiCall[] = [];
 
