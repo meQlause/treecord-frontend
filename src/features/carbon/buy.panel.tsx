@@ -367,7 +367,8 @@ export function BuyPanel({ batch }: { batch: BatchDetail }) {
   const profile = session.phase === 'ready' ? session.profile : null;
   const buy = useBuy(batch, { profile, chainId: actingChainId(config().chainId) });
   const { flow } = buy;
-  const standing = standingOf(profile);
+  // a wallet still being prepared has no profile yet: it is a wait, not a signed-out visitor (state 5)
+  const standing = session.phase === 'wallet-pending' ? 'noWallet' : standingOf(profile);
   const available = batch.availability === 'available';
   const open = flow.state === 'idle' || flow.state === 'rejected' || flow.state === 'failed';
   const locked = formLocked({ available, standing, busy: buy.checking || flow.active });
