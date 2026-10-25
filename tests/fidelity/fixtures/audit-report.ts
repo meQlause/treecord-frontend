@@ -7,7 +7,7 @@ const CAMPAIGN = { address: CAMPAIGN_ADDRESS, title: 'Kalimantan Mangrove Restor
 
 export const REPORT_HASH = '0x97eb3c933091e9f179119cb8a4396c7301c1ccc911fa4573ccce6ffd1d2c5341';
 
-export const NOTES_HASH = '0x60b1ce72a79120a3d943e93d68c5cfbaa7e5b98b99114469896c74f4da14d545';
+const NOTES_HASH = '0x60b1ce72a79120a3d943e93d68c5cfbaa7e5b98b99114469896c74f4da14d545';
 
 export const SUMMARY =
   'Sample reviewed; one tree needs follow-up while its flag is resolved. No registry certification is implied.';
