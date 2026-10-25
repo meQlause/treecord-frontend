@@ -194,7 +194,11 @@ function useCreate(state: FormState, codes: readonly string[], operator: boolean
 
     setStage(result.stage);
     setErrors(result.errors ?? {});
-    save(result.errors === undefined ? {} : { step: 0 });
+
+    // an empty save here would write back the draft as this render saw it, without the metadata just kept (FR-079)
+    if (result.errors !== undefined) {
+      save({ step: 0 });
+    }
   };
 
   const onSubmit = (event: FormEvent): void => {
