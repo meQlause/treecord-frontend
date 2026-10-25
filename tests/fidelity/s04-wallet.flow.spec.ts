@@ -1,43 +1,25 @@
 // docs/FE/features/s04-campaign.md §7, the wallet half: D04 Contribute (#7-#16), Start refund (#18, #19) and D05 Claim refund
 // (#21-#23, #25), on a local anvil with the frozen contracts (helpers/chain.ts). The app signs with the test donor's key
 // through the dev-server seam; the campaign API is answered from what the chain says (the backend does not run). D06 is F4a.
-import type { Page } from '@playwright/test';
-import type { Address } from 'viem';
-import { DONOR_KEY, expect, test, type Chain } from './helpers/chain';
-import { visitCampaign, type Visit } from './helpers/wallet-page';
+import { DONOR_KEY, expect, test } from './helpers/chain';
+import {
+  actions,
+  demak,
+  field,
+  HOUR,
+  lapsed,
+  press,
+  refunding,
+  review,
+  toReview,
+  USDC,
+} from './helpers/campaign-stage';
+import { visitCampaign } from './helpers/wallet-page';
 
-const USDC = 1_000_000n;
 const WEEK = 7 * 24 * 3600;
-const HOUR = 3600;
 const TEST_MS = 180_000;
 
 test.describe.configure({ timeout: TEST_MS });
-
-const actions = (page: Page) => page.locator('#campaign-actions');
-
-const field = (page: Page) => actions(page).locator('input');
-
-const review = (page: Page, name: string) => page.getByRole('region', { name: `Review ${name}` });
-
-const press = (page: Page, name: string) =>
-  actions(page).getByRole('button', { name, exact: true });
-
-/** Demak's numbers: target 10,000, raised 6,840 of which the donor gave 250, the donor holding USDC besides. */
-const demak = async (chain: Chain, extra: { raised?: bigint } = {}): Promise<Address> => {
-  const campaign = await chain.createCampaign();
-
-  await chain.contributeFrom(campaign, (extra.raised ?? 6840n * USDC) - 250n * USDC);
-  await chain.contributeFrom(campaign, 250n * USDC, DONOR_KEY);
-  await chain.fund(500n * USDC);
-
-  return campaign;
-};
-
-const toReview = async (visit: Visit, amount: string): Promise<void> => {
-  await field(visit.page).fill(amount);
-  await press(visit.page, 'Contribute').click();
-  await expect(review(visit.page, 'Contribute')).toBeVisible();
-};
 
 test('#7 Alex on Demak: the CTA and the D04 field carry the chosen amount', async ({
   open,
@@ -218,16 +200,6 @@ test('#16 a double click on Confirm reaches the wallet once', async ({ open, cha
   expect(visit.rpc.sent()).toBe(1);
 });
 
-/** A campaign whose funding deadline has passed unfunded, the donor having given 250. */
-const lapsed = async (chain: Chain): Promise<Address> => {
-  const campaign = await chain.createCampaign({ fundingDeadlineIn: HOUR });
-
-  await chain.contributeFrom(campaign, 250n * USDC, DONOR_KEY);
-  await chain.warp(2 * HOUR);
-
-  return campaign;
-};
-
 test('#18 after the deadline Start refund is offered, and confirmed it turns the campaign to Refunding', async ({
   open,
   chain,
@@ -259,15 +231,6 @@ test('#19 a refused Start refund leaves Funding, an alert, and the review to try
   await review(page, 'Start refund').getByRole('button', { name: 'Cancel' }).click();
   await expect(press(page, 'Start refund')).toBeEnabled();
 });
-
-/** A campaign in Refunding that the donor gave 250 to. */
-const refunding = async (chain: Chain): Promise<Address> => {
-  const campaign = await lapsed(chain);
-
-  await chain.startRefunding(campaign);
-
-  return campaign;
-};
 
 test('#21 a refunding campaign shows the donor what they can claim, and the review says so', async ({
   open,

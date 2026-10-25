@@ -26,6 +26,8 @@ export type Rpc = {
   noGasNext: () => void;
   /** Every receipt from now on says the transaction reverted. */
   revertReceipts: () => void;
+  /** Holds back every send (or every read) from now on, to look at a pending state, until the returned function is called. */
+  hold: (kind: 'send' | 'read') => () => void;
 };
 
 type Refusal = { code: number; message: string };
@@ -33,6 +35,8 @@ type Refusal = { code: number; message: string };
 type Call = { id: number; method: string };
 
 const SENDS = new Set(['eth_sendRawTransaction', 'eth_sendTransaction']);
+
+type Held = { kind: 'send' | 'read'; gate: Promise<void> };
 
 const callOf = (route: Route): Call | null => {
   const request = route.request();
@@ -61,27 +65,47 @@ const reverted = async (route: Route): Promise<void> => {
   await route.fulfill({ response, json });
 };
 
+const isSend = (call: Call | null): boolean => call !== null && SENDS.has(call.method);
+
+const holds = ({ kind }: Held, call: Call | null): boolean =>
+  kind === 'send' ? isSend(call) : call?.method === 'eth_call';
+
 /** Counts and, on request, spoils the calls the app makes to anvil; every other call goes through untouched. */
 export const watchRpc = async (page: Page): Promise<Rpc> => {
   let sent = 0;
   let calls = 0;
   let refusal: Refusal | null = null;
   let revert = false;
+  let held: Held | null = null;
+
+  const take = (): Refusal | null => {
+    const taken = refusal;
+
+    refusal = null;
+
+    return taken;
+  };
+
+  const spoils = (call: Call | null): boolean =>
+    call?.method === 'eth_getTransactionReceipt' && revert;
 
   await page.route(RPC, async (route) => {
     const call = callOf(route);
-    const isSend = call !== null && SENDS.has(call.method);
+    const sending = isSend(call);
 
     calls += Number(call !== null);
 
-    sent += isSend ? 1 : 0;
+    if (held !== null && holds(held, call)) {
+      await held.gate;
+    }
 
-    if (isSend && refusal !== null) {
-      const error = refusal;
+    sent += Number(sending);
 
-      refusal = null;
+    const error = sending ? take() : null;
+
+    if (call !== null && error !== null) {
       await refuse(route, call.id, error);
-    } else if (call?.method === 'eth_getTransactionReceipt' && revert) {
+    } else if (spoils(call)) {
       await reverted(route);
     } else {
       await route.continue();
@@ -100,6 +124,13 @@ export const watchRpc = async (page: Page): Promise<Rpc> => {
     revertReceipts: () => {
       revert = true;
     },
+    hold: (kind) => {
+      const gate = Promise.withResolvers<void>();
+
+      held = { kind, gate: gate.promise };
+
+      return () => gate.resolve();
+    },
   };
 };
 
@@ -110,9 +141,9 @@ export const giveTestWallet = async (page: Page): Promise<void> => {
   }, DONOR_KEY);
 };
 
-const viewerOf = (state: State, role: string): Json => ({
+const viewerOf = (state: State, role: string, wallet: Address | null): Json => ({
   role,
-  walletAddress: DONOR,
+  walletAddress: wallet,
   contributedAmount: String(state.contributed),
   refundedAmount: state.claimed ? String(state.contributed) : '0',
   claim: null,
@@ -120,14 +151,17 @@ const viewerOf = (state: State, role: string): Json => ({
 
 const iso = (seconds: bigint): string => new Date(Number(seconds) * 1000).toISOString();
 
+/** What a spec changes in the campaign answer: the wallet the profile carries (`null` = not provisioned yet), the chain it names. */
+export type Changes = { wallet?: Address | null; chainId?: number };
+
 /** `GET /campaigns/:address` as the chain now says it: the status, the raised total, the deadline, the viewer's own figures. */
-const bodyOf = (address: Address, state: State, role = 'donor'): Json => {
+const bodyOf = (address: Address, state: State, changes: Changes): Json => {
   const status = STATUS[state.status] ?? 'funding';
 
   return campaignBody(
     detail({
       address,
-      chainId: LOCAL,
+      chainId: changes.chainId ?? LOCAL,
       status,
       fundingTarget: String(state.target),
       fundedAmount: String(state.raised),
@@ -138,7 +172,7 @@ const bodyOf = (address: Address, state: State, role = 'donor'): Json => {
       claimDeadlinePassed: state.now >= state.claimDeadline,
       daysLeft: null,
     }),
-    viewerOf(state, role),
+    viewerOf(state, 'donor', changes.wallet === undefined ? DONOR : changes.wallet),
   );
 };
 
@@ -156,9 +190,9 @@ export const visitCampaign = async (
   open: Open,
   chain: Chain,
   address: Address,
-  row = 'S04',
+  changes: Changes = {},
 ): Promise<Visit> => {
-  const { page } = await open({ row });
+  const { page } = await open({ row: 'S04' });
   let held: Promise<void> | null = null;
 
   await giveTestWallet(page);
@@ -172,7 +206,7 @@ export const visitCampaign = async (
 
     await held;
 
-    return { body: bodyOf(address, await chain.read(address)) };
+    return { body: bodyOf(address, await chain.read(address), changes) };
   });
   await page.goto(`/campaigns/${address}`);
   await page.getByRole('heading', { level: 1 }).waitFor();
