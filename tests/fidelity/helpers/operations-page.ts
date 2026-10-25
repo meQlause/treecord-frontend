@@ -33,7 +33,9 @@ const WRITE =
   /^\/operator\/(campaigns\/[^/]+\/(anchor-assignments|estimate|issuances)|carbon\/batches\/\d+\/price)$/u;
 
 const asAnswer = (value: Json | ApiAnswer): ApiAnswer =>
-  'status' in value || 'body' in value ? (value as ApiAnswer) : { body: value };
+  typeof (value as ApiAnswer).status === 'number' || 'body' in value
+    ? (value as ApiAnswer)
+    : { body: value };
 
 /** The scene's answer to a read, by path; a path it does not know is a 404. */
 const readOf = (scene: Scene, call: ApiCall): ApiAnswer => {
