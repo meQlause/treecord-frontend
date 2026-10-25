@@ -62,3 +62,53 @@ export const BATCH_101_ITEM: Json = {
 /** `GET /jobs/:id` for a job of `kind`. */
 export const job = (kind: string, status: string, changes: Json = {}): Json =>
   claim({ id: JOB, kind, status, ...changes });
+
+export const FLAG_ID = '1f6c2a9e-4b7d-4e15-9a3c-8d2e5f0b7a61';
+
+export const RESOLVE_JOB = '6e4f2b9d-8a1c-4d3e-b5f7-2c9a0e1d3b84';
+
+/** flags.md §2: the open flag on tree 3091, no resolution queued. */
+export const FLAG_OPEN: Json = {
+  flag: {
+    id: FLAG_ID,
+    treeId: '3091',
+    status: 'open',
+    reasonText: 'Tree condition needs an independent check.',
+    reasonHash: '0xc29baac38459527c791a529ef47d1cc43d3734cef04e63520492971274b411cb',
+    flaggerAddress: '0x9a4c3e2b1d0f8e7a6c5b4d3e2f1a0b9c8d7e6f5a',
+    openedAt: '2026-10-20T09:14:27.000Z',
+    openedTxHash: '0x1ce442d81b6082fbb178e08bddf5191b38417d30caae1a738e505a3a3303314c',
+    previousStatus: 'alive',
+    resolutionNote: null,
+    resolvedAt: null,
+    resolvedTxHash: null,
+  },
+  tree: {
+    treeId: '3091',
+    status: 'flagged',
+    campaign: { address: ROOTS, title: 'Roots that stay' },
+  },
+  resolutionJob: null,
+};
+
+/** The flag read with `changes` laid over its parts. */
+export const flagWith = (changes: {
+  flag?: Json;
+  tree?: Json;
+  resolutionJob?: Json | null;
+}): Json => ({
+  flag: { ...(FLAG_OPEN.flag as Json), ...changes.flag },
+  tree: { ...(FLAG_OPEN.tree as Json), ...changes.tree },
+  resolutionJob: changes.resolutionJob === undefined ? null : changes.resolutionJob,
+});
+
+/** The resolution job as flags.md §2 shows it, with `changes`. */
+export const resolutionJob = (status: string, changes: Json = {}): Json => ({
+  id: RESOLVE_JOB,
+  kind: 'resolve_flag',
+  status,
+  attempts: 1,
+  txHash: null,
+  lastError: null,
+  ...changes,
+});
