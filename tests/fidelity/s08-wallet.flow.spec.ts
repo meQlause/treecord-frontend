@@ -201,6 +201,8 @@ test('#17 a price that moved is quoted again, with a line, and nothing is sent u
 
   await amount(page).fill('1.000');
   await submit(page).click();
+  // the price moves only once the review is up; earlier, the app's own read would quote it before "Confirm purchase"
+  await expect(page.getByRole('button', { name: 'Confirm purchase' })).toBeVisible();
   visit.rpc.revertReceipts();
   visit.shop.price = '22000000';
   await page.getByRole('button', { name: 'Confirm purchase' }).click();
