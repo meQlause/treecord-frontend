@@ -69,7 +69,12 @@ function CampaignSelect({
   return (
     <div aria-busy={options.isPending || undefined}>
       <Field label={copy.F_CAMPAIGN} error={problem}>
-        <CampaignOptions options={options} value={value} onChange={onChange} />
+        <CampaignOptions
+          options={options}
+          value={value}
+          onChange={onChange}
+          invalid={problem !== undefined}
+        />
       </Field>
     </div>
   );
@@ -79,12 +84,14 @@ type OptionsProps = {
   options: ReturnType<typeof useCampaignOptions>;
   value: string;
   onChange: (address: string) => void;
+  invalid: boolean;
 };
 
-function CampaignOptions({ options, value, onChange }: OptionsProps) {
+function CampaignOptions({ options, value, onChange, invalid }: OptionsProps) {
   return (
     <select
       disabled={options.isPending}
+      aria-invalid={invalid || undefined}
       className={options.isPending ? 'skeleton' : undefined}
       value={value || (options.data?.[0]?.address ?? '')}
       onChange={(event) => onChange(event.target.value)}
