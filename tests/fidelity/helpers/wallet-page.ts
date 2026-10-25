@@ -135,10 +135,13 @@ export const watchRpc = async (page: Page): Promise<Rpc> => {
 };
 
 /** The app signs with the test donor's key (the seam exists only in the dev server and only on chain 31337). */
-export const giveTestWallet = async (page: Page): Promise<void> => {
-  await page.addInitScript((key) => {
-    Object.assign(window, { treecordE2E: { privateKey: key, chainId: 31_337 } });
-  }, DONOR_KEY);
+export const giveTestWallet = async (page: Page, extra: Json = {}): Promise<void> => {
+  await page.addInitScript(
+    ({ key, more }) => {
+      Object.assign(window, { treecordE2E: { privateKey: key, chainId: 31_337, ...more } });
+    },
+    { key: DONOR_KEY, more: extra },
+  );
 };
 
 const viewerOf = (state: State, role: string, wallet: Address | null): Json => ({

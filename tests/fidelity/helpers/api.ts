@@ -12,7 +12,8 @@ export type ApiCall = {
   body: unknown;
 };
 
-export type ApiAnswer = { status?: number; body?: unknown };
+/** `fallback` leaves the call to the next route that matches it (an earlier `page.route`), as a spec's own `GET /me`. */
+export type ApiAnswer = { status?: number; body?: unknown; fallback?: true };
 
 export type Responder = (call: ApiCall) => ApiAnswer | Promise<ApiAnswer>;
 
@@ -60,7 +61,13 @@ export const answerApi = async (page: Page, responder: Responder): Promise<ApiCa
     const call = callOf(route);
 
     calls.push(call);
-    const { status = STATUS_OK, body } = await responder(call);
+    const { status = STATUS_OK, body, fallback } = await responder(call);
+
+    if (fallback === true) {
+      await route.fallback();
+
+      return;
+    }
 
     await route.fulfill({
       status,
@@ -71,6 +78,12 @@ export const answerApi = async (page: Page, responder: Responder): Promise<ApiCa
 
   return calls;
 };
+
+/** Answers every read a page makes with an empty list and leaves `GET /me` to the spec's own route. */
+export const quietPage = (page: Page): Promise<ApiCall[]> =>
+  answerApi(page, ({ path }) =>
+    path === '/me' ? { fallback: true } : { body: { items: [], nextCursor: null, total: 0 } },
+  );
 
 /** The error envelope of error-handling §1. */
 export const failure = (status: number, code: string): ApiAnswer => ({

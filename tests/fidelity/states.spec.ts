@@ -34,13 +34,14 @@ import {
   signedInAt,
   test,
 } from './helpers/flow';
+import { quietPage } from './helpers/api';
 import { answerMe, testLogin } from './helpers/privy';
 import { VIEWPORTS } from './matrix';
 
 const TREES = '/app/planter/trees';
-// a workspace page that is still a stub (no API read, a fixed heading): S14 is built now (F4a), so Phase T names another stub here
-const STUB = '/app/campaigns/new';
-const STUB_HEADING = 'S14 Create campaign';
+// a workspace page with a fixed heading for the shell states: S14 was a stub until F4a; the auditor's S23 is quiet once its reads are answered
+const STUB = '/app/audit';
+const STUB_HEADING = 'A closer look.';
 const LOADING = 'Loading workspace…';
 const ERROR_TITLE = 'Could not load this page';
 const ERROR_BODY = 'Your inputs and local records are unchanged.';
@@ -48,6 +49,7 @@ const OFFLINE = 'Offline · showing saved data. Network actions are unavailable.
 const WALLET = '0x71c7656ec7ab88b098defb751b7401b5f6d8976f';
 const ALEX: MeProfile = { ...SARI, role: 'donor', displayName: 'Alex', walletAddress: WALLET };
 const NO_NAME: MeProfile = { ...ALEX, displayName: null };
+const AUDITOR: MeProfile = { ...ALEX, role: 'auditor' };
 const INVALID_TOKEN = { error: { code: 'invalid_token', message: 'The token is not valid.' } };
 const UNAVAILABLE = { error: { code: 'service_unavailable', message: 'Try again shortly.' } };
 const HTTP_UNAUTHORIZED = 401;
@@ -74,9 +76,12 @@ test('pattern 1 loading: a slow /me shows the workspace skeleton only after 300 
   const { page } = await open({ row: SHELL });
   const release = Promise.withResolvers<void>();
 
-  await signInWith(page, meBody(ALEX), {
+  await signInWith(page, meBody(AUDITOR), {
     returnTo: STUB,
-    setup: (target) => holdMe(target, release.promise),
+    setup: async (target) => {
+      await holdMe(target, release.promise);
+      await quietPage(target);
+    },
   });
   await pause(page);
   await goInApp(page, STUB);
@@ -114,15 +119,18 @@ test('pattern 8 read failure: a 503 on /me shows "Could not load this page" and 
   await expect(alert.locator('.error-icon')).toBeVisible();
   await expect(workspace(page).getByText(STUB_HEADING)).toHaveCount(0);
 
-  await answerMe(page, meBody(ALEX));
+  await answerMe(page, meBody(AUDITOR));
+  await quietPage(page);
   const calls = requestsTo(page, OWN_API);
 
   await alert.getByRole('button', { name: 'Try again' }).click();
 
   await expect(workspace(page).getByRole('heading', { name: STUB_HEADING })).toBeVisible();
-  expect(calls.map((call) => `${call.method()} ${new URL(call.url()).pathname}`)).toEqual([
-    'GET /api/v1/me',
-  ]);
+  expect(
+    calls
+      .map((call) => `${call.method()} ${new URL(call.url()).pathname}`)
+      .filter((call) => call.endsWith('/me')),
+  ).toEqual(['GET /api/v1/me']);
 });
 
 test('pattern 12 session expired: a 401 mid-session replaces the page with /sign-in and the session-ended banner', async ({
@@ -173,7 +181,14 @@ test('pattern 14 offline: going offline shows the callout and disables the page 
 }) => {
   const { page } = await open({ row: SHELL });
 
-  await signedInAt(page, ALEX, STUB);
+  await signInWith(page, meBody(AUDITOR), {
+    returnTo: STUB,
+    setup: async (target) => {
+      await quietPage(target);
+    },
+  });
+  await page.getByRole('button', { name: /^Continue to/u }).click();
+  await page.waitForURL(`**${STUB}`);
   const body = workspace(page).locator('fieldset.ws-state-body');
 
   await expect(workspace(page).getByText(OFFLINE)).toHaveCount(0);
