@@ -20,6 +20,8 @@ export type Rpc = {
   calls: () => number;
   /** Send calls so far (`eth_sendRawTransaction`, or `eth_sendTransaction` for a wallet that signs itself). */
   sent: () => number;
+  /** The signed transactions the app sent, as raw hex, in order (`parseTransaction` reads their calldata). */
+  raws: () => string[];
   /** The next send is refused the way a declined wallet refuses (EIP-1193 4001). */
   refuseNext: () => void;
   /** The next send is refused for lack of gas. */
@@ -32,7 +34,7 @@ export type Rpc = {
 
 type Refusal = { code: number; message: string };
 
-type Call = { id: number; method: string };
+type Call = { id: number; method: string; params?: unknown[] };
 
 const SENDS = new Set(['eth_sendRawTransaction', 'eth_sendTransaction']);
 
@@ -77,6 +79,7 @@ export const watchRpc = async (page: Page): Promise<Rpc> => {
   let refusal: Refusal | null = null;
   let revert = false;
   let held: Held | null = null;
+  const raws: string[] = [];
 
   const take = (): Refusal | null => {
     const taken = refusal;
@@ -84,6 +87,13 @@ export const watchRpc = async (page: Page): Promise<Rpc> => {
     refusal = null;
 
     return taken;
+  };
+
+  /** The raw transaction of a send, kept for `raws()`. */
+  const note = (call: Call | null, sending: boolean): void => {
+    if (sending) {
+      raws.push(String(call?.params?.[0]));
+    }
   };
 
   const spoils = (call: Call | null): boolean =>
@@ -100,6 +110,7 @@ export const watchRpc = async (page: Page): Promise<Rpc> => {
     }
 
     sent += Number(sending);
+    note(call, sending);
 
     const error = sending ? take() : null;
 
@@ -115,6 +126,7 @@ export const watchRpc = async (page: Page): Promise<Rpc> => {
   return {
     calls: () => calls,
     sent: () => sent,
+    raws: () => raws,
     refuseNext: () => {
       refusal = { code: 4001, message: 'User rejected the request.' };
     },
