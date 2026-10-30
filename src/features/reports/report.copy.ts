@@ -95,6 +95,9 @@ export const PAID = 'Paid';
 
 export const FORFEITED = 'Forfeited';
 
+// FR-244 (user, 30 Oct 2026), s06 §2: forfeits the Chainlink keeper sent, under "Forfeited"
+export const enforced = (count: string): string => `${count} enforced by Chainlink`;
+
 export const BARS_CAPTION = 'Recorded payouts by milestone';
 
 export const paidCount = (payouts: number): string => `${number(payouts)} paid`;

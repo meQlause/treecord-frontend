@@ -34,6 +34,8 @@ export type PlanterTree = {
   status: TreeStatus;
   campaign: { title: string; regionName: string; speciesName: string };
   replantDeadline: string | null;
+  /** FR-244: one of its forfeits, or its removal, was sent by the Chainlink keeper. */
+  enforcedByChainlink: boolean;
   currentMilestone: number | null;
   milestones: TreeMilestone[];
   capture: { ALIVE: Capture; DEAD: Capture; REPLANTED: Capture };

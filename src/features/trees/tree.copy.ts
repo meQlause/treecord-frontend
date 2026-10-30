@@ -84,6 +84,11 @@ export const SIGNED_IN_NOTE = 'Chain windows, pause duration and settlement deci
 // ---- payouts ----
 export const PAYOUTS_TITLE = 'Payouts & forfeits';
 
+// FR-244 (user, 30 Oct 2026), s05 §3.3 M-6: a forfeit or removal the Chainlink keeper sent
+export const ENFORCED = 'Enforced by Chainlink';
+
+export const ENFORCED_LINK = 'Enforced by Chainlink, view transaction';
+
 export const FACTS = {
   recorded: 'Recorded payouts',
   planter: 'Planter / transaction',

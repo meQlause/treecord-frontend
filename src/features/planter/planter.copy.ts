@@ -74,6 +74,9 @@ export const treeNumber = (treeId: string): string => `Tree #${treeId}`;
 
 export const MILESTONES_PAID = 'Milestones paid';
 
+// FR-244 (user, 30 Oct 2026), s16 §2: one of the tree's forfeits, or its removal, was sent by the Chainlink keeper
+export const ENFORCED = 'Enforced by Chainlink';
+
 export const STATUS_LABEL = {
   alive: 'Alive',
   flagged: 'Flagged',

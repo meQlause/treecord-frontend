@@ -272,6 +272,9 @@ export function Incentives({ incentives }: { incentives: Report['incentives'] })
         <Metric label={copy.PAID} value={usdc(incentives.paidAmount)} unit={copy.USDC} />
         <Metric label={copy.FORFEITED} value={usdc(incentives.forfeitedAmount)} unit={copy.USDC} />
       </div>
+      {incentives.chainlinkEnforced > 0 && (
+        <p className="rp-note">{copy.enforced(number(incentives.chainlinkEnforced))}</p>
+      )}
       {rows.some((row) => row.payouts > 0) ? (
         <MilestoneBars rows={rows} />
       ) : (

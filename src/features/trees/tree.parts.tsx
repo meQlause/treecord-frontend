@@ -57,13 +57,39 @@ const prose = (text: string) =>
 const rows = (facts: readonly Row[]) =>
   facts.map(([name, value]): [string, ReactNode] => [name, prose(value)]);
 
+/** M-6: "Enforced by Chainlink", a link to the keeper's transaction where the chain has an explorer. A missing
+ *  hash (an API from before FR-244) reads like null: no badge. */
+function EnforcedTag({ txHash }: { txHash: string | null | undefined }) {
+  if (txHash === null || txHash === undefined) {
+    return null;
+  }
+
+  const url = txUrl(txHash);
+
+  return url === null ? (
+    <Tag>{copy.ENFORCED}</Tag>
+  ) : (
+    <a
+      className="ws-tag enforced"
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={copy.ENFORCED_LINK}
+    >
+      {copy.ENFORCED}
+    </a>
+  );
+}
+
 export function Provenance({ data }: { data: TreeDetail }) {
-  const { status, campaign, plantedAt } = data.tree;
+  const { status, campaign, plantedAt, removalEnforcedTxHash } = data.tree;
 
   return (
     <Link className="cb-provenance rc-where tr-hero" to={`/campaigns/${campaign.address}`}>
       <div>
         <Tag>{label(status)}</Tag>
+        {/* plain text: the card is a link, and the transaction link is on each forfeited row */}
+        {(removalEnforcedTxHash ?? null) !== null && <Tag>{copy.ENFORCED}</Tag>}
         <h2 className="wrap-any">{campaign.title ?? untitledCampaign(campaign.address)}</h2>
         <span className="location wrap-any">
           <Icon name="pin" size={PIN_SIZE} />
@@ -180,6 +206,7 @@ function ScheduleRow({ milestone }: { milestone: Milestone }) {
       <td>{amountText(milestone.amount)}</td>
       <td>
         <Tag>{label(milestone.status)}</Tag>
+        <EnforcedTag txHash={milestone.enforcedTxHash} />
       </td>
     </tr>
   );

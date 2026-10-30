@@ -59,6 +59,8 @@ export type Report = {
     paidAmount: string;
     paidBps: number | null;
     forfeitedAmount: string;
+    /** FR-244: how many forfeits the Chainlink keeper sent. */
+    chainlinkEnforced: number;
     byMilestone: { month: number; payouts: number; amount: string }[];
   };
   carbon: {

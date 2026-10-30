@@ -25,6 +25,8 @@ export type Milestone = {
   closesAt: string;
   amount: string | null;
   status: string;
+  /** FR-244: the Chainlink keeper's forfeit transaction, else null. */
+  enforcedTxHash: string | null;
 };
 
 export type Flag = {
@@ -57,6 +59,8 @@ export type TreeDetail = {
     location: { precision: 'exact' | 'geohash'; lat: number; lon: number };
     tag: string | null;
     replantDeadline: string | null;
+    /** FR-244: the Chainlink keeper's expire transaction, else null. */
+    removalEnforcedTxHash: string | null;
   };
   timeline: TimelineEvent[];
   milestones: Milestone[];

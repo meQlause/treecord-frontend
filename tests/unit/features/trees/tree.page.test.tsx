@@ -215,6 +215,50 @@ describe('S05 tree page, other records', () => {
   });
 });
 
+// FR-244, s05 §3.3 M-6: the Chainlink keeper's forfeits and removal.
+describe('S05 tree page, enforced by Chainlink', () => {
+  const KEEPER_TX = `0x${'e7'.repeat(32)}`;
+  const withEnforcement = (txHash: string | null) => ({
+    ...TREE_3021,
+    tree: { ...TREE_3021.tree, removalEnforcedTxHash: txHash },
+    milestones: TREE_3021.milestones.map((row) => ({
+      ...row,
+      enforcedTxHash: row.status === 'forfeited' ? txHash : null,
+    })),
+  });
+
+  it('M-6: each forfeit the keeper sent links "Enforced by Chainlink" to its transaction', async () => {
+    serve(withEnforcement(KEEPER_TX));
+    open('3021');
+    await ready();
+
+    const links = screen.getAllByRole('link', { name: 'Enforced by Chainlink, view transaction' });
+
+    expect(links).toHaveLength(4);
+    links.forEach((link) =>
+      expect(link).toHaveAttribute('href', expect.stringMatching(new RegExp(`/tx/${KEEPER_TX}$`))),
+    );
+  });
+
+  it('M-6: a forfeit someone else sent carries no badge', async () => {
+    serve(withEnforcement(null));
+    open('3021');
+    await ready();
+
+    expect(screen.queryByText('Enforced by Chainlink')).not.toBeInTheDocument();
+    expect(screen.getAllByText('Forfeited', { selector: '.ws-tag' })).toHaveLength(4);
+  });
+
+  it('M-6: the removal carries the badge inside the provenance card, without nesting a link', async () => {
+    serve(withEnforcement(KEEPER_TX));
+    open('3021');
+    await ready();
+
+    expect(document.querySelector('.tr-hero')).toHaveTextContent('Enforced by Chainlink');
+    expect(document.querySelectorAll('a a')).toHaveLength(0);
+  });
+});
+
 describe('S05 tree page, flagged', () => {
   it('T-6/F-2: a flagged tree pauses the clock and lists its flag', async () => {
     serve(TREE_3091);

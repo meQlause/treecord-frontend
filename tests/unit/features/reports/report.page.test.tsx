@@ -126,6 +126,29 @@ describe('S06 report page', () => {
   });
 });
 
+// FR-244, s06 §7 #17: forfeits the Chainlink keeper enforced, counted under "Forfeited".
+describe('S06 report page, enforced by Chainlink', () => {
+  const withEnforced = (chainlinkEnforced: number) => ({
+    report: { ...REPORT, incentives: { ...REPORT.incentives, chainlinkEnforced } },
+  });
+
+  it('shows "3 enforced by Chainlink" when the keeper sent three forfeits', async () => {
+    serve({ [REPORT_URL]: { body: withEnforced(3) } });
+    open();
+    await ready();
+
+    expect(screen.getByText('3 enforced by Chainlink')).toBeInTheDocument();
+  });
+
+  it('shows no line when the keeper sent none', async () => {
+    serve({ [REPORT_URL]: { body: withEnforced(0) } });
+    open();
+    await ready();
+
+    expect(screen.queryByText(/enforced by Chainlink/)).not.toBeInTheDocument();
+  });
+});
+
 describe('S06 report page, carbon and evidence', () => {
   it('R-9/R-13: no issuance shows the estimate apart and the empty carbon state', async () => {
     serve({ [REPORT_URL]: { body: { report: REPORT } } });

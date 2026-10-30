@@ -8,6 +8,7 @@ import { TreeCardArt } from '../../shared/art/TreeCardArt';
 import { TreesScene } from '../../shared/art/TreesScene';
 import { number } from '../../shared/format/number';
 import { usdcValue } from '../../shared/format/money';
+import { Tag } from '../../shared/ui/Badge';
 import { CatalogCard } from '../../shared/ui/CatalogCard';
 import { Progress } from '../../shared/ui/Progress';
 import type { PlanterTree, TreesSummary } from './planter.api';
@@ -21,6 +22,7 @@ import {
   REPORT_DEAD,
   STATUS_BADGE,
   STATUS_LABEL,
+  ENFORCED,
   TREES_CAPTIONS,
   TREES_KICKER,
   TREES_TITLE,
@@ -112,6 +114,7 @@ export function TreeCard({ tree, localDeviceId, index }: CardProps) {
             <span />
             {STATUS_LABEL[status]}
           </span>
+          {tree.enforcedByChainlink && <Tag>{ENFORCED}</Tag>}
           <span className="species-label">{campaign.speciesName}</span>
         </>
       }
